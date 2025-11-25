@@ -42,9 +42,9 @@
             "holidays": "Lundi : 14h-18h\nMardi : 14h-18h\nMercredi : 14h-18h\nJeudi : 14h-18h\nVendredi : 14h-18h"
         },
         "emailjs": {
-            "publicKey": "",
-            "serviceId": "",
-            "templateId": ""
+            "publicKey": "lxyrW1uF8MUJ91Yre",
+            "serviceId": "accueil@cor-tech.fr",
+            "templateId": "template_vxd63ua"
         },
         "social": {
             "facebook": "",
