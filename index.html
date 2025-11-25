@@ -2,343 +2,303 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Cor-Tech</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Cor-Tech</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>.loader{border:4px solid #f3f3f3;border-top:4px solid #3498db;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite;display:inline-block;}</style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        :root { --primary-color: #2563eb; }
+        .text-primary { color: var(--primary-color); }
+        .bg-primary { background-color: var(--primary-color); }
+        .border-primary { border-color: var(--primary-color); }
+        /* Loader */
+        #loading { position: fixed; inset: 0; background: white; z-index: 50; display: flex; justify-content: center; align-items: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Fix pour le texte des news (respecte les retours à la ligne) */
+        .news-content { white-space: pre-line; }
+    </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-6">
+<body class="bg-gray-100 text-gray-800 font-sans flex flex-col min-h-screen">
 
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-2xl font-bold text-blue-400"><i class="fas fa-database"></i> Admin Cor-Tech</h1>
-            <a href="index.html" target="_blank" class="text-gray-400 hover:text-white">Voir le site <i class="fas fa-external-link-alt"></i></a>
+    <div id="loading"><div class="spinner"></div></div>
+
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
+            <img id="logoSite" src="" class="h-10 w-10 object-contain hidden rounded-full">
+            <h1 id="orgName" class="text-2xl font-bold text-gray-900">Cor-Tech</h1>
         </div>
+    </nav>
 
-        <div id="configPanel" class="bg-gray-800 p-6 rounded shadow-lg mb-8 border border-gray-700">
-            <h2 class="text-xl font-bold mb-4 text-white">1. Connexion (GitHub)</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <input type="text" id="ghOwner" placeholder="Pseudo GitHub" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
-                <input type="text" id="ghRepo" placeholder="Nom du Dépôt" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
-                <input type="password" id="ghToken" placeholder="Token Secret" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 hidden" id="mainContent">
+        
+        <div class="lg:col-span-1">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-bullhorn text-red-500 mr-3"></i> Dernières Actualités</h2>
+            <div id="newsList" class="grid grid-cols-1 gap-6">
+                <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
             </div>
-            <button onclick="admin.loadData()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded font-bold w-full shadow-lg">CHARGER LA BASE DE DONNÉES</button>
         </div>
 
-        <div id="editorPanel" class="hidden space-y-8 pb-24">
+
+        <div class="lg:col-span-2 space-y-6">
             
-            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-yellow-400 border-b border-gray-700 pb-2"><i class="fas fa-paint-brush"></i> Apparence</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div><label class="block text-xs text-gray-400 mb-1">Nom de l'Asso</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
-                    <div><label class="block text-xs text-gray-400 mb-1">Couleur Principale</label><div class="flex gap-2"><input type="color" id="confColorPicker" class="h-9 w-9 border-0 bg-transparent cursor-pointer" onchange="document.getElementById('confColor').value=this.value"><input type="text" id="confColor" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs text-gray-400 mb-1">Logo (Sera stocké en fichier)</label>
-                        <div class="flex items-center gap-4">
-                            <input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 rounded text-sm text-gray-300 w-full border border-gray-600" onchange="admin.uploadLogo()">
-                            <img id="logoPreview" src="" class="h-12 w-12 object-contain bg-white rounded hidden">
-                        </div>
-                    </div>
+            <div id="eventsContainer" class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-primary">
+                <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-calendar-alt text-primary mr-3"></i> Évènements à venir</h2>
+                <div id="eventsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <p id="noEvents" class="text-gray-500 italic hidden">Aucun événement planifié pour le moment.</p>
                 </div>
             </div>
 
-            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-green-400 border-b border-gray-700 pb-2">Actualités</h2>
-                <div id="newsList" class="space-y-3 mb-6"></div>
-                <div class="bg-gray-900 p-4 rounded border border-gray-700 relative">
-                    <h3 id="newsFormTitle" class="text-sm font-bold text-gray-400 mb-3">Ajouter / Modifier</h3>
-                    <button id="btnCancelNews" onclick="admin.resetNewsForm()" class="hidden absolute top-4 right-4 text-xs border px-2 rounded">Annuler</button>
-                    <div class="grid gap-3">
-                        <input type="hidden" id="newsId">
-                        <input type="text" id="newsTitle" placeholder="Titre" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                        <div class="flex gap-2">
-                            <input type="date" id="newsDate" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                            <select id="newsTag" class="bg-gray-800 p-2 rounded text-white border border-gray-600"><option value="info">Info</option><option value="urgent">Urgent</option><option value="event">Vie Asso</option></select>
-                        </div>
-                        <textarea id="newsContent" placeholder="Message..." class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
-                        <div class="border-t border-gray-700 pt-2"><label class="text-xs text-gray-500">Image (Optionnel)</label><input type="file" id="newsImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400"></div>
-                        <button id="btnSubmitNews" onclick="admin.submitNews()" class="bg-green-600 px-4 py-2 rounded font-bold">Valider</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-clock text-orange-500 mr-3"></i> Horaires</h2>
+                    <div class="space-y-4">
+                        <div><h3 class="font-bold text-gray-700 mb-1">Période Scolaire :</h3><pre id="hoursSchool" class="text-gray-600 whitespace-pre-wrap"></pre></div>
+                        <div><h3 class="font-bold text-gray-700 mb-1">Vacances :</h3><pre id="hoursHolidays" class="text-gray-600 whitespace-pre-wrap"></pre></div>
                     </div>
                 </div>
-            </div>
-
-            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-purple-400 border-b border-gray-700 pb-2">Évènements</h2>
-                <div id="eventsList" class="space-y-3 mb-6"></div>
-                <div class="bg-gray-900 p-4 rounded border border-gray-700 relative">
-                    <h3 id="evtFormTitle" class="text-sm font-bold text-gray-400 mb-3">Ajouter / Modifier</h3>
-                    <button id="btnCancelEvt" onclick="admin.resetEventForm()" class="hidden absolute top-4 right-4 text-xs border px-2 rounded">Annuler</button>
-                    <div class="grid gap-3">
-                        <input type="hidden" id="evtId">
-                        <input type="text" id="evtTitle" placeholder="Titre" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                        <div class="flex gap-2">
-                            <input type="date" id="evtDate" class="bg-gray-800 p-2 rounded w-1/3 text-white border border-gray-600">
-                            <input type="text" id="evtLoc" placeholder="Lieu" class="bg-gray-800 p-2 rounded w-2/3 text-white border border-gray-600">
-                        </div>
-                        <textarea id="evtDesc" placeholder="Description" class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
-                        
-                        <div class="flex gap-2">
-                            <select id="evtStatus" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-1/2">
-                                <option value="Ouvert">Ouvert (Inscriptions OK)</option>
-                                <option value="Complet">Complet (Liste d'attente)</option>
-                                <option value="Annulé">Annulé</option>
-                            </select>
-                            <input type="number" id="evtCapacity" placeholder="Capacité (Max)" class="bg-gray-800 p-2 rounded w-1/2 text-white border border-gray-600">
-                        </div>
-
-                        <div class="border-t border-gray-700 pt-2"><label class="text-xs text-gray-500">Image (Optionnel)</label><input type="file" id="evtImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400"></div>
-                        <button id="btnSubmitEvt" onclick="admin.submitEvent()" class="bg-purple-600 px-4 py-2 rounded font-bold">Valider</button>
-                    </div>
+                <div id="socialContainer" class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-share-alt text-teal-500 mr-3"></i> Nous suivre</h2>
+                    <div id="socialLinks" class="flex justify-around items-center text-3xl"></div>
                 </div>
             </div>
-
-            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-orange-400 border-b border-gray-700 pb-2">Paramètres</h2>
-                <div class="grid gap-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-xs text-gray-500">Nom</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
-                        <div><label class="text-xs text-gray-500">Couleur</label><div class="flex gap-2"><input type="color" id="confColorPicker" class="h-9 w-9 bg-transparent border-0" onchange="document.getElementById('confColor').value=this.value"><input type="text" id="confColor" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
-                    </div>
-                    <div><label class="text-xs text-gray-500">Logo</label><div class="flex items-center gap-4"><input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.updateLogoPreview()"><img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden"></div></div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-xs text-gray-500">Scolaire</label><textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
-                        <div><label class="text-xs text-gray-500">Vacances</label><textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
-                    </div>
-                    <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-gray-400 mb-2">EmailJS</h3>
-                        <div class="grid grid-cols-3 gap-2"><input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
-                    </div>
-                    <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-gray-400 mb-2">Social</h3>
-                        <div class="grid grid-cols-2 gap-2"><input type="text" id="confFb" placeholder="Facebook" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confInsta" placeholder="Instagram" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confTiktok" placeholder="TikTok (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confYoutube" placeholder="YouTube (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
 
-        <div id="saveBar" class="hidden fixed bottom-0 left-0 w-full bg-gray-900 p-4 border-t border-gray-700 flex justify-center shadow-lg">
-            <button id="btnSave" onclick="admin.saveToGitHub()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-10 rounded-full shadow-lg transform hover:scale-105 transition flex items-center gap-3 text-lg"><i class="fas fa-cloud-upload-alt"></i> SAUVEGARDER</button>
+    </main>
+
+    <footer class="bg-gray-800 text-white p-6 mt-12">
+        <div class="max-w-7xl mx-auto text-center">
+            <p>&copy; <span id="currentYear"></span> <span id="footerOrgName">Cor-Tech</span>. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <div id="modalBooking" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button onclick="document.getElementById('modalBooking').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-bold mb-2 text-primary">Inscription</h2>
+            <p id="bookingEventTitle" class="text-gray-600 mb-6 font-medium"></p>
+            <form id="bookingForm" onsubmit="handleBooking(event)">
+                <input type="hidden" id="bookingEventId">
+                <input type="text" id="userName" placeholder="Nom Complet" required class="w-full px-3 py-2 border rounded mb-3">
+                <input type="email" id="userEmail" placeholder="Email" required class="w-full px-3 py-2 border rounded mb-3">
+                <input type="tel" id="userPhone" placeholder="Téléphone" class="w-full px-3 py-2 border rounded mb-3">
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded">Confirmer</button>
+            </form>
         </div>
     </div>
 
     <script>
-        const admin = {
-            data: null, sha: null,
-            
-            init: function() {
-                const c = JSON.parse(localStorage.getItem('admin_gh_config') || '{}');
-                if(c.owner) document.getElementById('ghOwner').value = c.owner;
-                if(c.repo) document.getElementById('ghRepo').value = c.repo;
-                if(c.token) document.getElementById('ghToken').value = c.token;
-            },
+        let DATA = {};
+        const THEME_COLOR = '#2563eb';
 
-            loadData: async function() {
-                const owner = document.getElementById('ghOwner').value.trim();
-                const repo = document.getElementById('ghRepo').value.trim();
-                const token = document.getElementById('ghToken').value.trim();
-                if(!owner || !repo || !token) return alert("Champs incomplets");
-                localStorage.setItem('admin_gh_config', JSON.stringify({owner, repo, token}));
-
-                const btn = document.querySelector('button[onclick="admin.loadData()"]');
-                const old = btn.innerHTML; btn.innerHTML = "Chargement...";
-
-                try {
-                    const url = `https://api.github.com/repos/${owner}/${repo}/contents/data.json`;
-                    const res = await fetch(url + "?t=" + Date.now(), { headers: { Authorization: `token ${token}` } });
-                    if(!res.ok) throw new Error("Fichier data.json introuvable ou accès refusé");
-                    
-                    const json = await res.json();
-                    this.sha = json.sha;
-                    const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
-                    this.data = JSON.parse(content);
-
-                    document.getElementById('configPanel').classList.add('hidden');
-                    document.getElementById('editorPanel').classList.remove('hidden');
-                    document.getElementById('saveBar').classList.remove('hidden');
-                    this.renderUI();
-                } catch(e) { alert("Erreur: " + e.message); } 
-                finally { btn.innerHTML = old; }
-            },
-
-            uploadImageToGitHub: async function(file) {
-                if(!file) return null;
-                const c = JSON.parse(localStorage.getItem('admin_gh_config'));
-                const filename = `images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-                const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${filename}`;
-
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        const base64Content = e.target.result.split(',')[1];
-                        try {
-                            const res = await fetch(url, {
-                                method: "PUT",
-                                headers: { Authorization: `token ${c.token}`, "Content-Type": "application/json" },
-                                body: JSON.stringify({ message: "Upload Image", content: base64Content })
-                            });
-                            if(!res.ok) throw new Error("Erreur Upload GitHub");
-                            const publicUrl = `https://${c.owner}.github.io/${c.repo}/${filename}`;
-                            resolve(publicUrl);
-                        } catch(err) { reject(err); }
-                    };
-                    reader.readAsDataURL(file);
-                });
-            },
-            
-            uploadLogo: async function() {
-                const file = document.getElementById('confLogoFile').files[0];
-                if (!file) return;
-
-                const btn = document.getElementById('confLogoFile');
-                btn.style.display = 'none';
-
-                try {
-                    const url = await this.uploadImageToGitHub(file);
-                    this.data.settings.logoUrl = url;
-                    this.renderUI();
-                    alert("Logo téléchargé. N'oubliez pas de Sauvegarder!");
-                } catch(e) {
-                    alert("Erreur: Échec du téléchargement du logo. " + e.message);
-                } finally {
-                    btn.style.display = 'block';
-                }
-            },
-
-            renderUI: function() {
-                const D = this.data; const S = D.settings;
+        async function initApp() {
+            try {
+                const response = await fetch('data.json?t=' + Date.now());
+                if (!response.ok) throw new Error('Erreur chargement data.json');
+                DATA = await response.json();
                 
-                document.getElementById('newsList').innerHTML = D.news.map(n => `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${n.title}</span> <div class="flex gap-2"><button onclick="admin.editNews(${n.id})" class="text-blue-400"><i class="fas fa-edit"></i></button><button onclick="admin.delNews(${n.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('');
-                document.getElementById('eventsList').innerHTML = D.events.map(e => `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${e.title}</span> <div class="flex gap-2"><button onclick="admin.editEvent(${e.id})" class="text-blue-400"><i class="fas fa-edit"></i></button><button onclick="admin.delEvent(${e.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('');
-                
-                // Settings
-                document.getElementById('confName').value = S.orgName || "";
-                document.getElementById('confColor').value = S.themeColor || "#2563eb";
-                document.getElementById('confColorPicker').value = S.themeColor || "#2563eb";
-                if(S.logoUrl) { document.getElementById('logoPreview').src = S.logoUrl; document.getElementById('logoPreview').classList.remove('hidden'); }
-                document.getElementById('confSchool').value = S.hours?.school || "";
-                document.getElementById('confHolidays').value = S.hours?.holidays || "";
-                document.getElementById('confEmailPub').value = S.emailjs?.publicKey || "";
-                document.getElementById('confEmailServ').value = S.emailjs?.serviceId || "";
-                document.getElementById('confEmailTempl').value = S.emailjs?.templateId || "";
-                document.getElementById('confFb').value = S.social?.facebook || "";
-                document.getElementById('confInsta').value = S.social?.instagram || "";
-                document.getElementById('confTiktok').value = S.social?.tiktok || "";
-                document.getElementById('confYoutube').value = S.social?.youtube || "";
-            },
+                renderApp();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('mainContent').classList.remove('hidden');
 
-            // NEWS
-            submitNews: async function() {
-                const t=document.getElementById('newsTitle').value; if(!t) return alert("Titre requis");
-                const id=document.getElementById('newsId').value; const file=document.getElementById('newsImgFile').files[0];
-                const btn = document.getElementById('btnSubmitNews'); const oldTxt = btn.innerText; btn.innerText = "Téléchargement..."; btn.disabled = true;
-
-                try {
-                    let imgUrl = null;
-                    if(file) imgUrl = await this.uploadImageToGitHub(file);
-
-                    const d={id:id?parseInt(id):Date.now(), title:t, date:document.getElementById('newsDate').value, tag:document.getElementById('newsTag').value, content:document.getElementById('newsContent').value};
-                    
-                    if(id){ 
-                        const idx=this.data.news.findIndex(x=>x.id==id); 
-                        d.image = imgUrl ? imgUrl : this.data.news[idx].image;
-                        this.data.news[idx]=d; 
-                    } else { 
-                        d.image = imgUrl;
-                        this.data.news.push(d); 
-                    }
-                    this.renderUI(); this.resetNewsForm();
-                } catch(e) { alert("Erreur News: " + e.message); }
-                finally { btn.innerText = oldTxt; btn.disabled = false; }
-            },
-            editNews: function(id) {
-                const n=this.data.news.find(x=>x.id==id); if(!n)return;
-                document.getElementById('newsId').value=n.id; document.getElementById('newsTitle').value=n.title; document.getElementById('newsDate').value=n.date; document.getElementById('newsTag').value=n.tag; document.getElementById('newsContent').value=n.content;
-                document.getElementById('newsFormTitle').innerText="Modifier : " + n.title;
-                document.getElementById('btnSubmitNews').innerText="Modifier"; document.getElementById('btnSubmitNews').className="bg-blue-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelNews').classList.remove('hidden');
-            },
-            resetNewsForm: function() {
-                document.getElementById('newsId').value=""; document.getElementById('newsTitle').value=""; document.getElementById('newsContent').value=""; document.getElementById('newsImgFile').value="";
-                document.getElementById('newsFormTitle').innerText="Ajouter / Modifier"; document.getElementById('btnSubmitNews').innerText="Valider"; document.getElementById('btnSubmitNews').className="bg-green-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelNews').classList.add('hidden');
-            },
-            delNews: function(id){ if(confirm("Supprimer ?")){this.data.news=this.data.news.filter(x=>x.id!=id);this.renderUI();} },
-
-            // EVENTS
-            submitEvent: async function() {
-                const t=document.getElementById('evtTitle').value; if(!t) return alert("Titre requis");
-                const id=document.getElementById('evtId').value; const file=document.getElementById('evtImgFile').files[0];
-                const btn = document.getElementById('btnSubmitEvt'); const oldTxt = btn.innerText; btn.innerText = "Téléchargement..."; btn.disabled = true;
-                
-                try {
-                    let imgUrl = null;
-                    if(file) imgUrl = await this.uploadImageToGitHub(file);
-
-                    const d={
-                        id:id?parseInt(id):Date.now(), 
-                        title:t, 
-                        date:document.getElementById('evtDate').value, 
-                        location:document.getElementById('evtLoc').value, 
-                        description:document.getElementById('evtDesc').value, 
-                        status: document.getElementById('evtStatus').value,
-                        capacity: document.getElementById('evtCapacity').value,
-                        image: imgUrl
-                    };
-                    
-                    if(id){ 
-                        const idx=this.data.events.findIndex(x=>x.id==id); 
-                        d.image = imgUrl ? imgUrl : this.data.events[idx].image;
-                        this.data.events[idx]=d; 
-                    } else { 
-                        this.data.events.push(d); 
-                    }
-                    this.renderUI(); this.resetEventForm();
-                } catch(e) { alert("Erreur Event: " + e.message); }
-                finally { btn.innerText = oldTxt; btn.disabled = false; }
-            },
-            editEvent: function(id){
-                const e=this.data.events.find(x=>x.id==id); if(!e)return;
-                document.getElementById('evtId').value=e.id; document.getElementById('evtTitle').value=e.title; document.getElementById('evtDate').value=e.date; document.getElementById('evtLoc').value=e.location; document.getElementById('evtDesc').value=e.description;
-                document.getElementById('evtStatus').value=e.status;
-                document.getElementById('evtCapacity').value=e.capacity;
-                document.getElementById('evtFormTitle').innerText="Modifier : " + e.title;
-                document.getElementById('btnSubmitEvt').innerText="Modifier"; document.getElementById('btnSubmitEvt').className="bg-blue-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelEvt').classList.remove('hidden');
-            },
-            resetEventForm: function(){
-                document.getElementById('evtId').value=""; document.getElementById('evtTitle').value=""; document.getElementById('evtLoc').value=""; document.getElementById('evtDesc').value=""; document.getElementById('evtImgFile').value="";
-                document.getElementById('evtStatus').value='Ouvert'; document.getElementById('evtCapacity').value='';
-                document.getElementById('evtFormTitle').innerText="Ajouter / Modifier"; document.getElementById('btnSubmitEvt').innerText="Valider"; document.getElementById('btnSubmitEvt').className="bg-purple-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelEvt').classList.add('hidden');
-            },
-            delEvent: function(id){ if(confirm("Supprimer ?")){this.data.events=this.data.events.filter(x=>x.id!=id);this.renderUI();} },
-
-            saveToGitHub: async function() {
-                if(!confirm("Sauvegarder en ligne ?")) return;
-                const btn = document.getElementById('btnSave'); const old = btn.innerHTML; btn.innerHTML = "Envoi...";
-                
-                // Récupération des données du formulaire
-                this.data.settings.orgName = document.getElementById('confName').value;
-                this.data.settings.themeColor = document.getElementById('confColor').value;
-                this.data.settings.hours = { school: document.getElementById('confSchool').value, holidays: document.getElementById('confHolidays').value };
-                this.data.settings.emailjs = { publicKey: document.getElementById('confEmailPub').value, serviceId: document.getElementById('confEmailServ').value, templateId: document.getElementById('confEmailTempl').value };
-                this.data.settings.social = { facebook: document.getElementById('confFb').value, instagram: document.getElementById('confInsta').value, tiktok: document.getElementById('confTiktok').value, youtube: document.getElementById('confYoutube').value };
-
-                const c = JSON.parse(localStorage.getItem('admin_gh_config'));
-                const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`;
-
-                try {
-                    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(this.data, null, 4))));
-                    const putRes = await fetch(url, {
-                        method: "PUT",
-                        headers: { Authorization: `token ${c.token}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: "Update Data JSON", content: encoded, sha: this.sha })
-                    });
-                    if(!putRes.ok) throw new Error("Erreur écriture");
-                    const putJson = await putRes.json();
-                    this.sha = putJson.content.sha;
-                    alert("✅ SAUVEGARDE RÉUSSIE !");
-                } catch(e) { alert("Erreur: " + e.message); } 
-                finally { btn.innerHTML = old; }
+            } catch (error) {
+                console.error("Erreur critique:", error);
+                document.getElementById('loading').innerHTML = `<div class="text-center text-red-600 font-bold p-4">Impossible de charger les données du site. ${error.message}</div>`;
             }
-        };
-        admin.init();
+        }
+
+        function setThemColor(color) {
+            document.documentElement.style.setProperty('--primary-color', color);
+        }
+
+        function renderApp() {
+            const S = DATA.settings;
+            if (S.themeColor) setThemColor(S.themeColor); else setThemColor(THEME_COLOR);
+
+            document.getElementById('orgName').textContent = S.orgName || 'Cor-Tech';
+            document.getElementById('footerOrgName').textContent = S.orgName || 'Cor-Tech';
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            if(S.logoUrl) { const logo=document.getElementById('logoSite'); logo.src=S.logoUrl; logo.classList.remove('hidden'); }
+
+            document.getElementById('hoursSchool').textContent = S.hours?.school || 'Non défini';
+            document.getElementById('hoursHolidays').textContent = S.hours?.holidays || 'Non défini';
+            
+            renderSocialLinks(S.social);
+            renderEvents(DATA.events);
+            renderNews(DATA.news);
+        }
+        
+        function renderSocialLinks(social) {
+            const linksContainer = document.getElementById('socialLinks');
+            linksContainer.innerHTML = '';
+            const socialIcons = [
+                { key: 'facebook', icon: 'fab fa-facebook-square', color: 'text-blue-600' },
+                { key: 'instagram', icon: 'fab fa-instagram', color: 'text-pink-600' },
+                { key: 'tiktok', icon: 'fab fa-tiktok', color: 'text-black' },
+                { key: 'youtube', icon: 'fab fa-youtube', color: 'text-red-600' }
+            ];
+
+            socialIcons.forEach(item => {
+                const url = social?.[item.key];
+                if (url) {
+                    linksContainer.innerHTML += `<a href="${url}" target="_blank" class="${item.color} hover:opacity-75 transition"><i class="${item.icon}"></i></a>`;
+                }
+            });
+            
+            if (linksContainer.innerHTML === '') {
+                document.getElementById('socialContainer').classList.add('hidden');
+            } else {
+                 document.getElementById('socialContainer').classList.remove('hidden');
+            }
+        }
+
+        // RENDU ÉVÈNEMENTS (Colonne 2)
+        function renderEvents(events) {
+            const list = document.getElementById('eventsList');
+            list.innerHTML = '';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const futureEvents = events.filter(evt => {
+                const eventDate = new Date(evt.date);
+                if (isNaN(eventDate)) return false; 
+                return eventDate >= today;
+            });
+            
+            const sortedEvents = futureEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (sortedEvents.length === 0) {
+                document.getElementById('noEvents').classList.remove('hidden');
+                return;
+            }
+
+            sortedEvents.forEach(evt => {
+                const eventDate = new Date(evt.date);
+                const dateStatus = isNaN(eventDate) 
+                    ? `<span class="text-red-500 font-semibold">Date Invalide</span>` 
+                    : `<i class="fas fa-calendar-day mr-1"></i> ${eventDate.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}`;
+
+                let statusBadge = '';
+                if (evt.status) {
+                    let color = 'text-gray-700 bg-gray-100';
+                    if (evt.status === 'Complet') color = 'text-red-700 bg-red-100';
+                    else if (evt.status === 'Ouvert') color = 'text-green-700 bg-green-100';
+                    else if (evt.status === 'Annulé') color = 'text-yellow-700 bg-yellow-100';
+
+                    statusBadge = `<span class="text-xs font-semibold px-2 py-0.5 rounded-full ${color} self-start">${evt.status}</span>`;
+                }
+
+                const html = `
+                    <div class="flex bg-gray-50 p-3 rounded-lg border border-gray-200 hover:shadow-lg transition">
+                        <div class="flex-shrink-0 w-16 h-16 mr-3 rounded-md overflow-hidden border border-gray-300">
+                            ${evt.image ? `<img src="${evt.image}" alt="${evt.title}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-xs text-center p-1"><i class="fas fa-image"></i></div>`}
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="font-bold text-gray-800">${evt.title}</h3>
+                            <div class="flex justify-between items-center">
+                                <p class="text-sm text-primary font-semibold">${dateStatus}</p>
+                                ${statusBadge}
+                            </div>
+                            <p class="text-sm text-gray-500 overflow-hidden max-h-10">${evt.description}</p>
+                            <a href="#" onclick="openBookingModal(${evt.id})" class="text-xs font-semibold text-primary hover:text-blue-700">S'inscrire <i class="fas fa-arrow-right ml-1"></i></a>
+                        </div>
+                    </div>
+                `;
+                list.innerHTML += html;
+            });
+        }
+        
+        // RENDU NEWS (Colonne 2)
+        function renderNews(news) {
+            const list = document.getElementById('newsList');
+            list.innerHTML = '';
+            const sortedNews = news.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (sortedNews.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 md:col-span-2 italic">Aucune actualité récente à afficher.</p>';
+                return;
+            }
+
+            sortedNews.forEach(n => {
+                const tagClasses = { 'info': 'bg-blue-100 text-blue-800', 'urgent': 'bg-red-100 text-red-800', 'event': 'bg-green-100 text-green-800' };
+                const tagText = { 'info': 'Information', 'urgent': 'URGENT', 'event': 'Vie Asso' };
+                const tagClass = tagClasses[n.tag] || 'bg-gray-100 text-gray-800';
+                const date = new Date(n.date).toLocaleDateString('fr-FR');
+
+                list.innerHTML += `
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full hover:shadow-xl transition duration-300">
+                        ${n.image ? `<img src="${n.image}" alt="${n.title}" class="w-full h-48 object-cover">` : `<div class="w-full h-48 flex items-center justify-center bg-gray-200 text-gray-500 text-lg"><i class="fas fa-info-circle"></i></div>`}
+                        <div class="p-5 flex flex-col flex-grow">
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${tagClass} self-start mb-2">${tagText[n.tag]}</span>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">${n.title}</h3>
+                            <p class="text-sm text-gray-600 mb-3 flex-grow news-content">${n.content}</p>
+                            <div class="flex justify-between items-center pt-3 border-t border-gray-100">
+                                <span class="text-xs text-gray-500"><i class="fas fa-clock mr-1"></i> ${date}</span>
+                                <a href="#" onclick="alert('Détails : ${n.title}')" class="text-sm font-semibold text-primary hover:text-blue-700">Lire la suite</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        // LOGIQUE MODAL ET EMAIL
+        function openBookingModal(id) {
+            const event = DATA.events.find(e => e.id == id);
+            if (!event) return;
+            document.getElementById('bookingEventId').value = id;
+            document.getElementById('bookingEventTitle').innerHTML = `Pour : <strong>${event.title}</strong>`;
+            document.getElementById('modalBooking').classList.remove('hidden');
+        }
+
+        function handleBooking(e) {
+            e.preventDefault();
+            const id = document.getElementById('bookingEventId').value;
+            const event = DATA.events.find(x => x.id == id);
+            const name = document.getElementById('userName').value;
+            const mail = document.getElementById('userEmail').value;
+            
+            const S = DATA.settings;
+            
+            let userStatusForEmail = 'Demande prise en compte';
+            if (event.status === 'Ouvert') {
+                userStatusForEmail = 'Confirmé';
+            } else if (event.status === 'Complet') {
+                userStatusForEmail = 'Liste d\'attente';
+            } else if (event.status === 'Annulé') {
+                userStatusForEmail = 'Annulé (Ne pas tenir compte de votre demande)';
+            }
+
+            if(S.emailjs?.serviceId && S.emailjs?.templateId) {
+                const p = { 
+                    event_title: event.title, 
+                    user_name: name, 
+                    user_email: mail, 
+                    admin_email: "accueil@cor-tech.fr",
+                    user_status: userStatusForEmail
+                };
+                
+                emailjs.send(S.emailjs.serviceId, S.emailjs.templateId, p)
+                    .then(() => {
+                        alert(`Inscription envoyée avec le statut : ${userStatusForEmail}.`);
+                        document.getElementById('modalBooking').classList.add('hidden');
+                        document.getElementById('bookingForm').reset();
+                    })
+                    .catch(err => {
+                        alert("Erreur d'envoi EmailJS. Détails: " + err.text);
+                        document.getElementById('modalBooking').classList.add('hidden');
+                    });
+            } else {
+                alert("Erreur: Les clés EmailJS n'ont pas été configurées dans la page Admin. Contactez l'administrateur.");
+                document.getElementById('modalBooking').classList.add('hidden');
+            }
+        }
+
+        // Lancement au chargement de la page
+        initApp();
     </script>
 </body>
 </html>
