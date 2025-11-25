@@ -11,7 +11,7 @@
         :root { --primary-color: #2563eb; }
         .text-primary { color: var(--primary-color); }
         .bg-primary { background-color: var(--primary-color); }
-        .border-primary { border-primary: var(--primary-color); }
+        .border-primary { border-color: var(--primary-color); }
         /* Loader */
         #loading { position: fixed; inset: 0; background: white; z-index: 50; display: flex; justify-content: center; align-items: center; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
@@ -33,11 +33,19 @@
 
     <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 hidden" id="mainContent">
         
+        <div class="lg:col-span-1">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-bullhorn text-red-500 mr-3"></i> Dernières Actualités</h2>
+            <div id="newsList" class="space-y-6"> 
+                <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
+            </div>
+        </div>
+
+
         <div class="lg:col-span-2 space-y-6">
             
             <div id="eventsContainer" class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-primary">
                 <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-calendar-alt text-primary mr-3"></i> Évènements à venir</h2>
-                <div id="eventsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="eventsList" class="space-y-4">
                     <p id="noEvents" class="text-gray-500 italic hidden">Aucun événement planifié pour le moment.</p>
                 </div>
             </div>
@@ -58,13 +66,6 @@
             
         </div>
 
-        <div class="lg:col-span-1">
-            <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-bullhorn text-red-500 mr-3"></i> Dernières Actualités</h2>
-            <div id="newsList" class="grid grid-cols-1 gap-6">
-                <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
-            </div>
-        </div>
-
     </main>
 
     <footer class="bg-gray-800 text-white p-6 mt-12">
@@ -72,6 +73,21 @@
             <p>&copy; <span id="currentYear"></span> <span id="footerOrgName">Cor-Tech</span>. Tous droits réservés.</p>
         </div>
     </footer>
+
+    <div id="modalBooking" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button onclick="document.getElementById('modalBooking').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-bold mb-2 text-primary">Inscription</h2>
+            <p id="bookingEventTitle" class="text-gray-600 mb-6 font-medium"></p>
+            <form id="bookingForm" onsubmit="handleBooking(event)">
+                <input type="hidden" id="bookingEventId">
+                <input type="text" id="userName" placeholder="Nom Complet" required class="w-full px-3 py-2 border rounded mb-3">
+                <input type="email" id="userEmail" placeholder="Email" required class="w-full px-3 py-2 border rounded mb-3">
+                <input type="tel" id="userPhone" placeholder="Téléphone" class="w-full px-3 py-2 border rounded mb-3">
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded">Confirmer</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         let DATA = {};
@@ -139,7 +155,7 @@
             }
         }
 
-        // RENDU ÉVÈNEMENTS 
+        // RENDU ÉVÈNEMENTS (Colonne 2)
         function renderEvents(events) {
             const list = document.getElementById('eventsList');
             list.innerHTML = '';
@@ -189,7 +205,7 @@
                                 ${statusBadge}
                             </div>
                             <p class="text-sm text-gray-500 overflow-hidden max-h-10">${evt.description}</p>
-                            <a href="#" onclick="redirectToForm(event, ${evt.id})" class="text-xs font-semibold text-primary hover:text-blue-700">${buttonText} <i class="fas fa-arrow-right ml-1"></i></a>
+                            <a href="#" onclick="openBookingModal(${evt.id})" class="text-xs font-semibold text-primary hover:text-blue-700">${buttonText} <i class="fas fa-arrow-right ml-1"></i></a>
                         </div>
                     </div>
                 `;
@@ -197,7 +213,7 @@
             });
         }
         
-        // RENDU NEWS 
+        // RENDU NEWS (Colonne 1)
         function renderNews(news) {
             const list = document.getElementById('newsList');
             list.innerHTML = '';
@@ -231,29 +247,58 @@
             });
         }
         
-        // --- LOGIQUE DE REDIRECTION VERS GOOGLE FORM/URL SAUVEGARDÉE ---
-        function redirectToForm(event, id) {
-            event.preventDefault();
-            const formUrl = DATA.settings.formUrl;
-            
-            if (!formUrl) {
-                return alert("L'URL du formulaire de réservation n'est pas configurée dans le panneau Admin. Veuillez la configurer et sauvegarder.");
-            }
-            
-            // Récupère les infos de l'événement pour les passer en paramètre (optionnel, mais utile)
-            const evt = DATA.events.find(e => e.id == id);
-            
-            // Construit l'URL avec un paramètre pour identifier l'événement
-            const eventInfo = encodeURIComponent(evt.title + ' - ' + evt.date);
-            
-            // Utilise l'URL de base et ajoute le paramètre 'event_title' (simple)
-            // Note: Vous devrez vérifier que votre formulaire externe (Google Form, etc.) 
-            // est capable de lire ce paramètre pour l'enregistrer.
-            const redirectUrl = `${formUrl.split('?')[0]}?event_title=${eventInfo}`;
-            
-            window.open(redirectUrl, '_blank'); // Ouvre le lien dans un nouvel onglet
+        // LOGIQUE MODAL ET EMAIL
+        function openBookingModal(id) {
+            const event = DATA.events.find(e => e.id == id);
+            if (!event) return;
+            document.getElementById('bookingEventId').value = id;
+            document.getElementById('bookingEventTitle').innerHTML = `Pour : <strong>${event.title}</strong>`;
+            document.getElementById('modalBooking').classList.remove('hidden');
         }
-        
+
+        function handleBooking(e) {
+            e.preventDefault();
+            const id = document.getElementById('bookingEventId').value;
+            const event = DATA.events.find(x => x.id == id);
+            const name = document.getElementById('userName').value;
+            const mail = document.getElementById('userEmail').value;
+            
+            const S = DATA.settings;
+            
+            let userStatusForEmail = 'Demande prise en compte';
+            if (event.status === 'Ouvert') {
+                userStatusForEmail = 'Confirmé';
+            } else if (event.status === 'Complet') {
+                userStatusForEmail = 'Liste d\'attente';
+            } else if (event.status === 'Annulé') {
+                userStatusForEmail = 'Annulé (Ne pas tenir compte de votre demande)';
+            }
+
+            if(S.emailjs?.serviceId && S.emailjs?.templateId) {
+                const p = { 
+                    event_title: event.title, 
+                    user_name: name, 
+                    user_email: mail, 
+                    admin_email: "accueil@cor-tech.fr",
+                    user_status: userStatusForEmail
+                };
+                
+                emailjs.send(S.emailjs.serviceId, S.emailjs.templateId, p)
+                    .then(() => {
+                        alert(`Inscription envoyée avec le statut : ${userStatusForEmail}.`);
+                        document.getElementById('modalBooking').classList.add('hidden');
+                        document.getElementById('bookingForm').reset();
+                    })
+                    .catch(err => {
+                        alert("Erreur d'envoi EmailJS. Détails: " + err.text);
+                        document.getElementById('modalBooking').classList.add('hidden');
+                    });
+            } else {
+                alert("Erreur: Les clés EmailJS n'ont pas été configurées dans la page Admin. Contactez l'administrateur.");
+                document.getElementById('modalBooking').classList.add('hidden');
+            }
+        }
+
         // Lancement au chargement de la page
         initApp();
     </script>
