@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Cor-Tech (Images Pro)</title>
+    <title>Admin Cor-Tech (V12)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>.loader{border:4px solid #f3f3f3;border-top:4px solid #3498db;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite;display:inline-block;}</style>
@@ -11,12 +11,12 @@
 
     <div class="max-w-4xl mx-auto">
         <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-2xl font-bold text-blue-400"><i class="fas fa-images"></i> Admin Cor-Tech Pro</h1>
+            <h1 class="text-2xl font-bold text-blue-400"><i class="fas fa-database"></i> Admin Cor-Tech V12</h1>
             <a href="index.html" target="_blank" class="text-gray-400 hover:text-white">Voir le site <i class="fas fa-external-link-alt"></i></a>
         </div>
 
         <div id="configPanel" class="bg-gray-800 p-6 rounded shadow-lg mb-8 border border-gray-700">
-            <h2 class="text-xl font-bold mb-4 text-white">1. Connexion</h2>
+            <h2 class="text-xl font-bold mb-4 text-white">1. Connexion (GitHub)</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <input type="text" id="ghOwner" placeholder="Pseudo GitHub" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
                 <input type="text" id="ghRepo" placeholder="Nom du Dépôt" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
@@ -41,10 +41,7 @@
                             <select id="newsTag" class="bg-gray-800 p-2 rounded text-white border border-gray-600"><option value="info">Info</option><option value="urgent">Urgent</option><option value="event">Vie Asso</option></select>
                         </div>
                         <textarea id="newsContent" placeholder="Message..." class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
-                        <div class="border-t border-gray-700 pt-2">
-                            <label class="text-xs text-gray-500">Image (Sera stockée dans le dossier /images)</label>
-                            <input type="file" id="newsImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400">
-                        </div>
+                        <div class="border-t border-gray-700 pt-2"><label class="text-xs text-gray-500">Image (Optionnel)</label><input type="file" id="newsImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400"></div>
                         <button id="btnSubmitNews" onclick="admin.submitNews()" class="bg-green-600 px-4 py-2 rounded font-bold">Valider</button>
                     </div>
                 </div>
@@ -64,10 +61,7 @@
                             <input type="text" id="evtLoc" placeholder="Lieu" class="bg-gray-800 p-2 rounded w-2/3 text-white border border-gray-600">
                         </div>
                         <textarea id="evtDesc" placeholder="Description" class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
-                        <div class="border-t border-gray-700 pt-2">
-                            <label class="text-xs text-gray-500">Image (Sera stockée dans le dossier /images)</label>
-                            <input type="file" id="evtImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400">
-                        </div>
+                        <div class="border-t border-gray-700 pt-2"><label class="text-xs text-gray-500">Image (Optionnel)</label><input type="file" id="evtImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400"></div>
                         <button id="btnSubmitEvt" onclick="admin.submitEvent()" class="bg-purple-600 px-4 py-2 rounded font-bold">Valider</button>
                     </div>
                 </div>
@@ -80,15 +74,23 @@
                         <div><label class="text-xs text-gray-500">Nom</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
                         <div><label class="text-xs text-gray-500">Couleur</label><div class="flex gap-2"><input type="color" id="confColorPicker" class="h-9 w-9 bg-transparent border-0" onchange="document.getElementById('confColor').value=this.value"><input type="text" id="confColor" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
                     </div>
-                    <div><label class="text-xs text-gray-500">Logo (Petit)</label><div class="flex items-center gap-4"><input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.updateLogoPreview()"><img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden"></div></div>
+                    <div><label class="text-xs text-gray-500">Logo</label><div class="flex items-center gap-4"><input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.updateLogoPreview()"><img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden"></div></div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="text-xs text-gray-500">Scolaire</label><textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
                         <div><label class="text-xs text-gray-500">Vacances</label><textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
                     </div>
                     <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-gray-400 mb-2">EmailJS & Social</h3>
-                        <div class="grid grid-cols-3 gap-2 mb-2"><input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-xs text-white border border-gray-600"><input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-xs text-white border border-gray-600"><input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-xs text-white border border-gray-600"></div>
-                        <div class="grid grid-cols-2 gap-2"><input type="text" id="confFb" placeholder="Facebook" class="bg-gray-900 p-2 rounded text-xs text-white border border-gray-600"><input type="text" id="confInsta" placeholder="Instagram" class="bg-gray-900 p-2 rounded text-xs text-white border border-gray-600"></div>
+                        <h3 class="text-sm font-bold text-gray-400 mb-2">EmailJS</h3>
+                        <div class="grid grid-cols-3 gap-2"><input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
+                    </div>
+                    <div class="border-t border-gray-700 pt-2">
+                        <h3 class="text-sm font-bold text-gray-400 mb-2">Social</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="confFb" placeholder="Facebook" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
+                            <input type="text" id="confInsta" placeholder="Instagram" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
+                            <input type="text" id="confTiktok" placeholder="TikTok (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
+                            <input type="text" id="confYoutube" placeholder="YouTube (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -121,15 +123,14 @@
                 const old = btn.innerHTML; btn.innerHTML = "Chargement...";
 
                 try {
-                    const url = `https://api.github.com/repos/${owner}/${repo}/contents/data.json?t=${Date.now()}`;
-                    const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
-                    if(!res.ok) throw new Error("Fichier data.json introuvable");
+                    const url = `https://api.github.com/repos/${owner}/${repo}/contents/data.json`;
+                    const res = await fetch(url + "?t=" + Date.now(), { headers: { Authorization: `token ${token}` } });
+                    if(!res.ok) throw new Error("Fichier data.json introuvable ou accès refusé");
+                    
                     const json = await res.json();
                     this.sha = json.sha;
                     const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
                     this.data = JSON.parse(content);
-                    
-                    if(!this.data.news) this.data.news=[]; if(!this.data.events) this.data.events=[]; if(!this.data.settings) this.data.settings={};
 
                     document.getElementById('configPanel').classList.add('hidden');
                     document.getElementById('editorPanel').classList.remove('hidden');
@@ -143,23 +144,21 @@
             uploadImageToGitHub: async function(file) {
                 if(!file) return null;
                 const c = JSON.parse(localStorage.getItem('admin_gh_config'));
+                // Assainir le nom de fichier
                 const filename = `images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
                 const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${filename}`;
 
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = async (e) => {
-                        const base64Content = e.target.result.split(',')[1]; // Enlever le header data:image...
+                        const base64Content = e.target.result.split(',')[1];
                         try {
                             const res = await fetch(url, {
                                 method: "PUT",
                                 headers: { Authorization: `token ${c.token}`, "Content-Type": "application/json" },
                                 body: JSON.stringify({ message: "Upload Image", content: base64Content })
                             });
-                            if(!res.ok) throw new Error("Erreur Upload");
-                            const json = await res.json();
-                            // On retourne l'URL brute (raw) ou via github.io
-                            // URL github.io est plus propre : https://user.github.io/repo/images/file.jpg
+                            if(!res.ok) throw new Error("Erreur Upload GitHub");
                             const publicUrl = `https://${c.owner}.github.io/${c.repo}/${filename}`;
                             resolve(publicUrl);
                         } catch(err) { reject(err); }
@@ -170,9 +169,11 @@
 
             renderUI: function() {
                 const D = this.data; const S = D.settings;
+                
                 document.getElementById('newsList').innerHTML = D.news.map(n => `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${n.title}</span> <div class="flex gap-2"><button onclick="admin.editNews(${n.id})" class="text-blue-400"><i class="fas fa-edit"></i></button><button onclick="admin.delNews(${n.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('');
                 document.getElementById('eventsList').innerHTML = D.events.map(e => `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${e.title}</span> <div class="flex gap-2"><button onclick="admin.editEvent(${e.id})" class="text-blue-400"><i class="fas fa-edit"></i></button><button onclick="admin.delEvent(${e.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('');
                 
+                // Settings
                 document.getElementById('confName').value = S.orgName || "";
                 document.getElementById('confColor').value = S.themeColor || "#2563eb";
                 document.getElementById('confColorPicker').value = S.themeColor || "#2563eb";
@@ -184,6 +185,8 @@
                 document.getElementById('confEmailTempl').value = S.emailjs?.templateId || "";
                 document.getElementById('confFb').value = S.social?.facebook || "";
                 document.getElementById('confInsta').value = S.social?.instagram || "";
+                document.getElementById('confTiktok').value = S.social?.tiktok || "";
+                document.getElementById('confYoutube').value = S.social?.youtube || "";
             },
 
             updateLogoPreview: function() {
@@ -193,12 +196,9 @@
 
             // NEWS
             submitNews: async function() {
-                const btn = document.getElementById('btnSubmitNews');
-                const oldTxt = btn.innerText; btn.innerText = "Envoi Image..."; btn.disabled = true;
-
-                const t=document.getElementById('newsTitle').value;
-                const id=document.getElementById('newsId').value; 
-                const file=document.getElementById('newsImgFile').files[0];
+                const t=document.getElementById('newsTitle').value; if(!t) return alert("Titre requis");
+                const id=document.getElementById('newsId').value; const file=document.getElementById('newsImgFile').files[0];
+                const btn = document.getElementById('btnSubmitNews'); const oldTxt = btn.innerText; btn.innerText = "Téléchargement..."; btn.disabled = true;
 
                 try {
                     let imgUrl = null;
@@ -215,29 +215,27 @@
                         this.data.news.push(d); 
                     }
                     this.renderUI(); this.resetNewsForm();
-                } catch(e) { alert("Erreur Image: " + e.message); }
+                } catch(e) { alert("Erreur News: " + e.message); }
                 finally { btn.innerText = oldTxt; btn.disabled = false; }
             },
             editNews: function(id){
                 const n=this.data.news.find(x=>x.id==id); if(!n)return;
                 document.getElementById('newsId').value=n.id; document.getElementById('newsTitle').value=n.title; document.getElementById('newsDate').value=n.date; document.getElementById('newsTag').value=n.tag; document.getElementById('newsContent').value=n.content;
+                document.getElementById('newsFormTitle').innerText="Modifier : " + n.title;
                 document.getElementById('btnSubmitNews').innerText="Modifier"; document.getElementById('btnSubmitNews').className="bg-blue-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelNews').classList.remove('hidden');
             },
             resetNewsForm: function(){
                 document.getElementById('newsId').value=""; document.getElementById('newsTitle').value=""; document.getElementById('newsContent').value=""; document.getElementById('newsImgFile').value="";
-                document.getElementById('btnSubmitNews').innerText="Valider"; document.getElementById('btnSubmitNews').className="bg-green-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelNews').classList.add('hidden');
+                document.getElementById('newsFormTitle').innerText="Ajouter / Modifier"; document.getElementById('btnSubmitNews').innerText="Valider"; document.getElementById('btnSubmitNews').className="bg-green-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelNews').classList.add('hidden');
             },
             delNews: function(id){ if(confirm("Supprimer ?")){this.data.news=this.data.news.filter(x=>x.id!=id);this.renderUI();} },
 
             // EVENTS
             submitEvent: async function() {
-                const btn = document.getElementById('btnSubmitEvt');
-                const oldTxt = btn.innerText; btn.innerText = "Envoi Image..."; btn.disabled = true;
-
-                const t=document.getElementById('evtTitle').value;
-                const id=document.getElementById('evtId').value; 
-                const file=document.getElementById('evtImgFile').files[0];
-
+                const t=document.getElementById('evtTitle').value; if(!t) return alert("Titre requis");
+                const id=document.getElementById('evtId').value; const file=document.getElementById('evtImgFile').files[0];
+                const btn = document.getElementById('btnSubmitEvt'); const oldTxt = btn.innerText; btn.innerText = "Téléchargement..."; btn.disabled = true;
+                
                 try {
                     let imgUrl = null;
                     if(file) imgUrl = await this.uploadImageToGitHub(file);
@@ -253,17 +251,18 @@
                         this.data.events.push(d); 
                     }
                     this.renderUI(); this.resetEventForm();
-                } catch(e) { alert("Erreur Image: " + e.message); }
+                } catch(e) { alert("Erreur Event: " + e.message); }
                 finally { btn.innerText = oldTxt; btn.disabled = false; }
             },
             editEvent: function(id){
                 const e=this.data.events.find(x=>x.id==id); if(!e)return;
                 document.getElementById('evtId').value=e.id; document.getElementById('evtTitle').value=e.title; document.getElementById('evtDate').value=e.date; document.getElementById('evtLoc').value=e.location; document.getElementById('evtDesc').value=e.description;
+                document.getElementById('evtFormTitle').innerText="Modifier : " + e.title;
                 document.getElementById('btnSubmitEvt').innerText="Modifier"; document.getElementById('btnSubmitEvt').className="bg-blue-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelEvt').classList.remove('hidden');
             },
             resetEventForm: function(){
                 document.getElementById('evtId').value=""; document.getElementById('evtTitle').value=""; document.getElementById('evtLoc').value=""; document.getElementById('evtDesc').value=""; document.getElementById('evtImgFile').value="";
-                document.getElementById('btnSubmitEvt').innerText="Valider"; document.getElementById('btnSubmitEvt').className="bg-purple-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelEvt').classList.add('hidden');
+                document.getElementById('evtFormTitle').innerText="Ajouter / Modifier"; document.getElementById('btnSubmitEvt').innerText="Valider"; document.getElementById('btnSubmitEvt').className="bg-purple-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelEvt').classList.add('hidden');
             },
             delEvent: function(id){ if(confirm("Supprimer ?")){this.data.events=this.data.events.filter(x=>x.id!=id);this.renderUI();} },
 
@@ -275,7 +274,7 @@
                 this.data.settings.themeColor = document.getElementById('confColor').value;
                 this.data.settings.hours = { school: document.getElementById('confSchool').value, holidays: document.getElementById('confHolidays').value };
                 this.data.settings.emailjs = { publicKey: document.getElementById('confEmailPub').value, serviceId: document.getElementById('confEmailServ').value, templateId: document.getElementById('confEmailTempl').value };
-                this.data.settings.social = { facebook: document.getElementById('confFb').value, instagram: document.getElementById('confInsta').value };
+                this.data.settings.social = { facebook: document.getElementById('confFb').value, instagram: document.getElementById('confInsta').value, tiktok: document.getElementById('confTiktok').value, youtube: document.getElementById('confYoutube').value };
 
                 const c = JSON.parse(localStorage.getItem('admin_gh_config'));
                 const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`;
