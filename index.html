@@ -173,7 +173,7 @@
                                 </div>
                             </div>
                             <div class="flex justify-between items-center">
-                                <p class="text-xs text-gray-500 italic">Le token est stocké uniquement sur cet ordinateur.</p>
+                                <p class="text-xs text-gray-500 italic">Ces infos sont mémorisées sur cet ordinateur uniquement.</p>
                                 <button id="btnPushGithub" type="button" onclick="app.pushToGitHub()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded transition flex items-center gap-2">
                                     <i class="fas fa-cloud-upload-alt"></i> Sauvegarder sur Internet
                                 </button>
@@ -221,10 +221,10 @@
     <script>
         class EventApp {
             constructor() {
-                // CONFIG GITHUB (Initialisée vide)
+                // Initialisation config vide
                 this.githubConfig = { owner: "", repo: "", path: "index.html", token: "" };
 
-                // --- DONNÉES PAR DÉFAUT (Ne pas toucher manuellement) ---
+                // --- DONNÉES PAR DÉFAUT (Modifiées par la sauvegarde GitHub) ---
                 this.defaultData = {
                     events: [
                         { id: 1, title: "Exemple d'évènement", date: "2025-09-01", location: "En ligne", capacity: 50, image: null, description: "Ceci est un exemple. Connectez-vous en Admin pour le supprimer et créer les vôtres." }
@@ -259,7 +259,7 @@
                 document.getElementById('footerYear').textContent = new Date().getFullYear();
                 this.applyTheme();
                 this.renderEvents();
-                // Remplir champs admin
+                // Pré-remplir les champs GitHub s'ils sont en mémoire
                 if(this.githubConfig.owner) document.getElementById('ghOwner').value = this.githubConfig.owner;
                 if(this.githubConfig.repo) document.getElementById('ghRepo').value = this.githubConfig.repo;
                 if(this.githubConfig.token) document.getElementById('ghToken').value = this.githubConfig.token;
@@ -432,8 +432,8 @@
                 this.state.settings.orgName = document.getElementById('setOrgName').value;
                 this.state.settings.themeColor = document.getElementById('setThemeColor').value;
                 
-                // Note: On ne sauvegarde la config Github que lors du push désormais
-                // mais on peut le faire ici aussi si on veut que ça reste en local
+                // On met à jour l'objet config sans le sauvegarder en local tout de suite
+                // Il sera sauvegardé lors du Push pour éviter de stocker des données partielles
                 
                 const file = document.getElementById('setLogo').files[0];
                 if(file) {
@@ -449,20 +449,20 @@
                 if(p) { this.state.settings.adminPassword = p; this.saveState(); alert("Mot de passe changé."); }
             }
 
-            // FONCTION DE SAUVEGARDE GITHUB ROBUSTE
+            // --- FONCTION DE SAUVEGARDE GITHUB ROBUSTE ---
             async pushToGitHub() {
-                // 1. Lire les valeurs fraîches depuis l'interface
+                // 1. Lire les valeurs depuis l'interface (TRÈS IMPORTANT)
                 const owner = document.getElementById('ghOwner').value.trim();
                 const repo = document.getElementById('ghRepo').value.trim();
                 const token = document.getElementById('ghToken').value.trim();
 
-                // 2. Stockage local pour la prochaine fois
+                // 2. Mémoriser dans le navigateur pour la prochaine fois
                 this.githubConfig = { owner, repo, token, path: "index.html" };
                 localStorage.setItem('asso_gh_config', JSON.stringify(this.githubConfig));
 
-                // 3. Validation stricte
+                // 3. Vérifications
                 if(!owner || !repo || !token) return alert("ERREUR : Il manque des informations. Remplissez les 3 cases.");
-                if(owner.includes('@')) return alert("ERREUR : Le 'Pseudo GitHub' ne doit pas être un email. Utilisez votre nom d'utilisateur (ex: AliceFormation).");
+                if(owner.includes('@')) return alert("ERREUR : Le 'Pseudo GitHub' ne doit pas être un email.\nUtilisez votre nom d'utilisateur (ex: AliceFormation).");
 
                 if(!confirm("Mettre à jour le site public ? Cela prendra environ 2 min.")) return;
 
