@@ -69,21 +69,29 @@
 
             <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
                 <h2 class="text-xl font-bold mb-4 text-purple-400 border-b border-gray-700 pb-2"><i class="fas fa-calendar"></i> Évènements</h2>
+                
                 <div id="eventsList" class="space-y-3 mb-6"></div>
-                <div class="bg-gray-900 p-4 rounded border border-gray-700 grid gap-3">
-                    <input type="text" id="evtTitle" placeholder="Titre de l'évènement" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                    <div class="flex gap-2">
-                        <input type="date" id="evtDate" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-1/3">
-                        <input type="text" id="evtLoc" placeholder="Lieu" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-2/3">
-                    </div>
-                    <textarea id="evtDesc" placeholder="Description" class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
+                
+                <div class="bg-gray-900 p-4 rounded border border-gray-700 relative">
+                    <h3 id="evtFormTitle" class="text-sm font-bold text-gray-400 mb-3">Nouvel Évènement</h3>
                     
-                    <div class="border-t border-gray-700 pt-2">
-                        <label class="block text-xs text-gray-500 mb-1">Image de l'évènement (Optionnel)</label>
-                        <input type="file" id="evtImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400">
-                    </div>
+                    <button id="btnCancelEvt" onclick="admin.resetEventForm()" class="hidden absolute top-4 right-4 text-xs text-gray-400 hover:text-white border border-gray-600 px-2 py-1 rounded">Annuler la modification</button>
 
-                    <button onclick="admin.addEvent()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded font-bold transition">Ajouter</button>
+                    <div class="grid gap-3">
+                        <input type="hidden" id="evtId"> <input type="text" id="evtTitle" placeholder="Titre de l'évènement" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
+                        <div class="flex gap-2">
+                            <input type="date" id="evtDate" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-1/3">
+                            <input type="text" id="evtLoc" placeholder="Lieu" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-2/3">
+                        </div>
+                        <textarea id="evtDesc" placeholder="Description" class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
+                        
+                        <div class="border-t border-gray-700 pt-2">
+                            <label class="block text-xs text-gray-500 mb-1">Image (Laisser vide pour conserver l'actuelle)</label>
+                            <input type="file" id="evtImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400">
+                        </div>
+
+                        <button id="btnSubmitEvt" onclick="admin.submitEvent()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded font-bold transition">Ajouter l'évènement</button>
+                    </div>
                 </div>
             </div>
 
@@ -91,19 +99,17 @@
                 <h2 class="text-xl font-bold mb-4 text-orange-400 border-b border-gray-700 pb-2"><i class="fas fa-cog"></i> Paramètres Généraux</h2>
                 <div class="grid gap-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label class="text-gray-500 text-xs">Horaires Scolaires</label><textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
-                        <div><label class="text-gray-500 text-xs">Horaires Vacances</label><textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
+                        <div><label class="text-gray-500 text-xs">Scolaire</label><textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
+                        <div><label class="text-gray-500 text-xs">Vacances</label><textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
                     </div>
-                    
                     <div class="border-t border-gray-700 pt-4">
-                        <h3 class="font-bold text-sm mb-2 text-gray-400">EmailJS (Pour les réservations)</h3>
+                        <h3 class="font-bold text-sm mb-2 text-gray-400">EmailJS</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                             <input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-white border border-gray-600 text-sm">
                             <input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-white border border-gray-600 text-sm">
                             <input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-white border border-gray-600 text-sm">
                         </div>
                     </div>
-
                     <div class="border-t border-gray-700 pt-4">
                         <h3 class="font-bold text-sm mb-2 text-gray-400">Réseaux Sociaux</h3>
                         <div class="grid grid-cols-2 gap-2">
@@ -153,7 +159,7 @@
                 try {
                     const url = `https://api.github.com/repos/${owner}/${repo}/contents/index.html`;
                     const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
-                    if(!res.ok) throw new Error("Erreur accès GitHub (Vérifiez le Token)");
+                    if(!res.ok) throw new Error("Erreur accès GitHub");
                     
                     const json = await res.json();
                     this.sha = json.sha;
@@ -161,19 +167,10 @@
                     
                     const match = content.match(/window\.ASSO_DATA\s*=\s*({[\s\S]*?});/);
                     
-                    if(!match) {
-                        alert("⚠️ Données introuvables. Chargement config vierge.");
-                        this.data = JSON.parse(JSON.stringify(this.defaultData));
-                    } else {
-                        try { this.data = JSON.parse(match[1]); } 
-                        catch(e) { this.data = JSON.parse(JSON.stringify(this.defaultData)); }
-                    }
+                    if(!match) this.data = JSON.parse(JSON.stringify(this.defaultData));
+                    else try { this.data = JSON.parse(match[1]); } catch(e) { this.data = JSON.parse(JSON.stringify(this.defaultData)); }
 
-                    // Structure check
                     if(!this.data.settings) this.data.settings = {};
-                    if(!this.data.settings.hours) this.data.settings.hours = {};
-                    if(!this.data.settings.emailjs) this.data.settings.emailjs = {};
-                    if(!this.data.settings.social) this.data.settings.social = {};
                     if(!this.data.news) this.data.news = [];
                     if(!this.data.events) this.data.events = [];
 
@@ -189,24 +186,26 @@
                 const D = this.data;
                 const S = D.settings;
 
-                // News & Events Lists
                 document.getElementById('newsList').innerHTML = D.news.map(n => 
-                    `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${n.title}</span> <button onclick="admin.delNews(${n.id})" class="text-red-400 hover:text-red-200"><i class="fas fa-trash"></i></button></div>`
+                    `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${n.title}</span> <button onclick="admin.delNews(${n.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div>`
                 ).join('');
+                
+                // LISTE ÉVÈNEMENTS AVEC BOUTON MODIFIER
                 document.getElementById('eventsList').innerHTML = D.events.map(e => 
-                    `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${e.title}</span> <button onclick="admin.delEvent(${e.id})" class="text-red-400 hover:text-red-200"><i class="fas fa-trash"></i></button></div>`
+                    `<div class="flex justify-between items-center bg-gray-900 p-3 rounded border border-gray-600 mb-2">
+                        <div><span class="font-bold text-purple-300">${e.title}</span> <span class="text-xs text-gray-500 ml-2">${e.date}</span></div>
+                        <div class="flex gap-3">
+                            <button onclick="admin.editEvent(${e.id})" class="text-blue-400 hover:text-blue-200" title="Modifier"><i class="fas fa-edit"></i></button>
+                            <button onclick="admin.delEvent(${e.id})" class="text-red-400 hover:text-red-200" title="Supprimer"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`
                 ).join('');
 
-                // Settings Inputs
                 document.getElementById('confName').value = S.orgName || "";
                 document.getElementById('confColor').value = S.themeColor || "#2563eb";
                 document.getElementById('confColorPicker').value = S.themeColor || "#2563eb";
+                if(S.logoUrl) { document.getElementById('logoPreview').src = S.logoUrl; document.getElementById('logoPreview').classList.remove('hidden'); }
                 
-                if(S.logoUrl) {
-                    const img = document.getElementById('logoPreview');
-                    img.src = S.logoUrl; img.classList.remove('hidden');
-                }
-
                 document.getElementById('confSchool').value = S.hours?.school || "";
                 document.getElementById('confHolidays').value = S.hours?.holidays || "";
                 document.getElementById('confEmailPub').value = S.emailjs?.publicKey || "";
@@ -217,13 +216,12 @@
                 document.getElementById('confWeb').value = S.social?.website || "";
             },
 
-            // --- LOGO HANDLING ---
             updateLogoPreview: function() {
                 const file = document.getElementById('confLogoFile').files[0];
                 if(file) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        this.data.settings.logoUrl = e.target.result; // Update data immediately
+                        this.data.settings.logoUrl = e.target.result;
                         const img = document.getElementById('logoPreview');
                         img.src = e.target.result; img.classList.remove('hidden');
                     };
@@ -232,45 +230,98 @@
             },
 
             addNews: function() {
-                const t = document.getElementById('newsTitle').value;
-                if(!t) return alert("Titre obligatoire");
+                const t = document.getElementById('newsTitle').value; if(!t) return;
                 this.data.news.push({id:Date.now(), title:t, date:document.getElementById('newsDate').value, tag:document.getElementById('newsTag').value, content:document.getElementById('newsContent').value});
                 this.renderUI(); document.getElementById('newsTitle').value=""; document.getElementById('newsContent').value="";
             },
             delNews: function(id){ if(confirm("Supprimer ?")) { this.data.news = this.data.news.filter(x=>x.id!=id); this.renderUI(); } },
 
-            addEvent: function() {
+            // --- GESTION ÉVÈNEMENTS (ADD / EDIT) ---
+            submitEvent: function() {
                 const t = document.getElementById('evtTitle').value;
                 if(!t) return alert("Titre obligatoire");
                 
-                const fileInput = document.getElementById('evtImgFile');
-                const file = fileInput.files[0];
-                
-                const processEvent = (imgBase64) => {
-                    this.data.events.push({
-                        id: Date.now(),
+                const idInput = document.getElementById('evtId').value; // ID présent si modification
+                const file = document.getElementById('evtImgFile').files[0];
+
+                const process = (img) => {
+                    const evtData = {
                         title: t,
                         date: document.getElementById('evtDate').value,
                         location: document.getElementById('evtLoc').value,
-                        description: document.getElementById('evtDesc').value,
-                        image: imgBase64
-                    });
+                        description: document.getElementById('evtDesc').value
+                    };
+
+                    if(idInput) {
+                        // MODIFICATION
+                        const idx = this.data.events.findIndex(e => e.id == idInput);
+                        if(idx !== -1) {
+                            // On garde l'ancienne image si pas de nouvelle
+                            evtData.image = img ? img : this.data.events[idx].image;
+                            evtData.id = parseInt(idInput);
+                            this.data.events[idx] = evtData;
+                        }
+                    } else {
+                        // CRÉATION
+                        evtData.id = Date.now();
+                        evtData.image = img;
+                        this.data.events.push(evtData);
+                    }
+                    
                     this.renderUI();
-                    // Reset
-                    document.getElementById('evtTitle').value=""; 
-                    document.getElementById('evtLoc').value="";
-                    document.getElementById('evtDesc').value="";
-                    fileInput.value = ""; // Reset file input
+                    this.resetEventForm();
                 };
 
                 if(file) {
                     const reader = new FileReader();
-                    reader.onload = (e) => processEvent(e.target.result);
+                    reader.onload = (e) => process(e.target.result);
                     reader.readAsDataURL(file);
                 } else {
-                    processEvent(null);
+                    process(null);
                 }
             },
+
+            editEvent: function(id) {
+                const e = this.data.events.find(x => x.id == id);
+                if(!e) return;
+                
+                // Remplir le formulaire
+                document.getElementById('evtId').value = e.id;
+                document.getElementById('evtTitle').value = e.title;
+                document.getElementById('evtDate').value = e.date;
+                document.getElementById('evtLoc').value = e.location;
+                document.getElementById('evtDesc').value = e.description;
+                
+                // UI Changement
+                document.getElementById('evtFormTitle').innerText = "Modifier l'évènement : " + e.title;
+                document.getElementById('evtFormTitle').className = "text-sm font-bold text-blue-400 mb-3";
+                
+                const btn = document.getElementById('btnSubmitEvt');
+                btn.innerText = "Modifier l'évènement";
+                btn.className = "bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-bold transition";
+                
+                document.getElementById('btnCancelEvt').classList.remove('hidden');
+                document.getElementById('evtImgFile').value = ""; // Reset file input
+            },
+
+            resetEventForm: function() {
+                document.getElementById('evtId').value = "";
+                document.getElementById('evtTitle').value = "";
+                document.getElementById('evtDate').value = "";
+                document.getElementById('evtLoc').value = "";
+                document.getElementById('evtDesc').value = "";
+                document.getElementById('evtImgFile').value = "";
+                
+                document.getElementById('evtFormTitle').innerText = "Nouvel Évènement";
+                document.getElementById('evtFormTitle').className = "text-sm font-bold text-gray-400 mb-3";
+                
+                const btn = document.getElementById('btnSubmitEvt');
+                btn.innerText = "Ajouter l'évènement";
+                btn.className = "bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded font-bold transition";
+                
+                document.getElementById('btnCancelEvt').classList.add('hidden');
+            },
+
             delEvent: function(id){ if(confirm("Supprimer ?")) { this.data.events = this.data.events.filter(x=>x.id!=id); this.renderUI(); } },
 
             saveToGitHub: async function() {
@@ -278,10 +329,8 @@
                 const btn = document.getElementById('btnSave');
                 const old = btn.innerHTML; btn.innerHTML = "Envoi...";
                 
-                // Save settings inputs
                 this.data.settings.orgName = document.getElementById('confName').value;
                 this.data.settings.themeColor = document.getElementById('confColor').value;
-                // Logo is already saved via updateLogoPreview
                 this.data.settings.hours = { school: document.getElementById('confSchool').value, holidays: document.getElementById('confHolidays').value };
                 this.data.settings.emailjs = { publicKey: document.getElementById('confEmailPub').value, serviceId: document.getElementById('confEmailServ').value, templateId: document.getElementById('confEmailTempl').value };
                 this.data.settings.social = { facebook: document.getElementById('confFb').value, instagram: document.getElementById('confInsta').value, website: document.getElementById('confWeb').value };
@@ -306,7 +355,7 @@
                     const putRes = await fetch(url, {
                         method: "PUT",
                         headers: { Authorization: `token ${c.token}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: "Update Admin", content: encoded, sha: json.sha })
+                        body: JSON.stringify({ message: "Update Admin V8", content: encoded, sha: json.sha })
                     });
                     
                     if(!putRes.ok) throw new Error("Erreur écriture");
