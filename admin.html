@@ -58,18 +58,9 @@
             <div class="bg-gray-700 p-6 rounded shadow">
                 <h2 class="text-xl font-bold mb-4 text-orange-400"><i class="fas fa-cog"></i> Paramètres Généraux</h2>
                 <div class="grid gap-4">
-                    <div>
-                        <label class="block text-xs text-gray-400">Nom Asso</label>
-                        <input type="text" id="confName" class="w-full bg-gray-800 p-2 rounded text-white">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400">Horaires Scolaires</label>
-                        <textarea id="confSchool" class="w-full bg-gray-800 p-2 rounded text-white"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400">Horaires Vacances</label>
-                        <textarea id="confHolidays" class="w-full bg-gray-800 p-2 rounded text-white"></textarea>
-                    </div>
+                    <div><label class="block text-xs text-gray-400">Nom Asso</label><input type="text" id="confName" class="w-full bg-gray-800 p-2 rounded text-white"></div>
+                    <div><label class="block text-xs text-gray-400">Horaires Scolaires</label><textarea id="confSchool" class="w-full bg-gray-800 p-2 rounded text-white"></textarea></div>
+                    <div><label class="block text-xs text-gray-400">Horaires Vacances</label><textarea id="confHolidays" class="w-full bg-gray-800 p-2 rounded text-white"></textarea></div>
                     <div class="border-t border-gray-600 pt-4">
                         <h3 class="font-bold text-sm mb-2">EmailJS Config</h3>
                         <input type="text" id="confEmailPub" placeholder="Public Key" class="w-full bg-gray-800 p-2 rounded mb-2 text-white">
@@ -84,16 +75,20 @@
                     <i class="fas fa-cloud-upload-alt fa-lg"></i> METTRE LE SITE EN LIGNE
                 </button>
             </div>
-            <div class="h-20"></div> </div>
+            <div class="h-20"></div>
+        </div>
     </div>
 
     <script>
         const admin = {
-            data: null,
-            sha: null, // Nécessaire pour l'API GitHub
+            data: null, sha: null,
+            defaultStructure: {
+                events: [],
+                news: [{id:1, title:"Info", date:"2025-01-01", tag:"info", content:"Site initialisé"}],
+                settings: { orgName: "Cor-Tech", themeColor: "#2563eb", hours: {school:"", holidays:""}, emailjs: {}, social: {} }
+            },
             
             init: function() {
-                // Charger config locale si existe
                 const c = JSON.parse(localStorage.getItem('admin_gh_config') || '{}');
                 if(c.owner) document.getElementById('ghOwner').value = c.owner;
                 if(c.repo) document.getElementById('ghRepo').value = c.repo;
@@ -111,43 +106,44 @@
                 try {
                     const url = `https://api.github.com/repos/${owner}/${repo}/contents/index.html`;
                     const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
-                    if(!res.ok) throw new Error("Impossible de lire index.html (Vérifiez Token/Nom)");
+                    if(!res.ok) throw new Error("Accès refusé. Vérifiez vos identifiants.");
                     
                     const json = await res.json();
-                    this.sha = json.sha; // On garde le SHA pour la sauvegarde
-                    
-                    // Décodage du fichier index.html
+                    this.sha = json.sha; 
                     const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
                     
-                    // EXTRACTION DES DONNÉES JSON (Entre window.ASSO_DATA = et ;)
+                    // Tentative d'extraction
                     const regex = /window\.ASSO_DATA\s*=\s*({[\s\S]*?});/;
                     const match = content.match(regex);
                     
-                    if(!match) throw new Error("Balise ASSO_DATA introuvable dans index.html");
+                    if(!match) {
+                        alert("⚠️ Structure de données non trouvée.\nChargement d'une configuration vierge pour réparation.");
+                        this.data = this.defaultStructure;
+                    } else {
+                        try {
+                            this.data = JSON.parse(match[1]);
+                        } catch(e) {
+                            alert("⚠️ Fichier corrompu (Erreur JSON).\nChargement d'une configuration vierge pour réparation.");
+                            this.data = this.defaultStructure;
+                        }
+                    }
                     
-                    this.data = JSON.parse(match[1]);
+                    // Remplissage des manques éventuels
+                    if(!this.data.settings) this.data.settings = this.defaultStructure.settings;
+                    if(!this.data.news) this.data.news = [];
                     
-                    // Affichage
                     document.getElementById('configPanel').classList.add('hidden');
                     document.getElementById('editorPanel').classList.remove('hidden');
                     this.renderUI();
                     
-                } catch(e) { alert("Erreur: " + e.message); console.error(e); }
+                } catch(e) { alert("Erreur: " + e.message); }
             },
 
             renderUI: function() {
                 const D = this.data;
-                // News
-                document.getElementById('newsList').innerHTML = D.news.map(n => 
-                    `<div class="flex justify-between bg-gray-800 p-2 rounded"><span>${n.title}</span> <button onclick="admin.delNews(${n.id})" class="text-red-400">Suppr</button></div>`
-                ).join('');
-                
-                // Events
-                document.getElementById('eventsList').innerHTML = D.events.map(e => 
-                    `<div class="flex justify-between bg-gray-800 p-2 rounded"><span>${e.title}</span> <button onclick="admin.delEvent(${e.id})" class="text-red-400">Suppr</button></div>`
-                ).join('');
+                document.getElementById('newsList').innerHTML = D.news.map(n => `<div class="flex justify-between bg-gray-800 p-2 rounded"><span>${n.title}</span> <button onclick="admin.delNews(${n.id})" class="text-red-400">Suppr</button></div>`).join('');
+                document.getElementById('eventsList').innerHTML = D.events.map(e => `<div class="flex justify-between bg-gray-800 p-2 rounded"><span>${e.title}</span> <button onclick="admin.delEvent(${e.id})" class="text-red-400">Suppr</button></div>`).join('');
 
-                // Settings
                 document.getElementById('confName').value = D.settings.orgName || "";
                 document.getElementById('confSchool').value = D.settings.hours?.school || "";
                 document.getElementById('confHolidays').value = D.settings.hours?.holidays || "";
@@ -157,89 +153,54 @@
             },
 
             addNews: function() {
-                this.data.news.push({
-                    id: Date.now(),
-                    title: document.getElementById('newsTitle').value,
-                    date: document.getElementById('newsDate').value,
-                    tag: document.getElementById('newsTag').value,
-                    content: document.getElementById('newsContent').value
-                });
-                this.renderUI();
-                alert("News ajoutée (En attente de mise en ligne)");
+                this.data.news.push({id: Date.now(), title: document.getElementById('newsTitle').value, date: document.getElementById('newsDate').value, tag: document.getElementById('newsTag').value, content: document.getElementById('newsContent').value});
+                this.renderUI(); alert("News ajoutée (En attente de mise en ligne)");
             },
             delNews: function(id) { this.data.news = this.data.news.filter(x=>x.id!=id); this.renderUI(); },
             
             addEvent: function() {
-                this.data.events.push({
-                    id: Date.now(),
-                    title: document.getElementById('evtTitle').value,
-                    date: document.getElementById('evtDate').value,
-                    location: document.getElementById('evtLoc').value,
-                    description: document.getElementById('evtDesc').value,
-                    image: null
-                });
-                this.renderUI();
-                alert("Event ajouté (En attente de mise en ligne)");
+                this.data.events.push({id: Date.now(), title: document.getElementById('evtTitle').value, date: document.getElementById('evtDate').value, location: document.getElementById('evtLoc').value, description: document.getElementById('evtDesc').value, image: null});
+                this.renderUI(); alert("Event ajouté (En attente de mise en ligne)");
             },
             delEvent: function(id) { this.data.events = this.data.events.filter(x=>x.id!=id); this.renderUI(); },
 
             saveToGitHub: async function() {
                 if(!confirm("Mettre à jour le site public maintenant ?")) return;
+                const btn = document.getElementById('btnSave'); btn.innerHTML = "⏳ Envoi en cours...";
                 
-                const btn = document.getElementById('btnSave');
-                btn.innerHTML = "⏳ Envoi en cours...";
-                
-                // Récupération des champs Settings
                 this.data.settings.orgName = document.getElementById('confName').value;
-                this.data.settings.hours = { 
-                    school: document.getElementById('confSchool').value,
-                    holidays: document.getElementById('confHolidays').value
-                };
+                this.data.settings.hours = { school: document.getElementById('confSchool').value, holidays: document.getElementById('confHolidays').value };
                 if(!this.data.settings.emailjs) this.data.settings.emailjs = {};
                 this.data.settings.emailjs.publicKey = document.getElementById('confEmailPub').value;
                 this.data.settings.emailjs.serviceId = document.getElementById('confEmailServ').value;
                 this.data.settings.emailjs.templateId = document.getElementById('confEmailTempl').value;
 
-                // Processus inverse : on doit relire index.html pour ne pas écraser le HTML, juste le JSON
-                const owner = JSON.parse(localStorage.getItem('admin_gh_config')).owner;
-                const repo = JSON.parse(localStorage.getItem('admin_gh_config')).repo;
-                const token = JSON.parse(localStorage.getItem('admin_gh_config')).token;
-                const url = `https://api.github.com/repos/${owner}/${repo}/contents/index.html`;
+                const c = JSON.parse(localStorage.getItem('admin_gh_config'));
+                const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/index.html`;
 
                 try {
-                    // 1. Re-fetch pour avoir le contenu HTML brut à jour
-                    const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
+                    const res = await fetch(url, { headers: { Authorization: `token ${c.token}` } });
                     const json = await res.json();
                     const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
                     
-                    // 2. Remplacer le bloc JSON
                     const newDataStr = JSON.stringify(this.data, null, 4);
-                    const newContent = content.replace(/window\.ASSO_DATA\s*=\s*({[\s\S]*?});/, `window.ASSO_DATA = ${newDataStr};`);
+                    // On remplace le bloc JSON, même s'il est cassé, par le nouveau tout beau
+                    let newContent;
+                    if(content.includes('window.ASSO_DATA')) {
+                        newContent = content.replace(/window\.ASSO_DATA\s*=\s*({[\s\S]*?});/, `window.ASSO_DATA = ${newDataStr};`);
+                    } else {
+                        // Cas d'urgence : on réinjecte le script si manquant
+                        newContent = content.replace('</body>', `<script>window.ASSO_DATA = ${newDataStr};</script></body>`);
+                    }
                     
-                    // 3. Encoder et Push
                     const encoded = btoa(unescape(encodeURIComponent(newContent)));
-                    const putRes = await fetch(url, {
-                        method: "PUT",
-                        headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: "Update via Admin Panel", content: encoded, sha: this.sha }) // Use stored SHA
-                    });
+                    const putRes = await fetch(url, { method: "PUT", headers: { Authorization: `token ${c.token}`, "Content-Type": "application/json" }, body: JSON.stringify({ message: "Update Admin", content: encoded, sha: json.sha }) });
                     
                     if(!putRes.ok) throw new Error("Erreur écriture GitHub");
-                    
-                    // Mise à jour du SHA pour la prochaine sauvegarde sans recharger
-                    const putJson = await putRes.json();
-                    this.sha = putJson.content.sha;
-
-                    alert("✅ SITE MIS À JOUR !");
-                    btn.innerHTML = '<i class="fas fa-cloud-upload-alt fa-lg"></i> METTRE LE SITE EN LIGNE';
-
-                } catch(e) {
-                    alert("Erreur: " + e.message);
-                    btn.innerHTML = "ERREUR (Réessayer)";
-                }
+                    alert("✅ SITE MIS À JOUR !"); btn.innerHTML = '<i class="fas fa-cloud-upload-alt fa-lg"></i> METTRE LE SITE EN LIGNE';
+                } catch(e) { alert("Erreur: " + e.message); btn.innerHTML = "ERREUR (Réessayer)"; }
             }
         };
-        
         admin.init();
     </script>
 </body>
