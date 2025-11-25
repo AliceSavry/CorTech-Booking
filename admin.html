@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Administration Cor-Tech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>.loader{border:4px solid #f3f3f3;border-top:4px solid #3498db;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite;display:inline-block;}</style>
+</head>
+<body class="bg-gray-800 text-white min-h-screen p-6">
+
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-8 border-b border-gray-600 pb-4">
+            <h1 class="text-2xl font-bold text-blue-400"><i class="fas fa-tools"></i> Admin Cor-Tech</h1>
+            <a href="index.html" target="_blank" class="text-gray-300 hover:text-white"><i class="fas fa-external-link-alt"></i> Voir le site</a>
+        </div>
+
+        <div id="configPanel" class="bg-gray-700 p-6 rounded shadow mb-8">
+            <h2 class="text-xl font-bold mb-4">1. Connexion au Site (GitHub)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <input type="text" id="ghOwner" placeholder="Pseudo GitHub" class="bg-gray-800 p-2 rounded border border-gray-600 text-white">
+                <input type="text" id="ghRepo" placeholder="Nom du Dépôt" class="bg-gray-800 p-2 rounded border border-gray-600 text-white">
+                <input type="password" id="ghToken" placeholder="Token Secret" class="bg-gray-800 p-2 rounded border border-gray-600 text-white">
+            </div>
+            <button onclick="admin.loadData()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold w-full">
+                <i class="fas fa-download"></i> CHARGER LES DONNÉES DU SITE
+            </button>
+        </div>
+
+        <div id="editorPanel" class="hidden space-y-8">
+            
+            <div class="bg-gray-700 p-6 rounded shadow">
+                <h2 class="text-xl font-bold mb-4 text-green-400"><i class="fas fa-newspaper"></i> Actualités</h2>
+                <div id="newsList" class="space-y-2 mb-4"></div>
+                <div class="grid gap-2 bg-gray-800 p-4 rounded">
+                    <input type="text" id="newsTitle" placeholder="Titre" class="bg-gray-700 p-2 rounded text-white">
+                    <div class="flex gap-2">
+                        <input type="date" id="newsDate" class="bg-gray-700 p-2 rounded text-white">
+                        <select id="newsTag" class="bg-gray-700 p-2 rounded text-white"><option value="info">Info</option><option value="urgent">Urgent</option><option value="event">Vie Asso</option></select>
+                    </div>
+                    <textarea id="newsContent" placeholder="Contenu" class="bg-gray-700 p-2 rounded text-white"></textarea>
+                    <button onclick="admin.addNews()" class="bg-green-600 px-4 py-2 rounded font-bold">Ajouter News</button>
+                </div>
+            </div>
+
+            <div class="bg-gray-700 p-6 rounded shadow">
+                <h2 class="text-xl font-bold mb-4 text-purple-400"><i class="fas fa-calendar"></i> Évènements</h2>
+                <div id="eventsList" class="space-y-2 mb-4"></div>
+                <div class="grid gap-2 bg-gray-800 p-4 rounded">
+                    <input type="text" id="evtTitle" placeholder="Titre" class="bg-gray-700 p-2 rounded text-white">
+                    <input type="date" id="evtDate" class="bg-gray-700 p-2 rounded text-white">
+                    <input type="text" id="evtLoc" placeholder="Lieu" class="bg-gray-700 p-2 rounded text-white">
+                    <textarea id="evtDesc" placeholder="Description" class="bg-gray-700 p-2 rounded text-white"></textarea>
+                    <button onclick="admin.addEvent()" class="bg-purple-600 px-4 py-2 rounded font-bold">Ajouter Évènement</button>
+                </div>
+            </div>
+
+            <div class="bg-gray-700 p-6 rounded shadow">
+                <h2 class="text-xl font-bold mb-4 text-orange-400"><i class="fas fa-cog"></i> Paramètres Généraux</h2>
+                <div class="grid gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-400">Nom Asso</label>
+                        <input type="text" id="confName" class="w-full bg-gray-800 p-2 rounded text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Horaires Scolaires</label>
+                        <textarea id="confSchool" class="w-full bg-gray-800 p-2 rounded text-white"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Horaires Vacances</label>
+                        <textarea id="confHolidays" class="w-full bg-gray-800 p-2 rounded text-white"></textarea>
+                    </div>
+                    <div class="border-t border-gray-600 pt-4">
+                        <h3 class="font-bold text-sm mb-2">EmailJS Config</h3>
+                        <input type="text" id="confEmailPub" placeholder="Public Key" class="w-full bg-gray-800 p-2 rounded mb-2 text-white">
+                        <input type="text" id="confEmailServ" placeholder="Service ID" class="w-full bg-gray-800 p-2 rounded mb-2 text-white">
+                        <input type="text" id="confEmailTempl" placeholder="Template ID" class="w-full bg-gray-800 p-2 rounded text-white">
+                    </div>
+                </div>
+            </div>
+
+            <div class="fixed bottom-0 left-0 w-full bg-gray-900 p-4 border-t border-gray-600 flex justify-center shadow-lg">
+                <button id="btnSave" onclick="admin.saveToGitHub()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition flex items-center gap-3">
+                    <i class="fas fa-cloud-upload-alt fa-lg"></i> METTRE LE SITE EN LIGNE
+                </button>
+            </div>
+            <div class="h-20"></div> </div>
+    </div>
+
+    <script>
+        const admin = {
+            data: null,
+            sha: null, // Nécessaire pour l'API GitHub
+            
+            init: function() {
+                // Charger config locale si existe
+                const c = JSON.parse(localStorage.getItem('admin_gh_config') || '{}');
+                if(c.owner) document.getElementById('ghOwner').value = c.owner;
+                if(c.repo) document.getElementById('ghRepo').value = c.repo;
+                if(c.token) document.getElementById('ghToken').value = c.token;
+            },
+
+            loadData: async function() {
+                const owner = document.getElementById('ghOwner').value.trim();
+                const repo = document.getElementById('ghRepo').value.trim();
+                const token = document.getElementById('ghToken').value.trim();
+
+                if(!owner || !repo || !token) return alert("Remplissez les 3 champs GitHub !");
+                localStorage.setItem('admin_gh_config', JSON.stringify({owner, repo, token}));
+
+                try {
+                    const url = `https://api.github.com/repos/${owner}/${repo}/contents/index.html`;
+                    const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
+                    if(!res.ok) throw new Error("Impossible de lire index.html (Vérifiez Token/Nom)");
+                    
+                    const json = await res.json();
+                    this.sha = json.sha; // On garde le SHA pour la sauvegarde
+                    
+                    // Décodage du fichier index.html
+                    const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
+                    
+                    // EXTRACTION DES DONNÉES JSON (Entre window.ASSO_DATA = et ;)
+                    const regex = /window\.ASSO_DATA\s*=\s*({[\s\S]*?});/;
+                    const match = content.match(regex);
+                    
+                    if(!match) throw new Error("Balise ASSO_DATA introuvable dans index.html");
+                    
+                    this.data = JSON.parse(match[1]);
+                    
+                    // Affichage
+                    document.getElementById('configPanel').classList.add('hidden');
+                    document.getElementById('editorPanel').classList.remove('hidden');
+                    this.renderUI();
+                    
+                } catch(e) { alert("Erreur: " + e.message); console.error(e); }
+            },
+
+            renderUI: function() {
+                const D = this.data;
+                // News
+                document.getElementById('newsList').innerHTML = D.news.map(n => 
+                    `<div class="flex justify-between bg-gray-800 p-2 rounded"><span>${n.title}</span> <button onclick="admin.delNews(${n.id})" class="text-red-400">Suppr</button></div>`
+                ).join('');
+                
+                // Events
+                document.getElementById('eventsList').innerHTML = D.events.map(e => 
+                    `<div class="flex justify-between bg-gray-800 p-2 rounded"><span>${e.title}</span> <button onclick="admin.delEvent(${e.id})" class="text-red-400">Suppr</button></div>`
+                ).join('');
+
+                // Settings
+                document.getElementById('confName').value = D.settings.orgName || "";
+                document.getElementById('confSchool').value = D.settings.hours?.school || "";
+                document.getElementById('confHolidays').value = D.settings.hours?.holidays || "";
+                document.getElementById('confEmailPub').value = D.settings.emailjs?.publicKey || "";
+                document.getElementById('confEmailServ').value = D.settings.emailjs?.serviceId || "";
+                document.getElementById('confEmailTempl').value = D.settings.emailjs?.templateId || "";
+            },
+
+            addNews: function() {
+                this.data.news.push({
+                    id: Date.now(),
+                    title: document.getElementById('newsTitle').value,
+                    date: document.getElementById('newsDate').value,
+                    tag: document.getElementById('newsTag').value,
+                    content: document.getElementById('newsContent').value
+                });
+                this.renderUI();
+                alert("News ajoutée (En attente de mise en ligne)");
+            },
+            delNews: function(id) { this.data.news = this.data.news.filter(x=>x.id!=id); this.renderUI(); },
+            
+            addEvent: function() {
+                this.data.events.push({
+                    id: Date.now(),
+                    title: document.getElementById('evtTitle').value,
+                    date: document.getElementById('evtDate').value,
+                    location: document.getElementById('evtLoc').value,
+                    description: document.getElementById('evtDesc').value,
+                    image: null
+                });
+                this.renderUI();
+                alert("Event ajouté (En attente de mise en ligne)");
+            },
+            delEvent: function(id) { this.data.events = this.data.events.filter(x=>x.id!=id); this.renderUI(); },
+
+            saveToGitHub: async function() {
+                if(!confirm("Mettre à jour le site public maintenant ?")) return;
+                
+                const btn = document.getElementById('btnSave');
+                btn.innerHTML = "⏳ Envoi en cours...";
+                
+                // Récupération des champs Settings
+                this.data.settings.orgName = document.getElementById('confName').value;
+                this.data.settings.hours = { 
+                    school: document.getElementById('confSchool').value,
+                    holidays: document.getElementById('confHolidays').value
+                };
+                if(!this.data.settings.emailjs) this.data.settings.emailjs = {};
+                this.data.settings.emailjs.publicKey = document.getElementById('confEmailPub').value;
+                this.data.settings.emailjs.serviceId = document.getElementById('confEmailServ').value;
+                this.data.settings.emailjs.templateId = document.getElementById('confEmailTempl').value;
+
+                // Processus inverse : on doit relire index.html pour ne pas écraser le HTML, juste le JSON
+                const owner = JSON.parse(localStorage.getItem('admin_gh_config')).owner;
+                const repo = JSON.parse(localStorage.getItem('admin_gh_config')).repo;
+                const token = JSON.parse(localStorage.getItem('admin_gh_config')).token;
+                const url = `https://api.github.com/repos/${owner}/${repo}/contents/index.html`;
+
+                try {
+                    // 1. Re-fetch pour avoir le contenu HTML brut à jour
+                    const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
+                    const json = await res.json();
+                    const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
+                    
+                    // 2. Remplacer le bloc JSON
+                    const newDataStr = JSON.stringify(this.data, null, 4);
+                    const newContent = content.replace(/window\.ASSO_DATA\s*=\s*({[\s\S]*?});/, `window.ASSO_DATA = ${newDataStr};`);
+                    
+                    // 3. Encoder et Push
+                    const encoded = btoa(unescape(encodeURIComponent(newContent)));
+                    const putRes = await fetch(url, {
+                        method: "PUT",
+                        headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: "Update via Admin Panel", content: encoded, sha: this.sha }) // Use stored SHA
+                    });
+                    
+                    if(!putRes.ok) throw new Error("Erreur écriture GitHub");
+                    
+                    // Mise à jour du SHA pour la prochaine sauvegarde sans recharger
+                    const putJson = await putRes.json();
+                    this.sha = putJson.content.sha;
+
+                    alert("✅ SITE MIS À JOUR !");
+                    btn.innerHTML = '<i class="fas fa-cloud-upload-alt fa-lg"></i> METTRE LE SITE EN LIGNE';
+
+                } catch(e) {
+                    alert("Erreur: " + e.message);
+                    btn.innerHTML = "ERREUR (Réessayer)";
+                }
+            }
+        };
+        
+        admin.init();
+    </script>
+</body>
+</html>
