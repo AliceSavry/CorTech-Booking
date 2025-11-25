@@ -33,15 +33,8 @@
 
     <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 hidden" id="mainContent">
         
-        <div class="lg:col-span-1">
-            <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-bullhorn text-red-500 mr-3"></i> Dernières Actualités</h2>
-            <div id="newsList" class="grid grid-cols-1 gap-6"> 
-                <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
-            </div>
-        </div>
+        <div class="lg:col-span-1 space-y-6">
 
-        <div class="lg:col-span-2 space-y-6">
-            
             <div id="eventsContainer" class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-primary">
                 <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-calendar-alt text-primary mr-3"></i> Évènements à venir</h2>
                 <div id="eventsList" class="space-y-4">
@@ -49,20 +42,27 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-clock text-orange-500 mr-3"></i> Horaires</h2>
-                    <div class="space-y-4">
-                        <div><h3 class="font-bold text-gray-700 mb-1">Période Scolaire :</h3><pre id="hoursSchool" class="text-gray-600 whitespace-pre-wrap"></pre></div>
-                        <div><h3 class="font-bold text-gray-700 mb-1">Vacances :</h3><pre id="hoursHolidays" class="text-gray-600 whitespace-pre-wrap"></pre></div>
-                    </div>
-                </div>
-                <div id="socialContainer" class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-share-alt text-teal-500 mr-3"></i> Nous suivre</h2>
-                    <div id="socialLinks" class="flex justify-around items-center text-3xl"></div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-clock text-orange-500 mr-3"></i> Horaires</h2>
+                <div class="space-y-4">
+                    <div><h3 class="font-bold text-gray-700 mb-1">Période Scolaire :</h3><pre id="hoursSchool" class="text-gray-600 whitespace-pre-wrap"></pre></div>
+                    <div><h3 class="font-bold text-gray-700 mb-1">Vacances :</h3><pre id="hoursHolidays" class="text-gray-600 whitespace-pre-wrap"></pre></div>
                 </div>
             </div>
-            
+
+            <div id="socialContainer" class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-share-alt text-teal-500 mr-3"></i> Nous suivre</h2>
+                <div id="socialLinks" class="flex justify-around items-center text-3xl"></div>
+            </div>
+
+        </div>
+
+
+        <div class="lg:col-span-2">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-bullhorn text-red-500 mr-3"></i> Dernières Actualités</h2>
+            <div id="newsList" class="grid grid-cols-1 gap-6">
+                <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
+            </div>
         </div>
 
     </main>
@@ -87,11 +87,10 @@
             </form>
         </div>
     </div>
-    
+
     <div id="modalNewsDetail" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full h-[90vh] flex flex-col relative">
             <button onclick="document.getElementById('modalNewsDetail').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 z-10 p-2 bg-white rounded-full hover:text-gray-900"><i class="fas fa-times fa-lg"></i></button>
-            
             <div class="p-6 overflow-y-auto flex-grow" id="newsDetailContent">
                 </div>
         </div>
@@ -191,7 +190,7 @@
                 return;
             }
 
-            // Empilement vertical dans la zone 1/3
+            // Empilement vertical
             list.classList.remove('md:grid-cols-2');
             list.classList.add('space-y-4');
 
@@ -267,37 +266,6 @@
             });
         }
         
-        // --- LOGIQUE MODAL DÉTAIL NEWS ---
-        function openNewsDetail(id) {
-            const newsItem = DATA.news.find(n => n.id == id);
-            if (!newsItem) return;
-            
-            const detailContainer = document.getElementById('newsDetailContent');
-            
-            const tagClasses = { 'info': 'bg-blue-100 text-blue-800', 'urgent': 'bg-red-100 text-red-800', 'event': 'bg-green-100 text-green-800' };
-            const tagText = { 'info': 'Information', 'urgent': 'URGENT', 'event': 'Vie Asso' };
-            const tagClass = tagClasses[newsItem.tag] || 'bg-gray-100 text-gray-800';
-            const date = new Date(newsItem.date).toLocaleDateString('fr-FR');
-            
-            const imageHtml = newsItem.image 
-                ? `<img src="${newsItem.image}" alt="${newsItem.title}" class="w-full h-auto max-h-[60vh] object-contain mb-4 rounded-lg shadow-md">` 
-                : '';
-
-            detailContainer.innerHTML = `
-                <div class="pt-6">
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${tagClass} self-start mb-2">${tagText[newsItem.tag]}</span>
-                    <h2 class="text-3xl font-extrabold text-gray-900 mb-4">${newsItem.title}</h2>
-                    <p class="text-sm text-gray-500 mb-6"><i class="fas fa-calendar-alt mr-1"></i> Publié le ${date}</p>
-                    
-                    ${imageHtml}
-
-                    <p class="text-lg text-gray-700 news-content">${newsItem.content}</p>
-                </div>
-            `;
-            
-            document.getElementById('modalNewsDetail').classList.remove('hidden');
-        }
-
         // LOGIQUE MODAL ET SUBMISSION SILENCIEUSE
         function openBookingModal(id) {
             const event = DATA.events.find(e => e.id == id);
@@ -329,12 +297,13 @@
             // 1. Logique de statut
             let userStatusForEmail = event.status === 'Complet' ? 'Liste d\'attente' : 'Confirmé';
 
-            // 2. Préparation du POST silencieux vers Google Forms
+            // 2. Vérification des IDs du formulaire
             if (ENTRY_ID_EVENT === "VOTRE_ID_EVENT_ICI" || !formUrl || !formUrl.includes('http')) {
                  alert("Erreur critique: Le lien de soumission (Admin Panel) ou les IDs (Code JS) sont invalides.");
                  return;
             }
 
+            // 3. Préparation du POST silencieux vers Google Forms
             const submissionUrl = formUrl.includes('/formResponse') ? formUrl : formUrl.split('/viewform')[0] + '/formResponse';
             const eventInfo = `${event.title} - ${event.date} à ${event.time || ''}`;
             
@@ -379,6 +348,37 @@
             document.getElementById('bookingForm').reset();
             btn.innerText = oldTxt;
             btn.disabled = false;
+        }
+
+        // --- LOGIQUE MODAL DÉTAIL NEWS ---
+        function openNewsDetail(id) {
+            const newsItem = DATA.news.find(n => n.id == id);
+            if (!newsItem) return;
+            
+            const detailContainer = document.getElementById('newsDetailContent');
+            
+            const tagClasses = { 'info': 'bg-blue-100 text-blue-800', 'urgent': 'bg-red-100 text-red-800', 'event': 'bg-green-100 text-green-800' };
+            const tagText = { 'info': 'Information', 'urgent': 'URGENT', 'event': 'Vie Asso' };
+            const tagClass = tagClasses[newsItem.tag] || 'bg-gray-100 text-gray-800';
+            const date = new Date(newsItem.date).toLocaleDateString('fr-FR');
+            
+            const imageHtml = newsItem.image 
+                ? `<img src="${newsItem.image}" alt="${newsItem.title}" class="w-full h-auto max-h-[60vh] object-contain mb-4 rounded-lg shadow-md">` 
+                : '';
+
+            detailContainer.innerHTML = `
+                <div class="pt-6">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${tagClass} self-start mb-2">${tagText[newsItem.tag]}</span>
+                    <h2 class="text-3xl font-extrabold text-gray-900 mb-4">${newsItem.title}</h2>
+                    <p class="text-sm text-gray-500 mb-6"><i class="fas fa-calendar-alt mr-1"></i> Publié le ${date}</p>
+                    
+                    ${imageHtml}
+
+                    <p class="text-lg text-gray-700 news-content">${newsItem.content}</p>
+                </div>
+            `;
+            
+            document.getElementById('modalNewsDetail').classList.remove('hidden');
         }
 
         // Lancement au chargement de la page
