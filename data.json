@@ -3,10 +3,10 @@
     "news": [
         {
             "id": 1,
-            "title": "Bienvenue sur le portail",
+            "title": "Site en maintenance",
             "date": "2025-01-01",
             "tag": "info",
-            "content": "Le site est désormais connecté à une base de données externe !",
+            "content": "Mise à jour de la base de données en cours...",
             "image": null
         }
     ],
@@ -15,7 +15,7 @@
         "themeColor": "#2563eb",
         "logoUrl": null,
         "hours": {
-            "school": "Non renseigné",
+            "school": "Lundi: 9h-12h",
             "holidays": "Fermé"
         },
         "emailjs": {},
