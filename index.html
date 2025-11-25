@@ -7,421 +7,148 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
     <style>
         :root { --primary-color: #2563eb; }
         .bg-theme { background-color: var(--primary-color); }
         .text-theme { color: var(--primary-color); }
-        .border-theme { border-color: var(--primary-color); }
         .btn-theme { background-color: var(--primary-color); color: white; }
-        .btn-theme:hover { filter: brightness(90%); }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .news-card { border-left: 4px solid var(--primary-color); }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans flex flex-col min-h-screen">
 
     <nav class="bg-white shadow-md sticky top-0 z-40">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <img id="navLogo" src="" alt="" class="h-10 w-10 object-contain hidden">
-                <span id="navOrgName" class="text-xl font-bold text-gray-700">Cor-Tech</span>
-            </div>
-            <button onclick="app.openAdminLogin()" class="text-sm text-gray-500 hover:text-theme transition">
-                <i class="fas fa-lock"></i> Admin
-            </button>
+        <div class="container mx-auto px-4 py-3 flex items-center gap-3">
+            <img id="navLogo" src="" class="h-10 w-10 object-contain hidden">
+            <span id="navOrgName" class="text-xl font-bold text-gray-700">Cor-Tech</span>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 py-8 flex-grow">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
             <div class="lg:col-span-4 space-y-6">
-                
                 <div class="bg-white rounded-lg shadow p-6 border-t-4 border-theme">
-                    <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
-                        <i class="fas fa-newspaper text-theme"></i> Cor-News
-                    </h2>
+                    <h2 class="text-2xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-newspaper text-theme"></i> Cor-News</h2>
                     <div id="newsList" class="space-y-6"></div>
                 </div>
-
                 <div class="bg-white rounded-lg shadow p-6 border-t-4 border-orange-400">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <i class="far fa-clock text-orange-500"></i> Horaires
-                    </h2>
-                    
-                    <div class="mb-4">
-                        <h3 class="font-bold text-sm text-gray-500 uppercase tracking-wide mb-2">🏫 Période Scolaire</h3>
-                        <p id="hoursSchool" class="text-sm text-gray-700 whitespace-pre-line pl-4 border-l-2 border-gray-200"></p>
-                    </div>
-
-                    <div>
-                        <h3 class="font-bold text-sm text-gray-500 uppercase tracking-wide mb-2">🏖️ Vacances Scolaires</h3>
-                        <p id="hoursHolidays" class="text-sm text-gray-700 whitespace-pre-line pl-4 border-l-2 border-gray-200"></p>
-                    </div>
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="far fa-clock text-orange-500"></i> Horaires</h2>
+                    <p id="hoursSchool" class="text-sm mb-2 border-l-2 pl-2"></p>
+                    <p id="hoursHolidays" class="text-sm border-l-2 pl-2"></p>
                 </div>
-                
                 <div id="socialBlock" class="bg-white rounded-lg shadow p-6 hidden">
                     <h3 class="font-bold mb-4">Nous suivre</h3>
                     <div id="socialLinks" class="flex gap-4 flex-wrap"></div>
                 </div>
             </div>
-
             <div class="lg:col-span-8">
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-                        <i class="far fa-calendar-check text-theme"></i> Réservations & Activités
-                    </h2>
+                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i class="far fa-calendar-check text-theme"></i> Activités & Réservations</h2>
                     <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                 </div>
             </div>
-
         </div>
     </main>
 
-    <footer class="bg-gray-800 text-white py-6 mt-auto">
-        <div class="container mx-auto px-4 text-center text-sm">
-            <p>&copy; <span id="footerYear"></span> <span id="footerOrgName">Cor-Tech</span>.</p>
-        </div>
+    <footer class="bg-gray-800 text-white py-6 mt-auto text-center text-sm">
+        <p>&copy; <span id="footerYear"></span> <span id="footerOrgName">Cor-Tech</span></p>
     </footer>
 
     <div id="modalBooking" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
-            <button onclick="app.closeModal('modalBooking')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times fa-lg"></i></button>
+            <button onclick="document.getElementById('modalBooking').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
             <h2 class="text-2xl font-bold mb-2 text-theme">Inscription</h2>
             <p id="bookingEventTitle" class="text-gray-600 mb-6 font-medium"></p>
-            <form id="bookingForm" onsubmit="app.handleBooking(event)">
+            <form id="bookingForm" onsubmit="handleBooking(event)">
                 <input type="hidden" id="bookingEventId">
-                <div class="mb-4"><label class="block text-gray-700 text-sm font-bold mb-2">Nom Complet</label><input type="text" id="userName" required class="w-full px-3 py-2 border rounded"></div>
-                <div class="mb-4"><label class="block text-gray-700 text-sm font-bold mb-2">Email</label><input type="email" id="userEmail" required class="w-full px-3 py-2 border rounded"></div>
-                <div class="mb-4"><label class="block text-gray-700 text-sm font-bold mb-2">Téléphone</label><input type="tel" id="userPhone" class="w-full px-3 py-2 border rounded"></div>
-                <button type="submit" class="w-full btn-theme font-bold py-3 px-4 rounded transition">Confirmer</button>
+                <input type="text" id="userName" placeholder="Nom Complet" required class="w-full px-3 py-2 border rounded mb-3">
+                <input type="email" id="userEmail" placeholder="Email" required class="w-full px-3 py-2 border rounded mb-3">
+                <input type="tel" id="userPhone" placeholder="Téléphone" class="w-full px-3 py-2 border rounded mb-3">
+                <button type="submit" class="w-full btn-theme font-bold py-3 px-4 rounded">Confirmer</button>
             </form>
-        </div>
-    </div>
-
-    <div id="modalLogin" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 relative">
-            <button onclick="app.closeModal('modalLogin')" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
-            <h2 class="text-xl font-bold mb-4 text-center">Admin Cor-Tech</h2>
-            <form onsubmit="app.handleLogin(event)">
-                <input type="password" id="adminPasswordInput" placeholder="Mot de passe" class="w-full px-3 py-2 border rounded mb-4">
-                <button type="submit" class="w-full bg-gray-800 text-white font-bold py-2 rounded">Connexion</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="modalAdmin" class="fixed inset-0 bg-gray-100 hidden z-50 overflow-y-auto">
-        <div class="min-h-screen flex flex-col">
-            <div class="bg-white shadow px-6 py-4 flex justify-between items-center sticky top-0 z-10">
-                <h2 class="text-xl font-bold text-theme"><i class="fas fa-user-shield"></i> Administration</h2>
-                <button onclick="app.closeModal('modalAdmin')" class="text-red-500 hover:text-red-700 font-bold"><i class="fas fa-sign-out-alt"></i> Quitter</button>
-            </div>
-
-            <div class="container mx-auto px-4 py-8 max-w-6xl flex-grow">
-                <div class="flex mb-6 border-b overflow-x-auto bg-white rounded shadow px-2">
-                    <button onclick="app.switchTab('news')" id="tab-news" class="px-6 py-3 border-b-2 border-theme font-bold text-theme whitespace-nowrap">Actualités</button>
-                    <button onclick="app.switchTab('events')" id="tab-events" class="px-6 py-3 border-b-2 border-transparent text-gray-500 whitespace-nowrap">Évènements</button>
-                    <button onclick="app.switchTab('registrations')" id="tab-registrations" class="px-6 py-3 border-b-2 border-transparent text-gray-500 whitespace-nowrap">Inscriptions</button>
-                    <button onclick="app.switchTab('settings')" id="tab-settings" class="px-6 py-3 border-b-2 border-transparent text-gray-500 whitespace-nowrap">Paramètres & Cloud</button>
-                </div>
-
-                <div id="view-news" class="block">
-                    <div class="bg-white rounded shadow p-6 mb-6">
-                        <h3 class="text-lg font-bold mb-4">Publier une News</h3>
-                        <form onsubmit="app.saveNews(event)" class="space-y-4">
-                            <input type="hidden" id="editNewsId">
-                            <input type="text" id="newsTitle" placeholder="Titre" required class="w-full border p-2 rounded">
-                            <div class="flex gap-4">
-                                <input type="date" id="newsDate" required class="border p-2 rounded">
-                                <select id="newsTag" class="border p-2 rounded"><option value="info">Info</option><option value="urgent">Urgent</option><option value="event">Vie Asso</option></select>
-                            </div>
-                            <textarea id="newsContent" placeholder="Message..." required class="w-full border p-2 rounded" rows="3"></textarea>
-                            <div class="text-right"><button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Publier</button></div>
-                        </form>
-                    </div>
-                    <div id="adminNewsList" class="space-y-4"></div>
-                </div>
-
-                <div id="view-events" class="hidden">
-                    <div class="bg-white rounded shadow p-6 mb-6">
-                        <h3 class="text-lg font-bold mb-4">Gérer Évènements</h3>
-                        <form onsubmit="app.saveEvent(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="hidden" id="editEventId">
-                            <input type="text" id="eventTitle" placeholder="Titre" required class="border p-2 rounded">
-                            <input type="date" id="eventDate" required class="border p-2 rounded">
-                            <input type="text" id="eventLocation" placeholder="Lieu" class="border p-2 rounded">
-                            <input type="number" id="eventCapacity" placeholder="Capacité" required class="border p-2 rounded">
-                            <input type="file" id="eventImage" accept="image/*" class="border p-2 rounded">
-                            <textarea id="eventDesc" placeholder="Description" class="border p-2 rounded md:col-span-2" rows="2"></textarea>
-                            <div class="md:col-span-2 text-right">
-                                <button type="button" onclick="app.resetEventForm()" class="text-gray-500 mr-4">Nouveau</button>
-                                <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded font-bold">Enregistrer</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div id="adminEventsList" class="space-y-4"></div>
-                </div>
-
-                <div id="view-registrations" class="hidden">
-                    <div class="bg-white rounded shadow overflow-x-auto">
-                        <table class="min-w-full leading-normal"><tbody id="registrationsTableBody"></tbody></table>
-                    </div>
-                </div>
-
-                <div id="view-settings" class="hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <div class="bg-gray-800 text-white rounded shadow p-6 md:col-span-2 border border-gray-700">
-                            <h3 class="text-lg font-bold mb-4 text-blue-400"><i class="fab fa-github"></i> Connexion Cloud</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                <div><label class="block text-xs text-gray-400">Pseudo GitHub</label><input type="text" id="ghOwner" class="w-full bg-gray-700 border-gray-600 rounded p-2 text-white"></div>
-                                <div><label class="block text-xs text-gray-400">Nom Dépôt</label><input type="text" id="ghRepo" class="w-full bg-gray-700 border-gray-600 rounded p-2 text-white"></div>
-                                <div><label class="block text-xs text-gray-400">Token</label><input type="password" id="ghToken" class="w-full bg-gray-700 border-gray-600 rounded p-2 text-white"></div>
-                            </div>
-                            <button onclick="app.pushToGitHub()" id="btnPushGithub" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded w-full flex justify-center items-center gap-2">
-                                <i class="fas fa-cloud-upload-alt"></i> Tout Mettre en Ligne (News, Events, Horaires...)
-                            </button>
-                        </div>
-
-                        <div class="bg-white rounded shadow p-6">
-                            <h3 class="font-bold mb-4 border-b pb-2">Apparence</h3>
-                            <form onsubmit="app.saveCustomSettings(event)" class="space-y-3">
-                                <input type="text" id="setOrgName" class="w-full border p-2 rounded" placeholder="Nom Asso">
-                                <div class="flex gap-2">
-                                    <input type="color" id="setThemeColorPicker" class="h-10 w-10 border-0" onchange="document.getElementById('setThemeColor').value=this.value">
-                                    <input type="text" id="setThemeColor" class="w-full border p-2 rounded" placeholder="#2563eb">
-                                </div>
-                                <input type="file" id="setLogo" accept="image/*" class="w-full border p-2 rounded">
-                                <button type="submit" class="w-full bg-gray-200 py-1 rounded hover:bg-gray-300">Enregistrer Apparence</button>
-                            </form>
-                        </div>
-
-                        <div class="bg-white rounded shadow p-6">
-                            <h3 class="font-bold mb-4 border-b pb-2 text-orange-600">Horaires d'ouverture</h3>
-                            <form onsubmit="app.saveHoursSettings(event)" class="space-y-3">
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500">Période Scolaire</label>
-                                    <textarea id="hoursSchoolInput" class="w-full border p-2 rounded text-sm" rows="3" placeholder="Lundi: 9h-12h..."></textarea>
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500">Vacances</label>
-                                    <textarea id="hoursHolidaysInput" class="w-full border p-2 rounded text-sm" rows="3" placeholder="Fermé..."></textarea>
-                                </div>
-                                <button type="submit" class="w-full bg-orange-100 text-orange-800 py-1 rounded hover:bg-orange-200">Sauvegarder Horaires</button>
-                            </form>
-                        </div>
-
-                        <div class="bg-white rounded shadow p-6">
-                            <h3 class="font-bold mb-4 border-b pb-2">Configuration Email</h3>
-                            <form onsubmit="app.saveEmailSettings(event)" class="space-y-3">
-                                <input type="text" id="emailPublicKey" class="w-full border p-2 rounded text-sm" placeholder="Public Key" required>
-                                <input type="text" id="emailServiceId" class="w-full border p-2 rounded text-sm" placeholder="Service ID" required>
-                                <input type="text" id="emailTemplateId" class="w-full border p-2 rounded text-sm" placeholder="Template ID" required>
-                                <button type="submit" class="w-full bg-gray-200 text-gray-800 py-1 rounded hover:bg-gray-300">Sauvegarder Clés</button>
-                            </form>
-                        </div>
-
-                        <div class="bg-white rounded shadow p-6">
-                            <h3 class="font-bold mb-4 border-b pb-2">Réseaux Sociaux</h3>
-                            <form onsubmit="app.saveSocialSettings(event)" class="space-y-3">
-                                <div class="flex items-center gap-2"><i class="fab fa-facebook text-blue-600 w-6"></i><input type="text" id="socialFb" class="w-full border p-2 rounded text-sm" placeholder="Lien Facebook"></div>
-                                <div class="flex items-center gap-2"><i class="fab fa-instagram text-pink-600 w-6"></i><input type="text" id="socialInsta" class="w-full border p-2 rounded text-sm" placeholder="Lien Instagram"></div>
-                                <div class="flex items-center gap-2"><i class="fab fa-linkedin text-blue-800 w-6"></i><input type="text" id="socialLink" class="w-full border p-2 rounded text-sm" placeholder="Lien LinkedIn"></div>
-                                <div class="flex items-center gap-2"><i class="fas fa-globe text-gray-600 w-6"></i><input type="text" id="socialWeb" class="w-full border p-2 rounded text-sm" placeholder="Site Web"></div>
-                                <button type="submit" class="w-full bg-gray-200 py-1 rounded hover:bg-gray-300">Sauvegarder Liens</button>
-                            </form>
-                        </div>
-
-                        <div class="bg-white rounded shadow p-6">
-                            <h3 class="font-bold mb-4 border-b pb-2">Admin Password</h3>
-                            <form onsubmit="app.changePassword(event)">
-                                <input type="text" id="setAdminPass" class="w-full border p-2 rounded mb-4" placeholder="Nouveau mot de passe">
-                                <button type="submit" class="w-full bg-red-600 text-white py-1 rounded hover:bg-red-700">Changer</button>
-                            </form>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
-        class EventApp {
-            constructor() {
-                this.githubConfig = { owner: "", repo: "", path: "index.html", token: "" };
-                this.defaultData = {
-                    events: [],
-                    news: [{ id: 1, title: "Bienvenue", date: "2025-01-01", tag: "info", content: "Bienvenue sur le portail Cor-Tech." }],
-                    settings: { 
-                        orgName: "Cor-Tech", themeColor: "#2563eb", logoUrl: null, adminPassword: "admin",
-                        emailjs: { publicKey: "", serviceId: "", templateId: "" },
-                        social: { facebook: "", instagram: "", linkedin: "", website: "" },
-                        hours: { school: "Mercredi : 14h-18h\nSamedi : 10h-12h", holidays: "Fermé" }
-                    }
-                };
-                this.state = this.loadState();
-                this.init();
+        // --- ZONE DE DONNÉES (L'ADMIN MODIFIE CECI) ---
+        window.ASSO_DATA = {
+            events: [],
+            news: [{id:1, title:"Bienvenue", date:"2025-01-01", tag:"info", content:"Site en construction"}],
+            settings: {
+                orgName: "Cor-Tech", themeColor: "#2563eb", logoUrl: null,
+                hours: { school: "Non défini", holidays: "Non défini" },
+                emailjs: { publicKey: "", serviceId: "", templateId: "" },
+                social: { facebook: "", instagram: "", website: "" }
             }
+        };
+        // -----------------------------------------------
 
-            loadState() {
-                const d = localStorage.getItem('asso_app_data');
-                const g = localStorage.getItem('asso_gh_config');
-                if(g) this.githubConfig = JSON.parse(g);
-                let data = d ? JSON.parse(d) : JSON.parse(JSON.stringify(this.defaultData));
-                
-                // Mises à jour de structure (Compatibilité)
-                if(!data.settings.emailjs) data.settings.emailjs = { publicKey: "", serviceId: "", templateId: "" };
-                if(!data.settings.social) data.settings.social = { facebook: "", instagram: "", linkedin: "", website: "" };
-                if(!data.settings.hours) data.settings.hours = { school: "", holidays: "" };
-                
-                return data;
-            }
+        // INITIALISATION
+        const DATA = window.ASSO_DATA;
+        const S = DATA.settings;
+        
+        document.documentElement.style.setProperty('--primary-color', S.themeColor);
+        document.getElementById('navOrgName').textContent = S.orgName;
+        document.getElementById('footerOrgName').textContent = S.orgName;
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
+        if(S.logoUrl) { const l=document.getElementById('navLogo'); l.src=S.logoUrl; l.classList.remove('hidden'); }
 
-            saveState() {
-                localStorage.setItem('asso_app_data', JSON.stringify(this.state));
-                this.applyTheme();
-                this.renderPublic();
-            }
+        // RENDU HORAIRES
+        document.getElementById('hoursSchool').innerHTML = "<b>Scolaire:</b><br>" + (S.hours?.school || "-");
+        document.getElementById('hoursHolidays').innerHTML = "<b>Vacances:</b><br>" + (S.hours?.holidays || "-");
 
-            init() {
-                this.applyTheme();
-                this.renderPublic();
-                if(this.state.settings.emailjs.publicKey) { try { emailjs.init(this.state.settings.emailjs.publicKey); } catch(e){} }
-                
-                if(this.githubConfig.owner) document.getElementById('ghOwner').value = this.githubConfig.owner;
-                if(this.githubConfig.repo) document.getElementById('ghRepo').value = this.githubConfig.repo;
-                if(this.githubConfig.token) document.getElementById('ghToken').value = this.githubConfig.token;
-                
-                const s = this.state.settings;
-                document.getElementById('emailPublicKey').value = s.emailjs.publicKey || "";
-                document.getElementById('emailServiceId').value = s.emailjs.serviceId || "";
-                document.getElementById('emailTemplateId').value = s.emailjs.templateId || "";
-                
-                document.getElementById('socialFb').value = s.social.facebook || "";
-                document.getElementById('socialInsta').value = s.social.instagram || "";
-                document.getElementById('socialLink').value = s.social.linkedin || "";
-                document.getElementById('socialWeb').value = s.social.website || "";
+        // RENDU NEWS
+        const nList = document.getElementById('newsList');
+        DATA.news.sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(n => {
+            let c="text-gray-500", i="fa-info-circle";
+            if(n.tag==='urgent'){c="text-red-600";i="fa-exclamation-triangle";}
+            if(n.tag==='event'){c="text-green-600";i="fa-users";}
+            nList.innerHTML += `<div class="news-card bg-gray-50 p-4 rounded shadow-sm"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg">${n.title}</h3><span class="text-xs border px-2 py-1 rounded ${c}"><i class="fas ${i}"></i> ${n.date}</span></div><p class="text-gray-600 text-sm whitespace-pre-line">${n.content}</p></div>`;
+        });
 
-                document.getElementById('hoursSchoolInput').value = s.hours.school || "";
-                document.getElementById('hoursHolidaysInput').value = s.hours.holidays || "";
-            }
+        // RENDU EVENTS
+        const eGrid = document.getElementById('eventsGrid');
+        eGrid.innerHTML = DATA.events.length ? '' : '<p class="text-gray-500 italic p-4">Aucun évènement.</p>';
+        DATA.events.forEach(evt => {
+            const imgHtml = evt.image ? `<img src="${evt.image}" class="w-full h-32 object-cover">` : `<div class="w-full h-32 bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-image fa-2x"></i></div>`;
+            eGrid.innerHTML += `<div class="bg-white border rounded shadow-sm overflow-hidden flex flex-col">${imgHtml}<div class="p-4 flex-grow"><h3 class="font-bold text-lg mb-1">${evt.title}</h3><p class="text-gray-600 text-xs mb-2">${evt.date} - ${evt.location}</p><p class="text-gray-700 text-sm line-clamp-2">${evt.description}</p></div><div class="px-4 pb-4 mt-auto"><button onclick="openBooking(${evt.id})" class="w-full btn-theme text-sm font-bold py-2 rounded">S'inscrire</button></div></div>`;
+        });
 
-            applyTheme() {
-                const s = this.state.settings;
-                document.documentElement.style.setProperty('--primary-color', s.themeColor);
-                document.getElementById('navOrgName').textContent = s.orgName;
-                document.getElementById('footerOrgName').textContent = s.orgName;
-                document.getElementById('setOrgName').value = s.orgName;
-                document.getElementById('setThemeColor').value = s.themeColor;
-                const logo = document.getElementById('navLogo');
-                if (s.logoUrl) { logo.src = s.logoUrl; logo.classList.remove('hidden'); }
-            }
+        // SOCIAL
+        const soc = document.getElementById('socialLinks');
+        if(S.social?.facebook) soc.innerHTML += `<a href="${S.social.facebook}" target="_blank" class="text-blue-600 text-2xl"><i class="fab fa-facebook"></i></a>`;
+        if(S.social?.instagram) soc.innerHTML += `<a href="${S.social.instagram}" target="_blank" class="text-pink-600 text-2xl"><i class="fab fa-instagram"></i></a>`;
+        if(soc.innerHTML) document.getElementById('socialBlock').classList.remove('hidden');
 
-            // --- RENDU PUBLIC ---
-            renderPublic() {
-                // Events
-                const grid = document.getElementById('eventsGrid');
-                grid.innerHTML = this.state.events.length ? '' : '<p class="text-gray-500 italic p-4">Aucun évènement.</p>';
-                this.state.events.forEach(evt => {
-                    const regs = (this.state.registrations || []).filter(r => r.eventId == evt.id && r.status === 'confirmed');
-                    const remaining = evt.capacity - regs.length;
-                    const isFull = remaining <= 0;
-                    const imgHtml = evt.image ? `<img src="${evt.image}" class="w-full h-32 object-cover">` : `<div class="w-full h-32 bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-image fa-2x"></i></div>`;
-                    const card = document.createElement('div');
-                    card.className = "bg-white border rounded shadow-sm overflow-hidden hover:shadow-md transition flex flex-col";
-                    card.innerHTML = `${imgHtml}<div class="p-4 flex-grow"><h3 class="font-bold text-lg mb-1">${evt.title}</h3><p class="text-gray-600 text-xs mb-2">${evt.date} - ${evt.location}</p><p class="text-gray-700 text-sm line-clamp-2">${evt.description}</p></div><div class="px-4 pb-4 mt-auto">${isFull ? `<button onclick="app.openBookingModal(${evt.id}, true)" class="w-full bg-orange-500 text-white text-sm font-bold py-2 rounded">Liste d'attente</button>` : `<button onclick="app.openBookingModal(${evt.id}, false)" class="w-full btn-theme text-sm font-bold py-2 rounded">S'inscrire (${remaining} places)</button>`}</div>`;
-                    grid.appendChild(card);
-                });
+        // LOGIQUE RESERVATION
+        if(S.emailjs?.publicKey) emailjs.init(S.emailjs.publicKey);
 
-                // News
-                const newsList = document.getElementById('newsList');
-                newsList.innerHTML = this.state.news.length ? '' : '<p class="text-gray-400">Aucune actualité.</p>';
-                [...this.state.news].sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(n => {
-                    let c="text-gray-500", i="fa-info-circle";
-                    if(n.tag === 'urgent') { c="text-red-600"; i="fa-exclamation-triangle"; }
-                    if(n.tag === 'event') { c="text-green-600"; i="fa-users"; }
-                    newsList.innerHTML += `<div class="news-card bg-gray-50 p-4 rounded shadow-sm mb-4"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg text-gray-800">${n.title}</h3><span class="text-xs bg-white border px-2 py-1 rounded ${c}"><i class="fas ${i}"></i> ${n.date}</span></div><p class="text-gray-600 text-sm whitespace-pre-line">${n.content}</p></div>`;
-                });
-
-                // Horaires
-                document.getElementById('hoursSchool').textContent = this.state.settings.hours.school || "Non renseigné";
-                document.getElementById('hoursHolidays').textContent = this.state.settings.hours.holidays || "Non renseigné";
-
-                // Social Links
-                const soc = this.state.settings.social;
-                const socDiv = document.getElementById('socialLinks');
-                const socBlock = document.getElementById('socialBlock');
-                socDiv.innerHTML = "";
-                let hasSocial = false;
-                if(soc.facebook) { hasSocial=true; socDiv.innerHTML += `<a href="${soc.facebook}" target="_blank" class="text-blue-600 hover:scale-110 transition"><i class="fab fa-facebook fa-2x"></i></a>`; }
-                if(soc.instagram) { hasSocial=true; socDiv.innerHTML += `<a href="${soc.instagram}" target="_blank" class="text-pink-600 hover:scale-110 transition"><i class="fab fa-instagram fa-2x"></i></a>`; }
-                if(soc.linkedin) { hasSocial=true; socDiv.innerHTML += `<a href="${soc.linkedin}" target="_blank" class="text-blue-800 hover:scale-110 transition"><i class="fab fa-linkedin fa-2x"></i></a>`; }
-                if(soc.website) { hasSocial=true; socDiv.innerHTML += `<a href="${soc.website}" target="_blank" class="text-gray-700 hover:scale-110 transition"><i class="fas fa-globe fa-2x"></i></a>`; }
-                if(hasSocial) socBlock.classList.remove('hidden'); else socBlock.classList.add('hidden');
-            }
-
-            // --- SAVE SETTINGS LOGIC ---
-            saveCustomSettings(e){ e.preventDefault(); this.state.settings.orgName=document.getElementById('setOrgName').value; this.state.settings.themeColor=document.getElementById('setThemeColor').value;
-                const f=document.getElementById('setLogo').files[0]; if(f){const r=new FileReader();r.onload=v=>{this.state.settings.logoUrl=v.target.result;this.saveState();alert("OK");};r.readAsDataURL(f);}else{this.saveState();alert("OK");} }
-            
-            saveEmailSettings(e) { e.preventDefault(); this.state.settings.emailjs.publicKey = document.getElementById('emailPublicKey').value; this.state.settings.emailjs.serviceId = document.getElementById('emailServiceId').value; this.state.settings.emailjs.templateId = document.getElementById('emailTemplateId').value; this.saveState(); alert("EmailJS sauvegardé."); }
-            saveSocialSettings(e) { e.preventDefault(); this.state.settings.social.facebook = document.getElementById('socialFb').value; this.state.settings.social.instagram = document.getElementById('socialInsta').value; this.state.settings.social.linkedin = document.getElementById('socialLink').value; this.state.settings.social.website = document.getElementById('socialWeb').value; this.saveState(); alert("Liens sociaux sauvegardés."); }
-            saveHoursSettings(e) { e.preventDefault(); this.state.settings.hours.school = document.getElementById('hoursSchoolInput').value; this.state.settings.hours.holidays = document.getElementById('hoursHolidaysInput').value; this.saveState(); alert("Horaires sauvegardés."); }
-            changePassword(e){ e.preventDefault(); const p=document.getElementById('setAdminPass').value; if(p){this.state.settings.adminPassword=p;this.saveState();alert("Mot de passe changé.");} }
-
-            // --- DATA LOGIC ---
-            saveNews(e){ e.preventDefault(); const id=document.getElementById('editNewsId').value; const d={id:id?parseInt(id):Date.now(),title:document.getElementById('newsTitle').value,date:document.getElementById('newsDate').value,tag:document.getElementById('newsTag').value,content:document.getElementById('newsContent').value};
-                if(id){this.state.news[this.state.news.findIndex(n=>n.id==id)]=d;}else{this.state.news.push(d);} this.saveState(); this.renderAdminNews(); this.resetNewsForm(); alert("News OK"); }
-            deleteNews(id){ if(confirm("Supprimer ?")){this.state.news=this.state.news.filter(n=>n.id!=id);this.saveState();this.renderAdminNews();} }
-            renderAdminNews(){ document.getElementById('adminNewsList').innerHTML=this.state.news.map(n=>`<div class="flex justify-between items-center bg-white p-2 border rounded"><span>${n.title}</span> <button onclick="app.deleteNews(${n.id})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`).join(''); }
-            resetNewsForm(){ document.getElementById('editNewsId').value=""; document.getElementById('newsTitle').value=""; document.getElementById('newsContent').value=""; }
-
-            openBookingModal(id, w){ const e=this.state.events.find(x=>x.id==id); document.getElementById('bookingEventId').value=id; document.getElementById('bookingEventTitle').innerHTML=w?`<span class="text-orange-600">[ATTENTE]</span> ${e.title}`:`<strong>${e.title}</strong>`; document.getElementById('bookingForm').reset(); this.openModal('modalBooking'); }
-            handleBooking(e){ e.preventDefault(); const eid=document.getElementById('bookingEventId').value; const ev=this.state.events.find(x=>x.id==eid);
-                const stat = (this.state.registrations||[]).filter(r=>r.eventId==eid&&r.status=='confirmed').length>=ev.capacity?'waitlist':'confirmed';
-                if(!this.state.registrations)this.state.registrations=[]; const reg={id:Date.now(),eventId:eid,eventName:ev.title,name:document.getElementById('userName').value,email:document.getElementById('userEmail').value,phone:document.getElementById('userPhone').value,status:stat,date:new Date().toLocaleDateString()};
-                this.state.registrations.push(reg); this.saveState();
-                const s = this.state.settings.emailjs; if(s.publicKey && s.serviceId && s.templateId){ const p={event_title:ev.title,user_name:reg.name,user_email:reg.email,user_status:stat,admin_email:"accueil@cor-tech.fr"}; try { emailjs.send(s.serviceId, s.templateId, p); emailjs.send(s.serviceId, s.templateId, {...p,user_email:"accueil@cor-tech.fr"}); } catch(err){console.error(err);} }
-                this.closeModal('modalBooking'); alert(stat=='confirmed'?"Confirmé !":"Liste d'attente."); this.renderPublic(); }
-
-            openAdminLogin(){ this.openModal('modalLogin'); }
-            handleLogin(e){ e.preventDefault(); if(document.getElementById('adminPasswordInput').value===this.state.settings.adminPassword){ this.closeModal('modalLogin'); this.openModal('modalAdmin'); this.renderAdminNews(); this.renderAdminEvents(); this.renderRegistrations(); this.switchTab('news'); }else{ alert("Erreur mot de passe"); } }
-            saveEvent(e){ e.preventDefault(); const id=document.getElementById('editEventId').value; const file=document.getElementById('eventImage').files[0];
-                const run=(img)=>{ const d={id:id?parseInt(id):Date.now(),title:document.getElementById('eventTitle').value,date:document.getElementById('eventDate').value,location:document.getElementById('eventLocation').value,capacity:document.getElementById('eventCapacity').value,description:document.getElementById('eventDesc').value,image:img}; if(id){const i=this.state.events.findIndex(x=>x.id==id); if(!img)d.image=this.state.events[i].image; this.state.events[i]=d;}else{if(!img)d.image=null; this.state.events.push(d);} this.saveState(); this.renderAdminEvents(); this.resetEventForm(); alert("Event OK"); }
-                if(file){const r=new FileReader();r.onload=ev=>run(ev.target.result);r.readAsDataURL(file);}else{run(null);} }
-            deleteEvent(id){ if(confirm("Supprimer ?")){this.state.events=this.state.events.filter(e=>e.id!=id);this.saveState();this.renderAdminEvents();} }
-            renderAdminEvents(){ document.getElementById('adminEventsList').innerHTML=this.state.events.map(e=>`<div class="flex justify-between items-center bg-gray-50 p-2 border rounded"><span>${e.title}</span> <button onclick="app.deleteEvent(${e.id})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`).join(''); }
-            resetEventForm(){ document.getElementById('editEventId').value=""; document.getElementById('eventTitle').value=""; }
-            renderRegistrations(){ document.getElementById('registrationsTableBody').innerHTML=(this.state.registrations||[]).map(r=>`<tr><td class="px-2 py-1 text-sm border-b">${r.eventName}</td><td class="font-bold text-sm border-b">${r.name}</td><td class="text-sm border-b">${r.email}</td><td class="text-sm border-b">${r.status}</td></tr>`).join(''); }
-
-            async pushToGitHub(){
-                const o=document.getElementById('ghOwner').value.trim(), r=document.getElementById('ghRepo').value.trim(), t=document.getElementById('ghToken').value.trim();
-                this.githubConfig={owner:o,repo:r,token:t,path:"index.html"}; localStorage.setItem('asso_gh_config',JSON.stringify(this.githubConfig));
-                if(!o||!r||!t)return alert("Config GitHub incomplète.");
-                if(!confirm("Mettre à jour le site (Config incluse) ?"))return;
-                const b=document.getElementById('btnPushGithub'); const old=b.innerHTML; b.innerHTML='<div class="loader"></div> ...'; b.disabled=true;
-                try{
-                    const u=`https://api.github.com/repos/${o}/${r}/contents/${this.githubConfig.path}`;
-                    const g=await fetch(u,{headers:{"Authorization":`token ${t}`}}); if(!g.ok)throw new Error("Accès GitHub refusé.");
-                    const gd=await g.json();
-                    const cur=new TextDecoder().decode(Uint8Array.from(atob(gd.content),c=>c.charCodeAt(0)));
-                    const nJ=JSON.stringify(this.state,null,4);
-                    const nC=cur.replace(/(this\.defaultData\s*=\s*)({[\s\S]*?})(;)/,`$1${nJ}$3`);
-                    const enc=btoa(unescape(encodeURIComponent(nC)));
-                    const p=await fetch(u,{method:"PUT",headers:{"Authorization":`token ${t}`,"Content-Type":"application/json"},body:JSON.stringify({message:"Update V5 Full",content:enc,sha:gd.sha})});
-                    if(!p.ok)throw new Error("Erreur écriture.");
-                    alert("✅ Site et Paramètres mis à jour !");
-                }catch(e){console.error(e);alert("Erreur: "+e.message);}finally{b.innerHTML=old;b.disabled=false;}
-            }
-
-            openModal(id){document.getElementById(id).classList.remove('hidden');}
-            closeModal(id){document.getElementById(id).classList.add('hidden');}
-            switchTab(t){['news','events','registrations','settings'].forEach(x=>{document.getElementById(`view-${x}`).classList.add('hidden');document.getElementById(`tab-${x}`).classList.remove('border-theme','text-theme');});document.getElementById(`view-${t}`).classList.remove('hidden');document.getElementById(`tab-${t}`).classList.add('border-theme','text-theme');}
+        function openBooking(id) {
+            const evt = DATA.events.find(e => e.id == id);
+            document.getElementById('bookingEventId').value = id;
+            document.getElementById('bookingEventTitle').innerHTML = `Pour : <strong>${evt.title}</strong>`;
+            document.getElementById('modalBooking').classList.remove('hidden');
         }
-        const app = new EventApp();
+
+        function handleBooking(e) {
+            e.preventDefault();
+            const id = document.getElementById('bookingEventId').value;
+            const evt = DATA.events.find(x => x.id == id);
+            const name = document.getElementById('userName').value;
+            const mail = document.getElementById('userEmail').value;
+            
+            // Envoi Email
+            const p = { event_title: evt.title, user_name: name, user_email: mail, admin_email: "accueil@cor-tech.fr" };
+            if(S.emailjs?.serviceId) {
+                emailjs.send(S.emailjs.serviceId, S.emailjs.templateId, p).then(() => {
+                    alert("Inscription envoyée !");
+                    document.getElementById('modalBooking').classList.add('hidden');
+                }).catch(err => alert("Erreur envoi email : " + JSON.stringify(err)));
+            } else {
+                alert("EmailJS non configuré. Inscription simulée.");
+                document.getElementById('modalBooking').classList.add('hidden');
+            }
+        }
     </script>
 </body>
 </html>
