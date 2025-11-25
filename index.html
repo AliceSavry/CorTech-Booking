@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Cor-Tech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        :root { --primary-color: #2563eb; }
+        .bg-theme { background-color: var(--primary-color); }
+        .text-theme { color: var(--primary-color); }
+        .btn-theme { background-color: var(--primary-color); color: white; }
+        .news-card { border-left: 4px solid var(--primary-color); }
+        #loading { position: fixed; inset: 0; background: white; z-index: 50; display: flex; justify-content: center; align-items: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans flex flex-col min-h-screen">
+
+    <div id="loading"><div class="spinner"></div></div>
+
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3 flex items-center gap-3">
+            <img id="navLogo" src="" class="h-10 w-10 object-contain hidden">
+            <span id="navOrgName" class="text-xl font-bold text-gray-700">Cor-Tech</span>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 flex-grow hidden" id="mainContent">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white rounded-lg shadow p-6 border-t-4 border-theme">
+                    <h2 class="text-2xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-newspaper text-theme"></i> Cor-News</h2>
+                    <div id="newsList" class="space-y-6"></div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6 border-t-4 border-orange-400">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="far fa-clock text-orange-500"></i> Horaires</h2>
+                    <p id="hoursSchool" class="text-sm mb-2 border-l-2 pl-2"></p>
+                    <p id="hoursHolidays" class="text-sm border-l-2 pl-2"></p>
+                </div>
+                <div id="socialBlock" class="bg-white rounded-lg shadow p-6 hidden">
+                    <h3 class="font-bold mb-4">Nous suivre</h3>
+                    <div id="socialLinks" class="flex gap-4 flex-wrap"></div>
+                </div>
+            </div>
+            <div class="lg:col-span-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i class="far fa-calendar-check text-theme"></i> Activités & Réservations</h2>
+                    <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-auto text-center text-sm">
+        <p>&copy; <span id="footerYear"></span> <span id="footerOrgName">Cor-Tech</span></p>
+    </footer>
+
+    <div id="modalBooking" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button onclick="document.getElementById('modalBooking').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-bold mb-2 text-theme">Inscription</h2>
+            <p id="bookingEventTitle" class="text-gray-600 mb-6 font-medium"></p>
+            <form id="bookingForm" onsubmit="handleBooking(event)">
+                <input type="hidden" id="bookingEventId">
+                <input type="text" id="userName" placeholder="Nom Complet" required class="w-full px-3 py-2 border rounded mb-3">
+                <input type="email" id="userEmail" placeholder="Email" required class="w-full px-3 py-2 border rounded mb-3">
+                <input type="tel" id="userPhone" placeholder="Téléphone" class="w-full px-3 py-2 border rounded mb-3">
+                <button type="submit" class="w-full btn-theme font-bold py-3 px-4 rounded">Confirmer</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let DATA = {};
+
+        async function initApp() {
+            try {
+                const response = await fetch('data.json?t=' + Date.now());
+                if (!response.ok) throw new Error("Fichier data.json introuvable");
+                DATA = await response.json();
+                renderApp();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('mainContent').classList.remove('hidden');
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `<div class="text-center text-red-600 font-bold p-4">Erreur de chargement.<br>Vérifiez que data.json existe sur GitHub.<br>${error.message}</div>`;
+            }
+        }
+
+        function renderApp() {
+            const S = DATA.settings;
+            document.documentElement.style.setProperty('--primary-color', S.themeColor);
+            document.getElementById('navOrgName').textContent = S.orgName;
+            document.getElementById('footerOrgName').textContent = S.orgName;
+            document.getElementById('footerYear').textContent = new Date().getFullYear();
+            if(S.logoUrl) { const l=document.getElementById('navLogo'); l.src=S.logoUrl; l.classList.remove('hidden'); }
+
+            document.getElementById('hoursSchool').innerHTML = "<b>Scolaire:</b><br>" + (S.hours?.school || "-");
+            document.getElementById('hoursHolidays').innerHTML = "<b>Vacances:</b><br>" + (S.hours?.holidays || "-");
+
+            const nList = document.getElementById('newsList');
+            DATA.news.sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(n => {
+                let c="text-gray-500", i="fa-info-circle";
+                if(n.tag==='urgent'){c="text-red-600";i="fa-exclamation-triangle";}
+                if(n.tag==='event'){c="text-green-600";i="fa-users";}
+                let imgHtml = n.image ? `<div class="flex-shrink-0 mr-4"><img src="${n.image}" class="w-20 h-20 object-cover rounded border"></div>` : "";
+                nList.innerHTML += `<div class="news-card bg-gray-50 p-4 rounded shadow-sm flex flex-col"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg">${n.title}</h3><span class="text-xs border px-2 py-1 rounded ${c} whitespace-nowrap"><i class="fas ${i}"></i> ${n.date}</span></div><div class="flex">${imgHtml}<p class="text-gray-600 text-sm whitespace-pre-line flex-grow">${n.content}</p></div></div>`;
+            });
+
+            const eGrid = document.getElementById('eventsGrid');
+            eGrid.innerHTML = DATA.events.length ? '' : '<p class="text-gray-500 italic p-4">Aucun évènement.</p>';
+            DATA.events.forEach(evt => {
+                const imgHtml = evt.image ? `<img src="${evt.image}" class="w-full h-32 object-cover">` : `<div class="w-full h-32 bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-image fa-2x"></i></div>`;
+                eGrid.innerHTML += `<div class="bg-white border rounded shadow-sm overflow-hidden flex flex-col">${imgHtml}<div class="p-4 flex-grow"><h3 class="font-bold text-lg mb-1">${evt.title}</h3><p class="text-gray-600 text-xs mb-2">${evt.date} - ${evt.location}</p><p class="text-gray-700 text-sm line-clamp-2">${evt.description}</p></div><div class="px-4 pb-4 mt-auto"><button onclick="openBooking(${evt.id})" class="w-full btn-theme text-sm font-bold py-2 rounded">S'inscrire</button></div></div>`;
+            });
+
+            const soc = document.getElementById('socialLinks');
+            if(S.social?.facebook) soc.innerHTML += `<a href="${S.social.facebook}" target="_blank" class="text-blue-600 text-2xl"><i class="fab fa-facebook"></i></a>`;
+            if(S.social?.instagram) soc.innerHTML += `<a href="${S.social.instagram}" target="_blank" class="text-pink-600 text-2xl"><i class="fab fa-instagram"></i></a>`;
+            if(soc.innerHTML) document.getElementById('socialBlock').classList.remove('hidden');
+
+            if(S.emailjs?.publicKey) emailjs.init(S.emailjs.publicKey);
+        }
+
+        function openBooking(id) {
+            const evt = DATA.events.find(e => e.id == id);
+            document.getElementById('bookingEventId').value = id;
+            document.getElementById('bookingEventTitle').innerHTML = `Pour : <strong>${evt.title}</strong>`;
+            document.getElementById('modalBooking').classList.remove('hidden');
+        }
+
+        function handleBooking(e) {
+            e.preventDefault();
+            const id = document.getElementById('bookingEventId').value;
+            const evt = DATA.events.find(x => x.id == id);
+            const name = document.getElementById('userName').value;
+            const mail = document.getElementById('userEmail').value;
+            const p = { event_title: evt.title, user_name: name, user_email: mail, admin_email: "accueil@cor-tech.fr" };
+            const S = DATA.settings;
+            if(S.emailjs?.serviceId) {
+                emailjs.send(S.emailjs.serviceId, S.emailjs.templateId, p).then(() => {
+                    alert("Inscription envoyée !");
+                    document.getElementById('modalBooking').classList.add('hidden');
+                }).catch(err => alert("Erreur email : " + JSON.stringify(err)));
+            } else {
+                alert("EmailJS non configuré. Inscription simulée.");
+                document.getElementById('modalBooking').classList.add('hidden');
+            }
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
