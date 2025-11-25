@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Cor-Tech</title>
+    <title>Administration Cor-Tech (JSON)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>.loader{border:4px solid #f3f3f3;border-top:4px solid #3498db;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite;display:inline-block;}</style>
@@ -11,19 +11,20 @@
 
     <div class="max-w-4xl mx-auto">
         <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-2xl font-bold text-blue-400"><i class="fas fa-tools"></i> Admin Cor-Tech</h1>
+            <h1 class="text-2xl font-bold text-blue-400"><i class="fas fa-database"></i> Admin Cor-Tech</h1>
             <a href="index.html" target="_blank" class="text-gray-400 hover:text-white">Voir le site <i class="fas fa-external-link-alt"></i></a>
         </div>
 
         <div id="configPanel" class="bg-gray-800 p-6 rounded shadow-lg mb-8 border border-gray-700">
-            <h2 class="text-xl font-bold mb-4">1. Connexion (GitHub)</h2>
+            <h2 class="text-xl font-bold mb-4 text-white">1. Connexion (GitHub)</h2>
+            <p class="text-sm text-gray-400 mb-4">Cette page modifie uniquement le fichier <code>data.json</code>.</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <input type="text" id="ghOwner" placeholder="Pseudo GitHub" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
                 <input type="text" id="ghRepo" placeholder="Nom du Dépôt" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
                 <input type="password" id="ghToken" placeholder="Token Secret" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
             </div>
             <button onclick="admin.loadData()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded font-bold w-full shadow-lg">
-                <i class="fas fa-database"></i> CHARGER LA BASE DE DONNÉES (JSON)
+                CHARGER LA BASE DE DONNÉES
             </button>
         </div>
 
@@ -120,15 +121,28 @@
                 const old = btn.innerHTML; btn.innerHTML = "Chargement...";
 
                 try {
-                    // ON CIBLE DATA.JSON
+                    // CIBLE UNIQUEMENT DATA.JSON
                     const url = `https://api.github.com/repos/${owner}/${repo}/contents/data.json`;
-                    const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
-                    if(!res.ok) throw new Error("Fichier data.json introuvable ou erreur droits");
+                    
+                    // Ajout d'un timestamp pour éviter le cache du navigateur
+                    const res = await fetch(url + "?t=" + Date.now(), { headers: { Authorization: `token ${token}` } });
+                    
+                    if(!res.ok) throw new Error("Fichier data.json introuvable. Vérifiez qu'il existe sur GitHub.");
                     
                     const json = await res.json();
                     this.sha = json.sha;
                     const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
-                    this.data = JSON.parse(content);
+                    
+                    try {
+                        this.data = JSON.parse(content);
+                    } catch(e) {
+                        throw new Error("Le fichier data.json est corrompu (Erreur JSON).");
+                    }
+
+                    // Check structure
+                    if(!this.data.news) this.data.news = [];
+                    if(!this.data.events) this.data.events = [];
+                    if(!this.data.settings) this.data.settings = {};
 
                     document.getElementById('configPanel').classList.add('hidden');
                     document.getElementById('editorPanel').classList.remove('hidden');
@@ -140,12 +154,9 @@
 
             renderUI: function() {
                 const D = this.data; const S = D.settings;
-                // News
                 document.getElementById('newsList').innerHTML = D.news.map(n => `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${n.title}</span> <div class="flex gap-2"><button onclick="admin.editNews(${n.id})" class="text-blue-400"><i class="fas fa-edit"></i></button><button onclick="admin.delNews(${n.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('');
-                // Events
                 document.getElementById('eventsList').innerHTML = D.events.map(e => `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${e.title}</span> <div class="flex gap-2"><button onclick="admin.editEvent(${e.id})" class="text-blue-400"><i class="fas fa-edit"></i></button><button onclick="admin.delEvent(${e.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('');
                 
-                // Settings
                 document.getElementById('confName').value = S.orgName || "";
                 document.getElementById('confColor').value = S.themeColor || "#2563eb";
                 document.getElementById('confColorPicker').value = S.themeColor || "#2563eb";
@@ -170,73 +181,4 @@
                 const id=document.getElementById('newsId').value; const file=document.getElementById('newsImgFile').files[0];
                 const run=(img)=>{
                     const d={id:id?parseInt(id):Date.now(), title:t, date:document.getElementById('newsDate').value, tag:document.getElementById('newsTag').value, content:document.getElementById('newsContent').value, image:img};
-                    if(id){ const idx=this.data.news.findIndex(x=>x.id==id); if(!img)d.image=this.data.news[idx].image; this.data.news[idx]=d; } else { if(!img)d.image=null; this.data.news.push(d); }
-                    this.renderUI(); this.resetNewsForm();
-                };
-                if(file){const r=new FileReader();r.onload=e=>run(e.target.result);r.readAsDataURL(file);} else run(null);
-            },
-            editNews: function(id){
-                const n=this.data.news.find(x=>x.id==id); if(!n)return;
-                document.getElementById('newsId').value=n.id; document.getElementById('newsTitle').value=n.title; document.getElementById('newsDate').value=n.date; document.getElementById('newsTag').value=n.tag; document.getElementById('newsContent').value=n.content;
-                document.getElementById('btnSubmitNews').innerText="Modifier"; document.getElementById('btnSubmitNews').className="bg-blue-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelNews').classList.remove('hidden');
-            },
-            resetNewsForm: function(){
-                document.getElementById('newsId').value=""; document.getElementById('newsTitle').value=""; document.getElementById('newsContent').value=""; document.getElementById('newsImgFile').value="";
-                document.getElementById('btnSubmitNews').innerText="Valider"; document.getElementById('btnSubmitNews').className="bg-green-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelNews').classList.add('hidden');
-            },
-            delNews: function(id){ if(confirm("Supprimer ?")){this.data.news=this.data.news.filter(x=>x.id!=id);this.renderUI();} },
-
-            // EVENTS
-            submitEvent: function() {
-                const t=document.getElementById('evtTitle').value; if(!t) return alert("Titre requis");
-                const id=document.getElementById('evtId').value; const file=document.getElementById('evtImgFile').files[0];
-                const run=(img)=>{
-                    const d={id:id?parseInt(id):Date.now(), title:t, date:document.getElementById('evtDate').value, location:document.getElementById('evtLoc').value, description:document.getElementById('evtDesc').value, image:img};
-                    if(id){ const idx=this.data.events.findIndex(x=>x.id==id); if(!img)d.image=this.data.events[idx].image; this.data.events[idx]=d; } else { if(!img)d.image=null; this.data.events.push(d); }
-                    this.renderUI(); this.resetEventForm();
-                };
-                if(file){const r=new FileReader();r.onload=e=>run(e.target.result);r.readAsDataURL(file);} else run(null);
-            },
-            editEvent: function(id){
-                const e=this.data.events.find(x=>x.id==id); if(!e)return;
-                document.getElementById('evtId').value=e.id; document.getElementById('evtTitle').value=e.title; document.getElementById('evtDate').value=e.date; document.getElementById('evtLoc').value=e.location; document.getElementById('evtDesc').value=e.description;
-                document.getElementById('btnSubmitEvt').innerText="Modifier"; document.getElementById('btnSubmitEvt').className="bg-blue-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelEvt').classList.remove('hidden');
-            },
-            resetEventForm: function(){
-                document.getElementById('evtId').value=""; document.getElementById('evtTitle').value=""; document.getElementById('evtLoc').value=""; document.getElementById('evtDesc').value=""; document.getElementById('evtImgFile').value="";
-                document.getElementById('btnSubmitEvt').innerText="Valider"; document.getElementById('btnSubmitEvt').className="bg-purple-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelEvt').classList.add('hidden');
-            },
-            delEvent: function(id){ if(confirm("Supprimer ?")){this.data.events=this.data.events.filter(x=>x.id!=id);this.renderUI();} },
-
-            saveToGitHub: async function() {
-                if(!confirm("Sauvegarder en ligne ?")) return;
-                const btn = document.getElementById('btnSave'); const old = btn.innerHTML; btn.innerHTML = "Envoi...";
-                
-                this.data.settings.orgName = document.getElementById('confName').value;
-                this.data.settings.themeColor = document.getElementById('confColor').value;
-                this.data.settings.hours = { school: document.getElementById('confSchool').value, holidays: document.getElementById('confHolidays').value };
-                this.data.settings.emailjs = { publicKey: document.getElementById('confEmailPub').value, serviceId: document.getElementById('confEmailServ').value, templateId: document.getElementById('confEmailTempl').value };
-                this.data.settings.social = { facebook: document.getElementById('confFb').value, instagram: document.getElementById('confInsta').value };
-
-                const c = JSON.parse(localStorage.getItem('admin_gh_config'));
-                const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`;
-
-                try {
-                    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(this.data, null, 4))));
-                    const putRes = await fetch(url, {
-                        method: "PUT",
-                        headers: { Authorization: `token ${c.token}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: "Update Data JSON", content: encoded, sha: this.sha })
-                    });
-                    if(!putRes.ok) throw new Error("Erreur écriture");
-                    const putJson = await putRes.json();
-                    this.sha = putJson.content.sha;
-                    alert("✅ SAUVEGARDE RÉUSSIE !");
-                } catch(e) { alert("Erreur: " + e.message); } 
-                finally { btn.innerHTML = old; }
-            }
-        };
-        admin.init();
-    </script>
-</body>
-</html>
+                    if(id){ const idx=this.data.news.findIndex(x=>x.id==id); if(!img)d.image=this.data.news[idx].image;
