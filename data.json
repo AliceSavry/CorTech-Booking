@@ -37,8 +37,8 @@
         },
         "emailjs": {
             "publicKey": "accueil@cor-tech.fr",
-            "serviceId": "",
-            "templateId": ""
+            "serviceId": "accueil@cor-tech.fr",
+            "templateId": "accueil@cor-tech.fr"
         },
         "social": {
             "facebook": "",
