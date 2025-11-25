@@ -93,22 +93,34 @@
                 </div>
             </div>
 
-            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700 hidden"> 
+            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
                 <h2 class="text-xl font-bold mb-4 text-orange-400 border-b border-gray-700 pb-2">Paramètres</h2>
                 <div class="grid gap-4">
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-xs text-gray-500">Nom</label><input type="text" id="confName_dup" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
-                        <div><label class="text-xs text-gray-500">Couleur</label><div class="flex gap-2"><input type="color" id="confColorPicker_dup" class="h-9 w-9 bg-transparent border-0" onchange="document.getElementById('confColor_dup').value=this.value"><input type="text" id="confColor_dup" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
+                        <div><label class="text-xs text-gray-500">Nom</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
+                        <div><label class="text-xs text-gray-500">Couleur</label><div class="flex gap-2"><input type="color" id="confColorPicker" class="h-9 w-9 border-0 bg-transparent cursor-pointer" onchange="document.getElementById('confColor').value=this.value"><input type="text" id="confColor" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
                     </div>
-                    <div><label class="text-xs text-gray-500">Logo</label><div class="flex items-center gap-4"><input type="file" id="confLogoFile_dup" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.updateLogoPreview()"><img id="logoPreview_dup" src="" class="h-10 w-10 bg-white rounded hidden"></div></div>
+                    <div>
+                        <label class="text-xs text-gray-500">Logo</label>
+                        <div class="flex items-center gap-4">
+                            <input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.uploadLogoAndRender()">
+                            <img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden border border-gray-500 p-1">
+                        </div>
+                    </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="text-xs text-gray-500">Scolaire</label><textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
                         <div><label class="text-xs text-gray-500">Vacances</label><textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
                     </div>
+                    
                     <div class="border-t border-gray-700 pt-2">
                         <h3 class="text-sm font-bold text-gray-400 mb-2">EmailJS</h3>
-                        <div class="grid grid-cols-3 gap-2"><input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
+                            <input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
+                            <input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
+                        </div>
                     </div>
+
                     <div class="border-t border-gray-700 pt-2">
                         <h3 class="text-sm font-bold text-gray-400 mb-2">Social</h3>
                         <div class="grid grid-cols-2 gap-2"><input type="text" id="confFb" placeholder="Facebook" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confInsta" placeholder="Instagram" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confTiktok" placeholder="TikTok (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confYoutube" placeholder="YouTube (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
@@ -161,11 +173,9 @@
                 finally { btn.innerHTML = old; }
             },
 
-            // Fonction pour télécharger un fichier image vers GitHub et obtenir son URL publique
             uploadImageToGitHub: async function(file) {
                 if(!file) return null;
                 const c = JSON.parse(localStorage.getItem('admin_gh_config'));
-                // Crée un nom de fichier unique basé sur le temps
                 const filename = `images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
                 const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${filename}`;
 
@@ -180,7 +190,6 @@
                                 body: JSON.stringify({ message: "Upload Image", content: base64Content })
                             });
                             if(!res.ok) throw new Error("Erreur Upload GitHub");
-                            // Construit l'URL publique du fichier
                             const publicUrl = `https://${c.owner}.github.io/${c.repo}/${filename}`;
                             resolve(publicUrl);
                         } catch(err) { reject(err); }
@@ -188,32 +197,24 @@
                     reader.readAsDataURL(file);
                 });
             },
-            
-            // Fonction spécifique pour le logo (appelée par l'input file)
+
             uploadLogoAndRender: async function() {
                 const file = document.getElementById('confLogoFile').files[0];
                 if (!file) return;
 
-                const input = document.getElementById('confLogoFile');
                 const preview = document.getElementById('logoPreview');
-                
-                // 1. Affiche le logo de chargement / état en cours
                 preview.src = '';
                 preview.classList.remove('hidden');
                 preview.className = 'h-12 w-12 object-contain bg-white rounded border border-gray-500 p-1 animate-pulse';
 
                 try {
-                    // 2. Upload l'image sur GitHub
                     const url = await this.uploadImageToGitHub(file);
-                    
-                    // 3. Met à jour les données et rafraîchit l'UI
                     this.data.settings.logoUrl = url;
                     this.renderUI();
                     alert("Logo téléchargé. N'oubliez pas de SAUVEGARDER pour enregistrer le lien dans data.json !");
                 } catch(e) {
                     alert("Erreur Logo: Échec du téléchargement. " + e.message);
                 } finally {
-                    // 4. Supprime l'état de chargement
                     preview.classList.remove('animate-pulse');
                     preview.className = 'h-12 w-12 object-contain bg-white rounded border border-gray-500 p-1';
                 }
@@ -229,15 +230,10 @@
                 document.getElementById('confName').value = S.orgName || "";
                 document.getElementById('confColor').value = S.themeColor || "#2563eb";
                 document.getElementById('confColorPicker').value = S.themeColor || "#2563eb";
-                
-                // Rendu du Logo
-                const logo = document.getElementById('logoPreview');
                 if(S.logoUrl) { 
-                    logo.src = S.logoUrl; 
-                    logo.classList.remove('hidden'); 
-                    logo.className = 'h-12 w-12 object-contain bg-white rounded border border-gray-500 p-1';
-                } else {
-                    logo.classList.add('hidden');
+                    document.getElementById('logoPreview').src = S.logoUrl; 
+                    document.getElementById('logoPreview').classList.remove('hidden'); 
+                    document.getElementById('logoPreview').className = 'h-12 w-12 object-contain bg-white rounded border border-gray-500 p-1';
                 }
                 
                 document.getElementById('confSchool').value = S.hours?.school || "";
@@ -338,7 +334,6 @@
                 if(!confirm("Sauvegarder en ligne ?")) return;
                 const btn = document.getElementById('btnSave'); const old = btn.innerHTML; btn.innerHTML = "Envoi...";
                 
-                // Récupération des données du formulaire
                 this.data.settings.orgName = document.getElementById('confName').value;
                 this.data.settings.themeColor = document.getElementById('confColor').value;
                 this.data.settings.hours = { school: document.getElementById('confSchool').value, holidays: document.getElementById('confHolidays').value };
