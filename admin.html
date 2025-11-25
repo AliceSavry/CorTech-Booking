@@ -16,110 +16,88 @@
         </div>
 
         <div id="configPanel" class="bg-gray-800 p-6 rounded shadow-lg mb-8 border border-gray-700">
-            <h2 class="text-xl font-bold mb-4 text-white">1. Connexion au Site (GitHub)</h2>
+            <h2 class="text-xl font-bold mb-4 text-white">1. Connexion (GitHub)</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Pseudo GitHub</label>
-                    <input type="text" id="ghOwner" class="w-full bg-gray-900 p-2 rounded border border-gray-600 text-white focus:border-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Nom du Dépôt</label>
-                    <input type="text" id="ghRepo" class="w-full bg-gray-900 p-2 rounded border border-gray-600 text-white focus:border-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Token Secret</label>
-                    <input type="password" id="ghToken" class="w-full bg-gray-900 p-2 rounded border border-gray-600 text-white focus:border-blue-500 outline-none">
-                </div>
+                <input type="text" id="ghOwner" placeholder="Pseudo GitHub" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
+                <input type="text" id="ghRepo" placeholder="Nom du Dépôt" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
+                <input type="password" id="ghToken" placeholder="Token Secret" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
             </div>
-            <button onclick="admin.loadData()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded font-bold w-full transition shadow-lg">
-                <i class="fas fa-download"></i> CHARGER LES DONNÉES DU SITE
+            <button onclick="admin.loadData()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded font-bold w-full shadow-lg">
+                <i class="fas fa-download"></i> CHARGER LES DONNÉES
             </button>
         </div>
 
         <div id="editorPanel" class="hidden space-y-8 pb-24">
             
             <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-green-400 border-b border-gray-700 pb-2"><i class="fas fa-newspaper"></i> Actualités</h2>
-                <div id="newsList" class="space-y-2 mb-6"></div>
-                
-                <div class="bg-gray-900 p-4 rounded border border-gray-700">
-                    <h3 class="text-sm font-bold text-gray-400 mb-3">Nouvelle Actualité</h3>
-                    <div class="grid gap-3">
-                        <input type="text" id="newsTitle" placeholder="Titre de l'info" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                        <div class="flex gap-2">
-                            <input type="date" id="newsDate" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                            <select id="newsTag" class="bg-gray-800 p-2 rounded text-white border border-gray-600"><option value="info">Info</option><option value="urgent">Urgent</option><option value="event">Vie Asso</option></select>
-                        </div>
-                        <textarea id="newsContent" placeholder="Message..." class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
-                        <button onclick="admin.addNews()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold transition">Ajouter</button>
+                <h2 class="text-xl font-bold mb-4 text-green-400"><i class="fas fa-newspaper"></i> Actualités</h2>
+                <div id="newsList" class="space-y-3 mb-6"></div>
+                <div class="bg-gray-900 p-4 rounded border border-gray-700 grid gap-3">
+                    <input type="text" id="newsTitle" placeholder="Titre" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
+                    <div class="flex gap-2">
+                        <input type="date" id="newsDate" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
+                        <select id="newsTag" class="bg-gray-800 p-2 rounded text-white border border-gray-600"><option value="info">Info</option><option value="urgent">Urgent</option><option value="event">Vie Asso</option></select>
                     </div>
+                    <textarea id="newsContent" placeholder="Message..." class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
+                    <button onclick="admin.addNews()" class="bg-green-600 text-white px-4 py-2 rounded font-bold">Ajouter</button>
                 </div>
             </div>
 
             <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-purple-400 border-b border-gray-700 pb-2"><i class="fas fa-calendar"></i> Évènements</h2>
-                <div id="eventsList" class="space-y-2 mb-6"></div>
-                
-                <div class="bg-gray-900 p-4 rounded border border-gray-700">
-                    <h3 class="text-sm font-bold text-gray-400 mb-3">Nouvel Évènement</h3>
-                    <div class="grid gap-3">
-                        <input type="text" id="evtTitle" placeholder="Titre de l'évènement" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                        <div class="flex gap-2">
-                            <input type="date" id="evtDate" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-1/3">
-                            <input type="text" id="evtLoc" placeholder="Lieu" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-2/3">
-                        </div>
-                        <textarea id="evtDesc" placeholder="Description" class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
-                        <button onclick="admin.addEvent()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded font-bold transition">Ajouter</button>
+                <h2 class="text-xl font-bold mb-4 text-purple-400"><i class="fas fa-calendar"></i> Évènements</h2>
+                <div id="eventsList" class="space-y-3 mb-6"></div>
+                <div class="bg-gray-900 p-4 rounded border border-gray-700 grid gap-3">
+                    <input type="text" id="evtTitle" placeholder="Titre" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
+                    <div class="flex gap-2">
+                        <input type="date" id="evtDate" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-1/3">
+                        <input type="text" id="evtLoc" placeholder="Lieu" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-2/3">
                     </div>
+                    <textarea id="evtDesc" placeholder="Description" class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
+                    <button onclick="admin.addEvent()" class="bg-purple-600 text-white px-4 py-2 rounded font-bold">Ajouter</button>
                 </div>
             </div>
 
             <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-orange-400 border-b border-gray-700 pb-2"><i class="fas fa-cog"></i> Paramètres</h2>
+                <h2 class="text-xl font-bold mb-4 text-orange-400"><i class="fas fa-cog"></i> Paramètres</h2>
                 <div class="grid gap-4">
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">Nom Asso</label>
-                        <input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600">
+                    <div><label class="text-gray-500 text-xs">Nom Asso</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-gray-500 text-xs">Scolaire</label><textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></textarea></div>
+                        <div><label class="text-gray-500 text-xs">Vacances</label><textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></textarea></div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Horaires Scolaires</label>
-                            <textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Horaires Vacances</label>
-                            <textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="border-t border-gray-700 pt-4 mt-2">
-                        <h3 class="font-bold text-sm mb-3 text-gray-300">Configuration Email (EmailJS)</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div class="border-t border-gray-700 pt-4">
+                        <h3 class="font-bold text-sm mb-2 text-gray-400">EmailJS</h3>
+                        <div class="grid grid-cols-3 gap-2">
                             <input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-white border border-gray-600 text-sm">
                             <input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-white border border-gray-600 text-sm">
                             <input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-white border border-gray-600 text-sm">
                         </div>
                     </div>
+                     <div class="border-t border-gray-700 pt-4">
+                        <h3 class="font-bold text-sm mb-2 text-gray-400">Réseaux Sociaux</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="confFb" placeholder="Facebook" class="bg-gray-900 p-2 rounded text-white border border-gray-600 text-sm">
+                            <input type="text" id="confInsta" placeholder="Instagram" class="bg-gray-900 p-2 rounded text-white border border-gray-600 text-sm">
+                            <input type="text" id="confWeb" placeholder="Site Web" class="bg-gray-900 p-2 rounded text-white border border-gray-600 text-sm">
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
 
-        <div id="saveBar" class="hidden fixed bottom-0 left-0 w-full bg-gray-900 p-4 border-t border-gray-700 flex justify-center shadow-[0_-5px_15px_rgba(0,0,0,0.5)]">
-            <button id="btnSave" onclick="admin.saveToGitHub()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-10 rounded-full shadow-lg transform hover:scale-105 transition flex items-center gap-3 text-lg">
+        <div id="saveBar" class="hidden fixed bottom-0 left-0 w-full bg-gray-900 p-4 border-t border-gray-700 flex justify-center shadow-lg">
+            <button id="btnSave" onclick="admin.saveToGitHub()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-10 rounded-full shadow-lg transform hover:scale-105 transition flex items-center gap-3">
                 <i class="fas fa-cloud-upload-alt"></i> METTRE LE SITE EN LIGNE
             </button>
         </div>
-
     </div>
 
     <script>
         const admin = {
-            data: null,
-            sha: null,
-            defaultStructure: {
+            data: null, sha: null,
+            defaultData: {
                 events: [],
-                news: [{id:1, title:"Info", date:"2025-01-01", tag:"info", content:"Site initialisé"}],
+                news: [{id:1, title:"Info", date:"2025-01-01", tag:"info", content:"Site prêt"}],
                 settings: { orgName: "Cor-Tech", themeColor: "#2563eb", hours: {school:"", holidays:""}, emailjs: {}, social: {} }
             },
             
@@ -135,67 +113,54 @@
                 const repo = document.getElementById('ghRepo').value.trim();
                 const token = document.getElementById('ghToken').value.trim();
 
-                if(!owner || !repo || !token) return alert("Remplissez les 3 champs GitHub !");
+                if(!owner || !repo || !token) return alert("Remplissez les 3 champs !");
                 localStorage.setItem('admin_gh_config', JSON.stringify({owner, repo, token}));
 
                 const btn = document.querySelector('button[onclick="admin.loadData()"]');
-                const oldTxt = btn.innerHTML;
-                btn.innerHTML = '<div class="loader"></div> Chargement...';
+                const old = btn.innerHTML; btn.innerHTML = "Chargement...";
 
                 try {
                     const url = `https://api.github.com/repos/${owner}/${repo}/contents/index.html`;
                     const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
-                    
-                    if(!res.ok) throw new Error("Accès refusé. Vérifiez vos identifiants GitHub.");
+                    if(!res.ok) throw new Error("Erreur accès GitHub (Vérifiez le Token)");
                     
                     const json = await res.json();
-                    this.sha = json.sha; 
+                    this.sha = json.sha;
                     const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
                     
-                    // Extraction des données
-                    const regex = /window\.ASSO_DATA\s*=\s*({[\s\S]*?});/;
-                    const match = content.match(regex);
+                    const match = content.match(/window\.ASSO_DATA\s*=\s*({[\s\S]*?});/);
                     
                     if(!match) {
-                        alert("⚠️ Structure de données non trouvée. Chargement d'une config vierge.");
-                        this.data = JSON.parse(JSON.stringify(this.defaultStructure));
+                        alert("⚠️ Données introuvables. Chargement config vierge.");
+                        this.data = JSON.parse(JSON.stringify(this.defaultData));
                     } else {
-                        try {
-                            this.data = JSON.parse(match[1]);
-                        } catch(e) {
-                            alert("⚠️ Fichier corrompu. Chargement d'une config vierge.");
-                            this.data = JSON.parse(JSON.stringify(this.defaultStructure));
-                        }
+                        try { this.data = JSON.parse(match[1]); } 
+                        catch(e) { this.data = JSON.parse(JSON.stringify(this.defaultData)); }
                     }
-                    
-                    // Vérification structure
-                    if(!this.data.settings) this.data.settings = this.defaultStructure.settings;
+
+                    // Structure check
+                    if(!this.data.settings) this.data.settings = {};
+                    if(!this.data.settings.hours) this.data.settings.hours = {};
+                    if(!this.data.settings.emailjs) this.data.settings.emailjs = {};
+                    if(!this.data.settings.social) this.data.settings.social = {};
                     if(!this.data.news) this.data.news = [];
                     if(!this.data.events) this.data.events = [];
-                    
+
                     document.getElementById('configPanel').classList.add('hidden');
                     document.getElementById('editorPanel').classList.remove('hidden');
                     document.getElementById('saveBar').classList.remove('hidden');
                     this.renderUI();
-                    
-                } catch(e) { alert("Erreur: " + e.message); }
-                finally { btn.innerHTML = oldTxt; }
+                } catch(e) { alert("Erreur: " + e.message); } 
+                finally { btn.innerHTML = old; }
             },
 
             renderUI: function() {
                 const D = this.data;
                 document.getElementById('newsList').innerHTML = D.news.map(n => 
-                    `<div class="flex justify-between items-center bg-gray-900 p-3 rounded border border-gray-700">
-                        <div><span class="font-bold text-blue-300">${n.title}</span> <span class="text-xs text-gray-500 ml-2">${n.date}</span></div>
-                        <button onclick="admin.delNews(${n.id})" class="text-red-400 hover:text-red-200"><i class="fas fa-trash"></i></button>
-                    </div>`
+                    `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${n.title}</span> <button onclick="admin.delNews(${n.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div>`
                 ).join('');
-                
                 document.getElementById('eventsList').innerHTML = D.events.map(e => 
-                    `<div class="flex justify-between items-center bg-gray-900 p-3 rounded border border-gray-700">
-                        <div><span class="font-bold text-purple-300">${e.title}</span> <span class="text-xs text-gray-500 ml-2">${e.date}</span></div>
-                        <button onclick="admin.delEvent(${e.id})" class="text-red-400 hover:text-red-200"><i class="fas fa-trash"></i></button>
-                    </div>`
+                    `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${e.title}</span> <button onclick="admin.delEvent(${e.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div>`
                 ).join('');
 
                 document.getElementById('confName').value = D.settings.orgName || "";
@@ -204,109 +169,69 @@
                 document.getElementById('confEmailPub').value = D.settings.emailjs?.publicKey || "";
                 document.getElementById('confEmailServ').value = D.settings.emailjs?.serviceId || "";
                 document.getElementById('confEmailTempl').value = D.settings.emailjs?.templateId || "";
+                document.getElementById('confFb').value = D.settings.social?.facebook || "";
+                document.getElementById('confInsta').value = D.settings.social?.instagram || "";
+                document.getElementById('confWeb').value = D.settings.social?.website || "";
             },
 
             addNews: function() {
-                const t = document.getElementById('newsTitle').value;
-                if(!t) return alert("Titre obligatoire");
-                this.data.news.push({
-                    id: Date.now(),
-                    title: t,
-                    date: document.getElementById('newsDate').value || new Date().toISOString().split('T')[0],
-                    tag: document.getElementById('newsTag').value,
-                    content: document.getElementById('newsContent').value
-                });
-                this.renderUI(); 
-                // Reset form
-                document.getElementById('newsTitle').value = "";
-                document.getElementById('newsContent').value = "";
-            },
-            delNews: function(id) { if(confirm("Supprimer ?")) { this.data.news = this.data.news.filter(x=>x.id!=id); this.renderUI(); } },
-            
-            addEvent: function() {
-                const t = document.getElementById('evtTitle').value;
-                if(!t) return alert("Titre obligatoire");
-                this.data.events.push({
-                    id: Date.now(),
-                    title: t,
-                    date: document.getElementById('evtDate').value || new Date().toISOString().split('T')[0],
-                    location: document.getElementById('evtLoc').value,
-                    description: document.getElementById('evtDesc').value,
-                    image: null
-                });
+                this.data.news.push({id:Date.now(), title:document.getElementById('newsTitle').value, date:document.getElementById('newsDate').value, tag:document.getElementById('newsTag').value, content:document.getElementById('newsContent').value});
                 this.renderUI();
-                // Reset form
-                document.getElementById('evtTitle').value = "";
-                document.getElementById('evtLoc').value = "";
-                document.getElementById('evtDesc').value = "";
+                document.getElementById('newsTitle').value=""; document.getElementById('newsContent').value="";
             },
-            delEvent: function(id) { if(confirm("Supprimer ?")) { this.data.events = this.data.events.filter(x=>x.id!=id); this.renderUI(); } },
+            delNews: function(id){ if(confirm("Supprimer ?")) { this.data.news = this.data.news.filter(x=>x.id!=id); this.renderUI(); } },
+
+            addEvent: function() {
+                this.data.events.push({id:Date.now(), title:document.getElementById('evtTitle').value, date:document.getElementById('evtDate').value, location:document.getElementById('evtLoc').value, description:document.getElementById('evtDesc').value, image:null});
+                this.renderUI();
+                document.getElementById('evtTitle').value="";
+            },
+            delEvent: function(id){ if(confirm("Supprimer ?")) { this.data.events = this.data.events.filter(x=>x.id!=id); this.renderUI(); } },
 
             saveToGitHub: async function() {
-                if(!confirm("Mettre à jour le site public maintenant ?")) return;
-                
+                if(!confirm("Mettre à jour le site ?")) return;
                 const btn = document.getElementById('btnSave');
-                const oldTxt = btn.innerHTML;
-                btn.innerHTML = '<div class="loader"></div> Envoi...';
+                const old = btn.innerHTML; btn.innerHTML = "Envoi...";
                 
-                // Récupération des données formulaire
+                // Save inputs
                 this.data.settings.orgName = document.getElementById('confName').value;
-                this.data.settings.hours = { 
-                    school: document.getElementById('confSchool').value,
-                    holidays: document.getElementById('confHolidays').value
-                };
-                if(!this.data.settings.emailjs) this.data.settings.emailjs = {};
-                this.data.settings.emailjs.publicKey = document.getElementById('confEmailPub').value;
-                this.data.settings.emailjs.serviceId = document.getElementById('confEmailServ').value;
-                this.data.settings.emailjs.templateId = document.getElementById('confEmailTempl').value;
+                this.data.settings.hours = { school: document.getElementById('confSchool').value, holidays: document.getElementById('confHolidays').value };
+                this.data.settings.emailjs = { publicKey: document.getElementById('confEmailPub').value, serviceId: document.getElementById('confEmailServ').value, templateId: document.getElementById('confEmailTempl').value };
+                this.data.settings.social = { facebook: document.getElementById('confFb').value, instagram: document.getElementById('confInsta').value, website: document.getElementById('confWeb').value };
 
                 const c = JSON.parse(localStorage.getItem('admin_gh_config'));
                 const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/index.html`;
 
                 try {
-                    // 1. Relire le fichier distant (pour avoir le HTML à jour)
+                    // Fetch current content
                     const res = await fetch(url, { headers: { Authorization: `token ${c.token}` } });
-                    if(!res.ok) throw new Error("Erreur lecture GitHub");
-                    
                     const json = await res.json();
                     const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
                     
-                    // 2. Injecter le JSON
                     const newDataStr = JSON.stringify(this.data, null, 4);
+                    // ASTUCE ANTI-BUG : On découpe le mot script
                     let newContent;
-                    
                     if(content.includes('window.ASSO_DATA')) {
                         newContent = content.replace(/window\.ASSO_DATA\s*=\s*({[\s\S]*?});/, `window.ASSO_DATA = ${newDataStr};`);
                     } else {
-                        // Secours si balise introuvable
-                        newContent = content.replace('</body>', `<script>window.ASSO_DATA = ${newDataStr};</script></body>`);
+                        newContent = content.replace('</body>', `<script>window.ASSO_DATA = ${newDataStr};<\/script></body>`);
                     }
                     
-                    // 3. Encoder et envoyer
                     const encoded = btoa(unescape(encodeURIComponent(newContent)));
-                    
                     const putRes = await fetch(url, {
                         method: "PUT",
                         headers: { Authorization: `token ${c.token}`, "Content-Type": "application/json" },
                         body: JSON.stringify({ message: "Update Admin", content: encoded, sha: json.sha })
                     });
                     
-                    if(!putRes.ok) throw new Error("Erreur écriture GitHub");
-                    
-                    // MàJ du SHA
+                    if(!putRes.ok) throw new Error("Erreur écriture");
                     const putJson = await putRes.json();
                     this.sha = putJson.content.sha;
-
                     alert("✅ SITE MIS À JOUR !");
-                } catch(e) {
-                    alert("Erreur: " + e.message);
-                } finally {
-                    btn.innerHTML = oldTxt;
-                }
+                } catch(e) { alert("Erreur: " + e.message); } 
+                finally { btn.innerHTML = old; }
             }
         };
-        
-        // Démarrage
         admin.init();
     </script>
 </body>
