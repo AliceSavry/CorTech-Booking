@@ -32,14 +32,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div><label class="block text-xs text-gray-400 mb-1">Nom de l'Asso</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
                     <div><label class="block text-xs text-gray-400 mb-1">Couleur Principale</label><div class="flex gap-2"><input type="color" id="confColorPicker" class="h-9 w-9 border-0 bg-transparent cursor-pointer" onchange="document.getElementById('confColor').value=this.value"><input type="text" id="confColor" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
-                    
-                    <div class="md:col-span-2">
-                        <label class="block text-xs text-gray-400 mb-1">Logo (Sera stocké en fichier)</label>
-                        <div class="flex items-center gap-4">
-                            <input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 rounded text-sm text-gray-300 w-full border border-gray-600" onchange="admin.uploadLogoAndRender()">
-                            <img id="logoPreview" src="" class="h-12 w-12 object-contain bg-white rounded hidden border border-gray-500 p-1">
-                        </div>
-                    </div>
+                    <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1">Logo</label><div class="flex items-center gap-4"><input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 rounded text-sm text-gray-300 w-full border border-gray-600" onchange="admin.uploadLogoAndRender()"><img id="logoPreview" src="" class="h-12 w-12 object-contain bg-white rounded hidden border border-gray-500 p-1"></div></div>
                 </div>
             </div>
 
@@ -80,8 +73,8 @@
                         
                         <div class="flex gap-2">
                             <select id="evtStatus" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-1/2">
-                                <option value="Ouvert">Ouvert (Inscriptions OK)</option>
-                                <option value="Complet">Complet (Liste d'attente)</option>
+                                <option value="Ouvert">Ouvert</option>
+                                <option value="Complet">Complet</option>
                                 <option value="Annulé">Annulé</option>
                             </select>
                             <input type="number" id="evtCapacity" placeholder="Capacité (Max)" class="bg-gray-800 p-2 rounded w-1/2 text-white border border-gray-600">
@@ -100,30 +93,18 @@
                         <div><label class="text-xs text-gray-500">Nom</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
                         <div><label class="text-xs text-gray-500">Couleur</label><div class="flex gap-2"><input type="color" id="confColorPicker" class="h-9 w-9 border-0 bg-transparent cursor-pointer" onchange="document.getElementById('confColor').value=this.value"><input type="text" id="confColor" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
                     </div>
-                    <div>
-                        <label class="text-xs text-gray-500">Logo</label>
-                        <div class="flex items-center gap-4">
-                            <input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.uploadLogoAndRender()">
-                            <img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden border border-gray-500 p-1">
-                        </div>
-                    </div>
+                    <div><label class="text-xs text-gray-500">Logo</label><div class="flex items-center gap-4"><input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.uploadLogoAndRender()"><img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden border border-gray-500 p-1"></div></div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="text-xs text-gray-500">Scolaire</label><textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
                         <div><label class="text-xs text-gray-500">Vacances</label><textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
                     </div>
-                    
                     <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-gray-400 mb-2">EmailJS</h3>
-                        <div class="grid grid-cols-3 gap-2">
-                            <input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
-                            <input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
-                            <input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
-                        </div>
+                        <h3 class="text-sm font-bold text-gray-400 mb-2">Formulaire Google/Airtable</h3>
+                        <input type="url" id="confFormUrl" placeholder="URL du formulaire de contact (obligatoire)" class="w-full bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
                     </div>
-
                     <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-gray-400 mb-2">Social</h3>
-                        <div class="grid grid-cols-2 gap-2"><input type="text" id="confFb" placeholder="Facebook" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confInsta" placeholder="Instagram" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confTiktok" placeholder="TikTok (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confYoutube" placeholder="YouTube (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
+                        <h3 class="text-sm font-bold text-gray-400 mb-2">EmailJS (Ancienne méthode)</h3>
+                        <div class="grid grid-cols-3 gap-2"><input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
                     </div>
                 </div>
             </div>
@@ -230,12 +211,7 @@
                 document.getElementById('confName').value = S.orgName || "";
                 document.getElementById('confColor').value = S.themeColor || "#2563eb";
                 document.getElementById('confColorPicker').value = S.themeColor || "#2563eb";
-                if(S.logoUrl) { 
-                    document.getElementById('logoPreview').src = S.logoUrl; 
-                    document.getElementById('logoPreview').classList.remove('hidden'); 
-                    document.getElementById('logoPreview').className = 'h-12 w-12 object-contain bg-white rounded border border-gray-500 p-1';
-                }
-                
+                if(S.logoUrl) { document.getElementById('logoPreview').src = S.logoUrl; document.getElementById('logoPreview').classList.remove('hidden'); }
                 document.getElementById('confSchool').value = S.hours?.school || "";
                 document.getElementById('confHolidays').value = S.hours?.holidays || "";
                 document.getElementById('confEmailPub').value = S.emailjs?.publicKey || "";
@@ -245,6 +221,7 @@
                 document.getElementById('confInsta').value = S.social?.instagram || "";
                 document.getElementById('confTiktok').value = S.social?.tiktok || "";
                 document.getElementById('confYoutube').value = S.social?.youtube || "";
+                document.getElementById('confFormUrl').value = S.formUrl || ""; // Nouveau champ
             },
 
             // NEWS
@@ -334,11 +311,13 @@
                 if(!confirm("Sauvegarder en ligne ?")) return;
                 const btn = document.getElementById('btnSave'); const old = btn.innerHTML; btn.innerHTML = "Envoi...";
                 
+                // Récupération des données du formulaire
                 this.data.settings.orgName = document.getElementById('confName').value;
                 this.data.settings.themeColor = document.getElementById('confColor').value;
                 this.data.settings.hours = { school: document.getElementById('confSchool').value, holidays: document.getElementById('confHolidays').value };
                 this.data.settings.emailjs = { publicKey: document.getElementById('confEmailPub').value, serviceId: document.getElementById('confEmailServ').value, templateId: document.getElementById('confEmailTempl').value };
                 this.data.settings.social = { facebook: document.getElementById('confFb').value, instagram: document.getElementById('confInsta').value, tiktok: document.getElementById('confTiktok').value, youtube: document.getElementById('confYoutube').value };
+                this.data.settings.formUrl = document.getElementById('confFormUrl').value; // Sauvegarde de la nouvelle URL de formulaire
 
                 const c = JSON.parse(localStorage.getItem('admin_gh_config'));
                 const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`;
