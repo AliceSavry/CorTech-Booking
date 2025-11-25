@@ -15,11 +15,11 @@
         "themeColor": "#2563eb",
         "logoUrl": null,
         "hours": {
-            "school": "Lundi: 9h-12h",
-            "holidays": "Fermé"
+            "school": "Mardi : 9h-12h ; 13h30 - 18h\nMercredi : 9h-12h ; 13h30 - 18h\nJeudi: 9h-12h ; 13h30 - 18h",
+            "holidays": "Lundi : 14h-18h\nMardi : 14h-18h\nMercredi : 14h-18h\nJeudi : 14h-18h\nVendredi : 14h-18h"
         },
         "emailjs": {
-            "publicKey": "",
+            "publicKey": "accueil@cor-tech.fr",
             "serviceId": "",
             "templateId": ""
         },
