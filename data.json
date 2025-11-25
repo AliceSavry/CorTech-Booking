@@ -4,11 +4,12 @@
             "id": 1764100236051,
             "title": "Tournois Fortnite",
             "date": "2025-12-03",
+            "time": "19:30",
             "location": "Locaux Cor-Tech",
             "description": "Viens affronter les joueurs les plus chauds de Cordemais dans des Battle Royales Epiques !",
+            "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764100234918_Design_sans_titre.jpg",
             "status": "Ouvert",
-            "capacity": "12",
-            "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764100234918_Design_sans_titre.jpg"
+            "capacity": "20"
         },
         {
             "id": 1764100303582,
@@ -29,27 +30,28 @@
             "date": "2025-11-25",
             "tag": "info",
             "content": "⭐ Événements à venir\n\n🔫 Tournoi Fortnite – Mardi 3 décembre\n\nUn tournoi fun et accessible pour tous les niveaux !\n➡️ Classements + petits lots\n➡️ Ambiance conviviale et sécurisée\n Infos pratiques et inscription via notre page événements.\n\n 🏎️ Soirée Mario Kart – Jeudi 12 décembre \n\nLa soirée incontournable pour finir l’année !\n➡️ Sessions libres + mini-tournoi\n➡️ Pour tous âges\n➡️ Ambiance conviviale, écran géant et manettes fournies\n Infos pratiques et inscription via notre page événements.\n\n 🧡 Rejoignez l’aventure Cor-Tech\n\nAteliers YouTube, jeux vidéo, e-sport, Labo Ludik pour enfants, 3D, informatique, projets créatifs…\nIl y a toujours quelque chose à découvrir ou à apprendre !",
-            "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764106428230_ChatGPT_Image_25_nov._2025_a__21_43_04.png"
+            "image": null
         }
     ],
     "settings": {
         "orgName": "Cor-Tech",
-        "themeColor": "#000000",
-        "logoUrl": "https://AliceSavry.github.io/CorTech-Booking/images/1764106400133_Logo_Cor_Tech_n_b.png",
+        "themeColor": "#2563eb",
+        "logoUrl": null,
         "hours": {
             "school": "Mardi : 9h-12h ; 13h30-18h\nMercredi : 10h-12h ; 13h30-18h\nJeudi : 9h-12h ; 13h30-18h",
             "holidays": "Lundi : 14h-18h\nMardi : 14h-18h\nMercredi : 14h-18h\nJeudi : 14h-18h\nVendredi : 14h-18h"
         },
         "emailjs": {
-            "publicKey": "lxyrW1uF8MUJ91Yre",
-            "serviceId": "service_trnqcvk",
-            "templateId": "template_vxd63ua"
+            "publicKey": "",
+            "serviceId": "",
+            "templateId": ""
         },
         "social": {
             "facebook": "",
             "instagram": "",
             "tiktok": "",
             "youtube": ""
-        }
+        },
+        "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLSc-ZdAonTYiEYP2KtQ2hRQ8aT5Xo0agOi_GfDthqlOS7UPxAw/viewform?usp=pp_url&entry.169108047=ID_Nom&entry.1030002564=ID_MAIL&entry.224337788=ID_TEL&entry.801717205=ID_EVENT" 
     }
 }
