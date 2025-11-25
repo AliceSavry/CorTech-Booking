@@ -9,57 +9,51 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <script>
-        // CONFIGURATION EMAILJS (A REMPLACER PAR VOS CLES)
+        // --- CONFIGURATION EMAILJS (REMPLACEZ CES VALEURS) ---
         const EMAILJS_PUBLIC_KEY = "VOTRE_PUBLIC_KEY"; // ex: "user_xh4..."
         const EMAILJS_SERVICE_ID = "VOTRE_SERVICE_ID"; // ex: "service_gmail"
         const EMAILJS_TEMPLATE_ID = "VOTRE_TEMPLATE_ID"; // ex: "template_contact"
         
-        // Initialisation EmailJS
         (function(){
-            emailjs.init(EMAILJS_PUBLIC_KEY);
+            try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e) { console.log("EmailJS non configuré"); }
         })();
     </script>
 
     <style>
-        /* Variables dynamiques pour la personnalisation */
-        :root {
-            --primary-color: #2563eb; /* Bleu par défaut */
-        }
+        /* Variables dynamiques */
+        :root { --primary-color: #2563eb; }
         .bg-theme { background-color: var(--primary-color); }
         .text-theme { color: var(--primary-color); }
         .border-theme { border-color: var(--primary-color); }
         .btn-theme { background-color: var(--primary-color); color: white; }
         .btn-theme:hover { filter: brightness(90%); }
-        
-        /* Loader */
-        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Loader pour la sauvegarde GitHub */
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-gray-50 text-gray-800 font-sans flex flex-col min-h-screen">
 
-    <nav class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="bg-white shadow-md sticky top-0 z-40">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img id="navLogo" src="https://via.placeholder.com/40" alt="Logo" class="h-10 w-10 object-contain rounded hidden">
+                <img id="navLogo" src="" alt="Logo" class="h-10 w-10 object-contain rounded hidden">
                 <span id="navOrgName" class="text-xl font-bold text-gray-700">Mon Association</span>
             </div>
-            <div>
-                <button onclick="app.openAdminLogin()" class="text-sm text-gray-500 hover:text-theme transition">
-                    <i class="fas fa-cog"></i> Admin
-                </button>
-            </div>
+            <button onclick="app.openAdminLogin()" class="text-sm text-gray-500 hover:text-theme transition">
+                <i class="fas fa-cog"></i> Admin
+            </button>
         </div>
     </nav>
 
-    <header class="bg-theme text-white py-12 mb-8">
+    <header class="bg-theme text-white py-12 mb-8 transition-colors duration-500">
         <div class="container mx-auto px-4 text-center">
             <h1 class="text-4xl font-bold mb-4">Nos Prochains Évènements</h1>
             <p class="text-lg opacity-90">Réservez votre place en quelques clics.</p>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 pb-12">
+    <main class="container mx-auto px-4 pb-12 flex-grow">
         <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             </div>
     </main>
@@ -75,24 +69,21 @@
             <button onclick="app.closeModal('modalBooking')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times fa-lg"></i></button>
             <h2 class="text-2xl font-bold mb-2 text-theme">Inscription</h2>
             <p id="bookingEventTitle" class="text-gray-600 mb-6 font-medium"></p>
-            
             <form id="bookingForm" onsubmit="app.handleBooking(event)">
                 <input type="hidden" id="bookingEventId">
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Votre Nom Complet</label>
-                    <input type="text" id="userName" required class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Nom Complet</label>
+                    <input type="text" id="userName" required class="w-full px-3 py-2 border rounded">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Votre Email</label>
-                    <input type="email" id="userEmail" required class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                    <input type="email" id="userEmail" required class="w-full px-3 py-2 border rounded">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Téléphone (Optionnel)</label>
-                    <input type="tel" id="userPhone" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Téléphone</label>
+                    <input type="tel" id="userPhone" class="w-full px-3 py-2 border rounded">
                 </div>
-                <button type="submit" class="w-full btn-theme font-bold py-3 px-4 rounded transition duration-200">
-                    Confirmer l'inscription
-                </button>
+                <button type="submit" class="w-full btn-theme font-bold py-3 px-4 rounded transition">Confirmer</button>
             </form>
         </div>
     </div>
@@ -113,119 +104,116 @@
             <div class="bg-white shadow px-6 py-4 flex justify-between items-center sticky top-0 z-10">
                 <h2 class="text-xl font-bold text-theme"><i class="fas fa-user-shield"></i> Administration</h2>
                 <div class="flex gap-3">
-                    <button onclick="app.openSettingsTab()" class="text-gray-600 hover:text-theme"><i class="fas fa-sliders-h"></i> Paramètres</button>
                     <button onclick="app.closeModal('modalAdmin')" class="text-red-500 hover:text-red-700 font-bold"><i class="fas fa-sign-out-alt"></i> Quitter</button>
                 </div>
             </div>
 
             <div class="container mx-auto px-4 py-8 max-w-6xl flex-grow">
-                
-                <div class="flex mb-6 border-b">
-                    <button onclick="app.switchTab('events')" id="tab-events" class="px-6 py-2 border-b-2 border-theme font-bold text-theme">Évènements</button>
-                    <button onclick="app.switchTab('registrations')" id="tab-registrations" class="px-6 py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700">Inscriptions</button>
-                    <button onclick="app.switchTab('settings')" id="tab-settings" class="px-6 py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700">Paramètres Généraux</button>
+                <div class="flex mb-6 border-b overflow-x-auto">
+                    <button onclick="app.switchTab('events')" id="tab-events" class="px-6 py-2 border-b-2 border-theme font-bold text-theme whitespace-nowrap">Évènements</button>
+                    <button onclick="app.switchTab('registrations')" id="tab-registrations" class="px-6 py-2 border-b-2 border-transparent text-gray-500 whitespace-nowrap">Inscriptions</button>
+                    <button onclick="app.switchTab('settings')" id="tab-settings" class="px-6 py-2 border-b-2 border-transparent text-gray-500 whitespace-nowrap">Paramètres & Cloud</button>
                 </div>
 
                 <div id="view-events" class="block">
                     <div class="bg-white rounded shadow p-6 mb-6">
-                        <h3 class="text-lg font-bold mb-4">Ajouter / Modifier un évènement</h3>
+                        <h3 class="text-lg font-bold mb-4">Ajouter / Modifier</h3>
                         <form onsubmit="app.saveEvent(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="hidden" id="editEventId">
-                            <input type="text" id="eventTitle" placeholder="Titre de l'évènement" required class="border p-2 rounded">
+                            <input type="text" id="eventTitle" placeholder="Titre" required class="border p-2 rounded">
                             <input type="date" id="eventDate" required class="border p-2 rounded">
                             <input type="text" id="eventLocation" placeholder="Lieu" class="border p-2 rounded">
-                            <input type="number" id="eventCapacity" placeholder="Capacité Max" required class="border p-2 rounded">
+                            <input type="number" id="eventCapacity" placeholder="Capacité" required class="border p-2 rounded">
                             <input type="file" id="eventImage" accept="image/*" class="border p-2 rounded">
-                            <textarea id="eventDesc" placeholder="Description" class="border p-2 rounded md:col-span-2" rows="3"></textarea>
+                            <textarea id="eventDesc" placeholder="Description" class="border p-2 rounded md:col-span-2" rows="2"></textarea>
                             <div class="md:col-span-2 text-right">
                                 <button type="button" onclick="app.resetEventForm()" class="text-gray-500 mr-4">Annuler</button>
-                                <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-bold">Enregistrer</button>
+                                <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-bold">Enregistrer (Local)</button>
                             </div>
                         </form>
                     </div>
-
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-                        <p class="text-sm text-blue-700">
-                            <strong><i class="fas fa-info-circle"></i> Important GitHub :</strong> 
-                            Les évènements créés ici sont stockés dans <em>votre</em> navigateur. 
-                            Pour les rendre visibles à tout le monde sur GitHub, utilisez l'onglet "Paramètres Généraux" > bouton "Exporter pour GitHub".
-                        </p>
-                    </div>
-
-                    <div id="adminEventsList" class="space-y-4">
-                        </div>
+                    <div id="adminEventsList" class="space-y-4"></div>
                 </div>
 
                 <div id="view-registrations" class="hidden">
-                    <div class="bg-white rounded shadow overflow-hidden">
+                    <div class="bg-white rounded shadow overflow-x-auto">
                         <table class="min-w-full leading-normal">
                             <thead>
                                 <tr>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Évènement</th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom</th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Statut</th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                                    <th class="px-5 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">Évènement</th>
+                                    <th class="px-5 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">Nom</th>
+                                    <th class="px-5 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">Email</th>
+                                    <th class="px-5 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">Statut</th>
                                 </tr>
                             </thead>
-                            <tbody id="registrationsTableBody">
-                                </tbody>
+                            <tbody id="registrationsTableBody"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <div id="view-settings" class="hidden">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div class="bg-gray-800 text-white rounded shadow p-6 md:col-span-2 border border-gray-700">
+                            <h3 class="text-lg font-bold mb-4 text-blue-400"><i class="fab fa-github"></i> Connexion Cloud (GitHub)</h3>
+                            <p class="text-sm mb-4 text-gray-300">Remplissez ceci pour sauvegarder vos évènements et réglages directement sur votre site en ligne.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Pseudo GitHub (Owner)</label>
+                                    <input type="text" id="ghOwner" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="ex: monpseudo">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Nom du Dépôt (Repo)</label>
+                                    <input type="text" id="ghRepo" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="ex: mon-outil">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Token (Secret)</label>
+                                    <input type="password" id="ghToken" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="ghp_xxxxxxxxxxxx">
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <p class="text-xs text-gray-500 italic">Le token est stocké uniquement sur cet ordinateur.</p>
+                                <button id="btnPushGithub" type="button" onclick="app.pushToGitHub()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded transition flex items-center gap-2">
+                                    <i class="fas fa-cloud-upload-alt"></i> Sauvegarder sur Internet
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="bg-white rounded shadow p-6">
-                            <h3 class="text-lg font-bold mb-4 border-b pb-2">Personnalisation Interface</h3>
+                            <h3 class="text-lg font-bold mb-4 border-b pb-2">Personnalisation</h3>
                             <form onsubmit="app.saveCustomSettings(event)" class="space-y-4">
                                 <div>
-                                    <label class="block text-sm font-medium">Nom de l'organisation</label>
+                                    <label class="block text-sm font-medium">Nom Organisation</label>
                                     <input type="text" id="setOrgName" class="w-full border p-2 rounded">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium">Couleur Principale (Hex)</label>
+                                    <label class="block text-sm font-medium">Couleur (Hex)</label>
                                     <div class="flex gap-2">
                                         <input type="color" id="setThemeColorPicker" class="h-10 w-10 p-0 border-0" onchange="document.getElementById('setThemeColor').value = this.value">
                                         <input type="text" id="setThemeColor" class="w-full border p-2 rounded" placeholder="#2563eb">
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium">Logo (Image)</label>
+                                    <label class="block text-sm font-medium">Logo</label>
                                     <input type="file" id="setLogo" accept="image/*" class="w-full border p-2 rounded">
-                                    <img id="previewLogo" class="mt-2 h-12 object-contain hidden">
                                 </div>
-                                <button type="submit" class="w-full bg-theme text-white py-2 rounded">Sauvegarder Apparence</button>
+                                <button type="submit" class="w-full bg-gray-200 text-gray-800 py-2 rounded hover:bg-gray-300">Enregistrer Apparence (Local)</button>
                             </form>
                         </div>
 
                         <div class="bg-white rounded shadow p-6">
-                            <h3 class="text-lg font-bold mb-4 border-b pb-2">Sécurité Admin</h3>
+                            <h3 class="text-lg font-bold mb-4 border-b pb-2">Sécurité</h3>
                             <form onsubmit="app.changePassword(event)" class="space-y-4">
                                 <div>
-                                    <label class="block text-sm font-medium">Nouveau mot de passe</label>
+                                    <label class="block text-sm font-medium">Nouveau mot de passe Admin</label>
                                     <input type="text" id="setAdminPass" class="w-full border p-2 rounded" placeholder="Ex: asso2025">
                                 </div>
                                 <button type="submit" class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">Changer Mot de Passe</button>
                             </form>
                         </div>
-
-                        <div class="bg-gray-800 text-white rounded shadow p-6 md:col-span-2">
-                            <h3 class="text-lg font-bold mb-2 text-yellow-400"><i class="fas fa-code"></i> Zone Technique GitHub</h3>
-                            <p class="text-sm mb-4">
-                                Pour que vos modifications (événements, couleurs, mot de passe) soient visibles <strong>par tout le monde sur Internet</strong>, vous devez mettre à jour le code.
-                            </p>
-                            <button onclick="app.generateExportCode()" class="bg-yellow-500 text-black font-bold py-2 px-4 rounded hover:bg-yellow-400">
-                                Copier ma configuration actuelle
-                            </button>
-                            <div id="exportArea" class="hidden mt-4">
-                                <p class="text-xs mb-1">Copiez ce bloc et remplacez la section <code>const DEFAULT_DATA = ...</code> dans votre fichier index.html :</p>
-                                <textarea id="codeOutput" class="w-full h-32 text-black text-xs font-mono p-2 rounded" readonly></textarea>
-                            </div>
-                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -233,17 +221,19 @@
     <script>
         class EventApp {
             constructor() {
-                // DONNÉES PAR DÉFAUT (C'est ici qu'on colle l'export pour GitHub)
+                // CONFIG GITHUB (Initialisée vide)
+                this.githubConfig = { owner: "", repo: "", path: "index.html", token: "" };
+
+                // --- DONNÉES PAR DÉFAUT (Ne pas toucher manuellement) ---
                 this.defaultData = {
                     events: [
-                        { id: 1, title: "Assemblée Générale", date: "2025-06-15", location: "Salle des Fêtes, Cordemais", capacity: 50, image: null, description: "Bilan annuel et élection du bureau." },
-                        { id: 2, title: "Atelier Numérique", date: "2025-07-10", location: "Local Asso", capacity: 10, image: null, description: "Initiation aux outils bureautiques." }
+                        { id: 1, title: "Exemple d'évènement", date: "2025-09-01", location: "En ligne", capacity: 50, image: null, description: "Ceci est un exemple. Connectez-vous en Admin pour le supprimer et créer les vôtres." }
                     ],
                     settings: {
-                        orgName: "Asso Cor-Tech",
+                        orgName: "Mon Asso",
                         themeColor: "#2563eb",
                         logoUrl: null,
-                        adminPassword: "admin" // Mot de passe par défaut
+                        adminPassword: "admin"
                     }
                 };
 
@@ -251,10 +241,12 @@
                 this.init();
             }
 
-            // --- INITIALISATION & STORAGE ---
+            // --- CORE ---
             loadState() {
-                const stored = localStorage.getItem('asso_app_data');
-                return stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(this.defaultData));
+                const storedData = localStorage.getItem('asso_app_data');
+                const storedGh = localStorage.getItem('asso_gh_config');
+                if(storedGh) this.githubConfig = JSON.parse(storedGh);
+                return storedData ? JSON.parse(storedData) : JSON.parse(JSON.stringify(this.defaultData));
             }
 
             saveState() {
@@ -267,75 +259,48 @@
                 document.getElementById('footerYear').textContent = new Date().getFullYear();
                 this.applyTheme();
                 this.renderEvents();
-                // Gestion Onglets Admin
-                this.switchTab('events');
+                // Remplir champs admin
+                document.getElementById('ghOwner').value = this.githubConfig.owner || "";
+                document.getElementById('ghRepo').value = this.githubConfig.repo || "";
+                document.getElementById('ghToken').value = this.githubConfig.token || "";
             }
 
             applyTheme() {
                 const s = this.state.settings;
                 document.documentElement.style.setProperty('--primary-color', s.themeColor);
-                
                 document.getElementById('navOrgName').textContent = s.orgName;
                 document.getElementById('footerOrgName').textContent = s.orgName;
                 document.getElementById('setOrgName').value = s.orgName;
-                document.getElementById('setThemeColor').value = s.orgName;
-                
+                document.getElementById('setThemeColor').value = s.themeColor;
                 const logo = document.getElementById('navLogo');
-                const preview = document.getElementById('previewLogo');
-                if (s.logoUrl) {
-                    logo.src = s.logoUrl;
-                    logo.classList.remove('hidden');
-                    preview.src = s.logoUrl;
-                    preview.classList.remove('hidden');
-                }
+                if (s.logoUrl) { logo.src = s.logoUrl; logo.classList.remove('hidden'); }
             }
 
-            // --- GESTION ÉVÈNEMENTS (PUBLIC) ---
+            // --- ÉVÈNEMENTS & BOOKING ---
             renderEvents() {
                 const grid = document.getElementById('eventsGrid');
                 grid.innerHTML = '';
-                
                 this.state.events.forEach(evt => {
-                    // Calcul places restantes
                     const regs = (this.state.registrations || []).filter(r => r.eventId == evt.id && r.status === 'confirmed');
                     const remaining = evt.capacity - regs.length;
                     const isFull = remaining <= 0;
-
-                    const imgHtml = evt.image 
-                        ? `<img src="${evt.image}" class="w-full h-48 object-cover">` 
-                        : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-image fa-3x"></i></div>`;
-
+                    const imgHtml = evt.image ? `<img src="${evt.image}" class="w-full h-48 object-cover">` : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-image fa-3x"></i></div>`;
                     const btnHtml = isFull 
-                        ? `<button onclick="app.openBookingModal(${evt.id}, true)" class="w-full bg-orange-500 text-white font-bold py-2 px-4 rounded hover:bg-orange-600">Liste d'attente</button>`
+                        ? `<button onclick="app.openBookingModal(${evt.id}, true)" class="w-full bg-orange-500 text-white font-bold py-2 px-4 rounded">Liste d'attente</button>`
                         : `<button onclick="app.openBookingModal(${evt.id}, false)" class="w-full btn-theme font-bold py-2 px-4 rounded">S'inscrire (${remaining} places)</button>`;
 
                     const card = document.createElement('div');
                     card.className = "bg-white rounded-lg shadow-lg overflow-hidden flex flex-col hover:shadow-xl transition-shadow";
-                    card.innerHTML = `
-                        ${imgHtml}
-                        <div class="p-6 flex-grow">
-                            <h3 class="font-bold text-xl mb-2">${evt.title}</h3>
-                            <p class="text-gray-600 text-sm mb-4"><i class="far fa-calendar-alt"></i> ${evt.date} &bull; <i class="fas fa-map-marker-alt"></i> ${evt.location}</p>
-                            <p class="text-gray-700 text-base mb-4">${evt.description}</p>
-                        </div>
-                        <div class="px-6 pb-6 mt-auto">
-                            ${btnHtml}
-                        </div>
-                    `;
+                    card.innerHTML = `${imgHtml}<div class="p-6 flex-grow"><h3 class="font-bold text-xl mb-2">${evt.title}</h3><p class="text-gray-600 text-sm mb-4"><i class="far fa-calendar-alt"></i> ${evt.date} &bull; ${evt.location}</p><p class="text-gray-700 text-base line-clamp-3">${evt.description}</p></div><div class="px-6 pb-6 mt-auto">${btnHtml}</div>`;
                     grid.appendChild(card);
                 });
             }
 
-            // --- RÉSERVATION ---
-            openBookingModal(eventId, isWaitlist) {
-                const evt = this.state.events.find(e => e.id == eventId);
+            openBookingModal(id, isWaitlist) {
+                const evt = this.state.events.find(e => e.id == id);
                 if(!evt) return;
-
-                document.getElementById('bookingEventId').value = eventId;
-                document.getElementById('bookingEventTitle').innerHTML = isWaitlist 
-                    ? `<span class="text-orange-600 font-bold">[LISTE D'ATTENTE]</span> ${evt.title}`
-                    : `Pour : <strong>${evt.title}</strong>`;
-                
+                document.getElementById('bookingEventId').value = id;
+                document.getElementById('bookingEventTitle').innerHTML = isWaitlist ? `<span class="text-orange-600">[LISTE D'ATTENTE]</span> ${evt.title}` : `Pour : <strong>${evt.title}</strong>`;
                 document.getElementById('bookingForm').reset();
                 this.openModal('modalBooking');
             }
@@ -343,64 +308,33 @@
             handleBooking(e) {
                 e.preventDefault();
                 const evtId = document.getElementById('bookingEventId').value;
-                const name = document.getElementById('userName').value;
-                const email = document.getElementById('userEmail').value;
-                const phone = document.getElementById('userPhone').value;
                 const evt = this.state.events.find(ev => ev.id == evtId);
-
-                // Check capacité pour statut
                 const currentRegs = (this.state.registrations || []).filter(r => r.eventId == evtId && r.status === 'confirmed').length;
                 const status = currentRegs >= evt.capacity ? 'waitlist' : 'confirmed';
 
-                // Sauvegarde
                 if (!this.state.registrations) this.state.registrations = [];
                 const newReg = {
                     id: Date.now(),
-                    eventId: evtId,
-                    eventName: evt.title,
-                    name, email, phone, status,
-                    date: new Date().toLocaleDateString()
+                    eventId: evtId, eventName: evt.title,
+                    name: document.getElementById('userName').value,
+                    email: document.getElementById('userEmail').value,
+                    phone: document.getElementById('userPhone').value,
+                    status: status, date: new Date().toLocaleDateString()
                 };
                 this.state.registrations.push(newReg);
                 this.saveState();
-
-                // Envoi Email (Simulation + Tentative Réelle)
-                this.sendEmails(newReg, evt);
-
-                this.closeModal('modalBooking');
-                alert(status === 'confirmed' ? "Inscription confirmée ! Un email vous a été envoyé." : "Vous êtes sur liste d'attente. Nous vous recontacterons.");
-                this.renderEvents(); // Refresh compteurs
-            }
-
-            async sendEmails(reg, evt) {
-                // Paramètres pour EmailJS
-                const templateParams = {
-                    event_title: evt.title,
-                    user_name: reg.name,
-                    user_email: reg.email, // Destinataire client
-                    user_status: reg.status === 'confirmed' ? "Confirmée" : "Liste d'attente",
-                    admin_email: "accueil@cor-tech.fr" // Destinataire admin
-                };
-
-                // Notification console (si pas de clé)
-                console.log("Tentative envoi email", templateParams);
-
-                // Essai d'envoi réel via EmailJS
+                
+                // Email
                 if(typeof emailjs !== 'undefined') {
-                    // 1. Mail au Client
-                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                        .then(() => console.log("Email Client OK"))
-                        .catch(err => console.error("Erreur Email Client", err));
-                    
-                    // 2. Mail à l'Admin (Copie)
-                    // On peut utiliser le même template s'il a un champ "to_email" dynamique, 
-                    // ou faire une logique backend. Ici on simplifie.
-                    // Pour que ça marche, le template EmailJS doit envoyer à {{user_email}} ET mettre en copie cachée l'admin,
-                    // OU on fait un 2eme appel :
-                    const adminParams = {...templateParams, user_email: "accueil@cor-tech.fr"};
-                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, adminParams)
-                        .then(() => console.log("Notif Admin OK"));
+                    const params = { event_title: evt.title, user_name: newReg.name, user_email: newReg.email, user_status: status, admin_email: "accueil@cor-tech.fr" };
+                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params).catch(e => console.error(e));
+                    // Copie admin (astuce: envoyer un 2eme mail ou configurer le template)
+                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {...params, user_email: "accueil@cor-tech.fr"}).catch(e=>{});
                 }
+                
+                this.closeModal('modalBooking');
+                alert(status === 'confirmed' ? "Inscription confirmée !" : "Vous êtes sur liste d'attente.");
+                this.renderEvents();
             }
 
             // --- ADMIN ---
@@ -408,173 +342,157 @@
             
             handleLogin(e) {
                 e.preventDefault();
-                const input = document.getElementById('adminPasswordInput').value;
-                // Vérification simple
-                if (input === this.state.settings.adminPassword) {
+                if (document.getElementById('adminPasswordInput').value === this.state.settings.adminPassword) {
                     this.closeModal('modalLogin');
                     this.openModal('modalAdmin');
                     this.renderAdminEvents();
                     this.renderRegistrations();
-                } else {
-                    alert("Mot de passe incorrect");
-                }
+                    this.switchTab('events');
+                } else { alert("Mot de passe incorrect"); }
             }
 
-            // Gestion Events Admin
             renderAdminEvents() {
-                const list = document.getElementById('adminEventsList');
-                list.innerHTML = this.state.events.map(evt => `
+                document.getElementById('adminEventsList').innerHTML = this.state.events.map(evt => `
                     <div class="flex justify-between items-center bg-gray-50 p-4 rounded border">
-                        <div>
-                            <strong>${evt.title}</strong> <span class="text-sm text-gray-500">(${evt.date})</span>
-                            <br><span class="text-xs">Capacité: ${evt.capacity}</span>
-                        </div>
+                        <div><strong>${evt.title}</strong> <span class="text-sm text-gray-500">(${evt.date})</span></div>
                         <div>
                             <button onclick="app.editEvent(${evt.id})" class="text-blue-600 mr-2"><i class="fas fa-edit"></i></button>
                             <button onclick="app.deleteEvent(${evt.id})" class="text-red-600"><i class="fas fa-trash"></i></button>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`).join('');
             }
 
             saveEvent(e) {
                 e.preventDefault();
                 const id = document.getElementById('editEventId').value;
-                const title = document.getElementById('eventTitle').value;
-                const date = document.getElementById('eventDate').value;
-                const loc = document.getElementById('eventLocation').value;
-                const cap = document.getElementById('eventCapacity').value;
-                const desc = document.getElementById('eventDesc').value;
-                const imgInput = document.getElementById('eventImage');
-
-                const processEvent = (imgBase64) => {
-                    const newEvt = {
+                const file = document.getElementById('eventImage').files[0];
+                
+                const process = (img) => {
+                    const data = {
                         id: id ? parseInt(id) : Date.now(),
-                        title, date, location: loc, capacity: cap, description: desc,
-                        image: imgBase64 // Garde l'ancienne si null
+                        title: document.getElementById('eventTitle').value,
+                        date: document.getElementById('eventDate').value,
+                        location: document.getElementById('eventLocation').value,
+                        capacity: document.getElementById('eventCapacity').value,
+                        description: document.getElementById('eventDesc').value,
+                        image: img
                     };
-
                     if (id) {
                         const idx = this.state.events.findIndex(e => e.id == id);
-                        if (!imgBase64) newEvt.image = this.state.events[idx].image;
-                        this.state.events[idx] = newEvt;
+                        if (!img) data.image = this.state.events[idx].image;
+                        this.state.events[idx] = data;
                     } else {
-                        if (!imgBase64) newEvt.image = null; 
-                        this.state.events.push(newEvt);
+                        if (!img) data.image = null;
+                        this.state.events.push(data);
                     }
                     this.saveState();
                     this.renderAdminEvents();
                     this.resetEventForm();
-                    alert("Évènement enregistré (Localement)");
+                    alert("Enregistré localement. N'oubliez pas de 'Sauvegarder sur Internet' !");
                 };
 
-                if (imgInput.files && imgInput.files[0]) {
+                if(file) {
                     const reader = new FileReader();
-                    reader.onload = function(e) { processEvent(e.target.result); };
-                    reader.readAsDataURL(imgInput.files[0]);
-                } else {
-                    processEvent(null);
-                }
+                    reader.onload = e => process(e.target.result);
+                    reader.readAsDataURL(file);
+                } else process(null);
             }
 
             deleteEvent(id) {
-                if(confirm("Supprimer cet évènement ?")) {
+                if(confirm("Supprimer ?")) {
                     this.state.events = this.state.events.filter(e => e.id != id);
                     this.saveState();
                     this.renderAdminEvents();
                 }
             }
-
             editEvent(id) {
-                const evt = this.state.events.find(e => e.id == id);
-                document.getElementById('editEventId').value = evt.id;
-                document.getElementById('eventTitle').value = evt.title;
-                document.getElementById('eventDate').value = evt.date;
-                document.getElementById('eventLocation').value = evt.location;
-                document.getElementById('eventCapacity').value = evt.capacity;
-                document.getElementById('eventDesc').value = evt.description;
+                const e = this.state.events.find(x => x.id == id);
+                document.getElementById('editEventId').value = e.id;
+                document.getElementById('eventTitle').value = e.title;
+                document.getElementById('eventDate').value = e.date;
+                document.getElementById('eventLocation').value = e.location;
+                document.getElementById('eventCapacity').value = e.capacity;
+                document.getElementById('eventDesc').value = e.description;
+            }
+            resetEventForm() { document.getElementById('editEventId').value = ""; document.querySelector('#view-events form').reset(); }
+
+            renderRegistrations() {
+                const regs = this.state.registrations || [];
+                document.getElementById('registrationsTableBody').innerHTML = regs.map(r => `
+                    <tr><td class="px-5 py-2 border-b bg-white text-sm">${r.eventName}</td>
+                    <td class="px-5 py-2 border-b bg-white text-sm font-bold">${r.name}</td>
+                    <td class="px-5 py-2 border-b bg-white text-sm">${r.email}</td>
+                    <td class="px-5 py-2 border-b bg-white text-sm"><span class="px-2 py-1 rounded-full ${r.status==='confirmed'?'bg-green-200 text-green-900':'bg-orange-200 text-orange-900'}">${r.status}</span></td></tr>
+                `).join('');
             }
 
-            resetEventForm() {
-                document.getElementById('editEventId').value = "";
-                document.querySelector('#view-events form').reset();
-            }
-
-            // Gestion Settings Admin
+            // --- SETTINGS & GITHUB PUSH ---
             saveCustomSettings(e) {
                 e.preventDefault();
                 this.state.settings.orgName = document.getElementById('setOrgName').value;
                 this.state.settings.themeColor = document.getElementById('setThemeColor').value;
-                
+                this.githubConfig.owner = document.getElementById('ghOwner').value;
+                this.githubConfig.repo = document.getElementById('ghRepo').value;
+                this.githubConfig.token = document.getElementById('ghToken').value;
+                localStorage.setItem('asso_gh_config', JSON.stringify(this.githubConfig));
+
                 const file = document.getElementById('setLogo').files[0];
-                if (file) {
+                if(file) {
                     const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        this.state.settings.logoUrl = ev.target.result;
-                        this.saveState();
-                        alert("Paramètres d'apparence sauvegardés !");
-                    };
+                    reader.onload = ev => { this.state.settings.logoUrl = ev.target.result; this.saveState(); alert("Sauvegardé !"); };
                     reader.readAsDataURL(file);
-                } else {
-                    this.saveState();
-                    alert("Paramètres d'apparence sauvegardés !");
-                }
+                } else { this.saveState(); alert("Sauvegardé !"); }
             }
 
             changePassword(e) {
                 e.preventDefault();
-                const newPass = document.getElementById('setAdminPass').value;
-                if(newPass) {
-                    this.state.settings.adminPassword = newPass;
-                    this.saveState();
-                    alert("Mot de passe admin changé !");
-                }
+                const p = document.getElementById('setAdminPass').value;
+                if(p) { this.state.settings.adminPassword = p; this.saveState(); alert("Mot de passe changé."); }
+            }
+
+            async pushToGitHub() {
+                const c = this.githubConfig;
+                if(!c.owner || !c.repo || !c.token) return alert("Configuration GitHub incomplète.");
+                if(!confirm("Mettre à jour le site public ? Cela prendra environ 2 min.")) return;
+
+                const btn = document.getElementById('btnPushGithub');
+                const oldHTML = btn.innerHTML;
+                btn.innerHTML = '<div class="loader"></div> Envoi...'; btn.disabled = true;
+
+                try {
+                    const apiUrl = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${c.path}`;
+                    const getRes = await fetch(apiUrl, { headers: { "Authorization": `token ${c.token}` } });
+                    if(!getRes.ok) throw new Error("Accès refusé au dépôt.");
+                    const getData = await getRes.json();
+                    
+                    const currentContent = new TextDecoder().decode(Uint8Array.from(atob(getData.content), c => c.charCodeAt(0)));
+                    const newDataJson = JSON.stringify(this.state, null, 4);
+                    const newContent = currentContent.replace(/(this\.defaultData\s*=\s*)({[\s\S]*?})(;)/, `$1${newDataJson}$3`);
+                    const contentEncoded = btoa(unescape(encodeURIComponent(newContent)));
+
+                    const putRes = await fetch(apiUrl, {
+                        method: "PUT",
+                        headers: { "Authorization": `token ${c.token}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: "Update via Admin", content: contentEncoded, sha: getData.sha })
+                    });
+                    if(!putRes.ok) throw new Error("Erreur d'écriture.");
+                    alert("✅ Site mis à jour ! Attendez 2 minutes.");
+                } catch(err) { alert("Erreur : " + err.message); } 
+                finally { btn.innerHTML = oldHTML; btn.disabled = false; }
             }
 
             // --- UTILS ---
-            renderRegistrations() {
-                const tbody = document.getElementById('registrationsTableBody');
-                const regs = this.state.registrations || [];
-                tbody.innerHTML = regs.map(r => `
-                    <tr>
-                        <td class="px-5 py-2 border-b border-gray-200 bg-white text-sm">${r.eventName}</td>
-                        <td class="px-5 py-2 border-b border-gray-200 bg-white text-sm font-bold">${r.name}</td>
-                        <td class="px-5 py-2 border-b border-gray-200 bg-white text-sm">${r.email}</td>
-                        <td class="px-5 py-2 border-b border-gray-200 bg-white text-sm">
-                            <span class="relative inline-block px-3 py-1 font-semibold leading-tight ${r.status === 'confirmed' ? 'text-green-900' : 'text-orange-900'}">
-                                <span aria-hidden class="absolute inset-0 ${r.status === 'confirmed' ? 'bg-green-200' : 'bg-orange-200'} opacity-50 rounded-full"></span>
-                                <span class="relative">${r.status === 'confirmed' ? 'Confirmé' : 'Liste d\'attente'}</span>
-                            </span>
-                        </td>
-                        <td class="px-5 py-2 border-b border-gray-200 bg-white text-sm">${r.date}</td>
-                    </tr>
-                `).join('');
-            }
-
-            generateExportCode() {
-                // Créer une version propre des données actuelles
-                const currentData = JSON.stringify(this.state, null, 4);
-                const codeBlock = `// REMPLACEZ la section this.defaultData = ... par ceci :\nthis.defaultData = ${currentData};`;
-                
-                document.getElementById('exportArea').classList.remove('hidden');
-                document.getElementById('codeOutput').value = codeBlock;
-            }
-
             openModal(id) { document.getElementById(id).classList.remove('hidden'); }
             closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-            
-            switchTab(tabName) {
-                ['events', 'registrations', 'settings'].forEach(t => {
-                    document.getElementById(`view-${t}`).classList.add('hidden');
-                    document.getElementById(`tab-${t}`).classList.remove('border-theme', 'text-theme', 'font-bold');
+            switchTab(t) {
+                ['events','registrations','settings'].forEach(x => {
+                    document.getElementById(`view-${x}`).classList.add('hidden');
+                    document.getElementById(`tab-${x}`).classList.remove('border-theme','text-theme');
                 });
-                document.getElementById(`view-${tabName}`).classList.remove('hidden');
-                document.getElementById(`tab-${tabName}`).classList.add('border-theme', 'text-theme', 'font-bold');
+                document.getElementById(`view-${t}`).classList.remove('hidden');
+                document.getElementById(`tab-${t}`).classList.add('border-theme','text-theme');
             }
-            openSettingsTab() { this.switchTab('settings'); }
         }
-
-        // Démarrage
         const app = new EventApp();
     </script>
 </body>
