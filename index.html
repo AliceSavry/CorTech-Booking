@@ -7,16 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <style>
-        :root { --primary-color: #2563eb; }
-        .bg-theme { background-color: var(--primary-color); }
-        .text-theme { color: var(--primary-color); }
-        .btn-theme { background-color: var(--primary-color); color: white; }
-        .news-card { border-left: 4px solid var(--primary-color); }
-        #loading { position: fixed; inset: 0; background: white; z-index: 50; display: flex; justify-content: center; align-items: center; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans flex flex-col min-h-screen">
 
@@ -79,20 +70,23 @@
 
         async function initApp() {
             try {
+                // Cache busting
                 const response = await fetch('data.json?t=' + Date.now());
-                if (!response.ok) throw new Error("Fichier data.json introuvable");
+                if (!response.ok) throw new Error("Data introuvable");
                 DATA = await response.json();
                 renderApp();
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('mainContent').classList.remove('hidden');
             } catch (error) {
-                document.getElementById('loading').innerHTML = `<div class="text-center text-red-600 font-bold p-4">Erreur de chargement.<br>Vérifiez que data.json existe sur GitHub.<br>${error.message}</div>`;
+                document.getElementById('loading').innerHTML = `<div class="text-center text-red-600 font-bold p-4">Erreur de chargement : ${error.message}</div>`;
             }
         }
 
         function renderApp() {
             const S = DATA.settings;
+            // Application de la couleur dynamique sur le CSS
             document.documentElement.style.setProperty('--primary-color', S.themeColor);
+            
             document.getElementById('navOrgName').textContent = S.orgName;
             document.getElementById('footerOrgName').textContent = S.orgName;
             document.getElementById('footerYear').textContent = new Date().getFullYear();
@@ -106,15 +100,41 @@
                 let c="text-gray-500", i="fa-info-circle";
                 if(n.tag==='urgent'){c="text-red-600";i="fa-exclamation-triangle";}
                 if(n.tag==='event'){c="text-green-600";i="fa-users";}
+                
                 let imgHtml = n.image ? `<div class="flex-shrink-0 mr-4"><img src="${n.image}" class="w-20 h-20 object-cover rounded border"></div>` : "";
-                nList.innerHTML += `<div class="news-card bg-gray-50 p-4 rounded shadow-sm flex flex-col"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg">${n.title}</h3><span class="text-xs border px-2 py-1 rounded ${c} whitespace-nowrap"><i class="fas ${i}"></i> ${n.date}</span></div><div class="flex">${imgHtml}<p class="text-gray-600 text-sm whitespace-pre-line flex-grow">${n.content}</p></div></div>`;
+
+                nList.innerHTML += `
+                    <div class="news-card flex flex-col">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">${n.title}</h3>
+                            <span class="text-xs border px-2 py-1 rounded ${c} whitespace-nowrap"><i class="fas ${i}"></i> ${n.date}</span>
+                        </div>
+                        <div class="flex">
+                            ${imgHtml}
+                            <p class="text-gray-600 text-sm whitespace-pre-line flex-grow">${n.content}</p>
+                        </div>
+                    </div>`;
             });
 
             const eGrid = document.getElementById('eventsGrid');
             eGrid.innerHTML = DATA.events.length ? '' : '<p class="text-gray-500 italic p-4">Aucun évènement.</p>';
             DATA.events.forEach(evt => {
-                const imgHtml = evt.image ? `<img src="${evt.image}" class="w-full h-32 object-cover">` : `<div class="w-full h-32 bg-gray-200 flex items-center justify-center text-gray-400"><i class="fas fa-image fa-2x"></i></div>`;
-                eGrid.innerHTML += `<div class="bg-white border rounded shadow-sm overflow-hidden flex flex-col">${imgHtml}<div class="p-4 flex-grow"><h3 class="font-bold text-lg mb-1">${evt.title}</h3><p class="text-gray-600 text-xs mb-2">${evt.date} - ${evt.location}</p><p class="text-gray-700 text-sm line-clamp-2">${evt.description}</p></div><div class="px-4 pb-4 mt-auto"><button onclick="openBooking(${evt.id})" class="w-full btn-theme text-sm font-bold py-2 rounded">S'inscrire</button></div></div>`;
+                const imgHtml = evt.image 
+                    ? `<div class="event-img-container"><img src="${evt.image}"></div>` 
+                    : `<div class="event-img-container"><i class="fas fa-image fa-2x"></i></div>`;
+                
+                eGrid.innerHTML += `
+                    <div class="event-card">
+                        ${imgHtml}
+                        <div class="p-4 flex-grow">
+                            <h3 class="font-bold text-lg mb-1">${evt.title}</h3>
+                            <p class="text-gray-600 text-xs mb-2"><i class="far fa-calendar-alt"></i> ${evt.date} - ${evt.location}</p>
+                            <p class="text-gray-700 text-sm line-clamp-2">${evt.description}</p>
+                        </div>
+                        <div class="px-4 pb-4 mt-auto">
+                            <button onclick="openBooking(${evt.id})" class="w-full btn-theme text-sm font-bold py-2 rounded">S'inscrire</button>
+                        </div>
+                    </div>`;
             });
 
             const soc = document.getElementById('socialLinks');
@@ -144,7 +164,7 @@
                 emailjs.send(S.emailjs.serviceId, S.emailjs.templateId, p).then(() => {
                     alert("Inscription envoyée !");
                     document.getElementById('modalBooking').classList.add('hidden');
-                }).catch(err => alert("Erreur email : " + JSON.stringify(err)));
+                }).catch(err => alert("Erreur envoi email : " + JSON.stringify(err)));
             } else {
                 alert("EmailJS non configuré. Inscription simulée.");
                 document.getElementById('modalBooking').classList.add('hidden');
