@@ -1,17 +1,247 @@
-<script>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation Évènements</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <script>
+        // --- CONFIGURATION EMAILJS (REMPLACEZ CES VALEURS) ---
+        const EMAILJS_PUBLIC_KEY = "VOTRE_PUBLIC_KEY"; // ex: "user_xh4..."
+        const EMAILJS_SERVICE_ID = "VOTRE_SERVICE_ID"; // ex: "service_gmail"
+        const EMAILJS_TEMPLATE_ID = "VOTRE_TEMPLATE_ID"; // ex: "template_contact"
+        
+        (function(){
+            try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e) { console.log("EmailJS non configuré"); }
+        })();
+    </script>
+
+    <style>
+        /* Variables dynamiques */
+        :root { --primary-color: #2563eb; }
+        .bg-theme { background-color: var(--primary-color); }
+        .text-theme { color: var(--primary-color); }
+        .border-theme { border-color: var(--primary-color); }
+        .btn-theme { background-color: var(--primary-color); color: white; }
+        .btn-theme:hover { filter: brightness(90%); }
+        /* Loader pour la sauvegarde GitHub */
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans flex flex-col min-h-screen">
+
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img id="navLogo" src="" alt="Logo" class="h-10 w-10 object-contain rounded hidden">
+                <span id="navOrgName" class="text-xl font-bold text-gray-700">Mon Association</span>
+            </div>
+            <button onclick="app.openAdminLogin()" class="text-sm text-gray-500 hover:text-theme transition">
+                <i class="fas fa-cog"></i> Admin
+            </button>
+        </div>
+    </nav>
+
+    <header class="bg-theme text-white py-12 mb-8 transition-colors duration-500">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-4">Nos Prochains Évènements</h1>
+            <p class="text-lg opacity-90">Réservez votre place en quelques clics.</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 pb-12 flex-grow">
+        <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-auto">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>&copy; <span id="footerYear"></span> <span id="footerOrgName">Mon Association</span>. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <div id="modalBooking" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button onclick="app.closeModal('modalBooking')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times fa-lg"></i></button>
+            <h2 class="text-2xl font-bold mb-2 text-theme">Inscription</h2>
+            <p id="bookingEventTitle" class="text-gray-600 mb-6 font-medium"></p>
+            <form id="bookingForm" onsubmit="app.handleBooking(event)">
+                <input type="hidden" id="bookingEventId">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Nom Complet</label>
+                    <input type="text" id="userName" required class="w-full px-3 py-2 border rounded">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                    <input type="email" id="userEmail" required class="w-full px-3 py-2 border rounded">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Téléphone</label>
+                    <input type="tel" id="userPhone" class="w-full px-3 py-2 border rounded">
+                </div>
+                <button type="submit" class="w-full btn-theme font-bold py-3 px-4 rounded transition">Confirmer</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalLogin" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 relative">
+            <button onclick="app.closeModal('modalLogin')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            <h2 class="text-xl font-bold mb-4 text-center">Accès Administrateur</h2>
+            <form onsubmit="app.handleLogin(event)">
+                <input type="password" id="adminPasswordInput" placeholder="Mot de passe" class="w-full px-3 py-2 border rounded mb-4">
+                <button type="submit" class="w-full bg-gray-800 text-white font-bold py-2 rounded hover:bg-gray-700">Connexion</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalAdmin" class="fixed inset-0 bg-gray-100 hidden z-50 overflow-y-auto">
+        <div class="min-h-screen flex flex-col">
+            <div class="bg-white shadow px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+                <h2 class="text-xl font-bold text-theme"><i class="fas fa-user-shield"></i> Administration</h2>
+                <div class="flex gap-3">
+                    <button onclick="app.closeModal('modalAdmin')" class="text-red-500 hover:text-red-700 font-bold"><i class="fas fa-sign-out-alt"></i> Quitter</button>
+                </div>
+            </div>
+
+            <div class="container mx-auto px-4 py-8 max-w-6xl flex-grow">
+                <div class="flex mb-6 border-b overflow-x-auto">
+                    <button onclick="app.switchTab('events')" id="tab-events" class="px-6 py-2 border-b-2 border-theme font-bold text-theme whitespace-nowrap">Évènements</button>
+                    <button onclick="app.switchTab('registrations')" id="tab-registrations" class="px-6 py-2 border-b-2 border-transparent text-gray-500 whitespace-nowrap">Inscriptions</button>
+                    <button onclick="app.switchTab('settings')" id="tab-settings" class="px-6 py-2 border-b-2 border-transparent text-gray-500 whitespace-nowrap">Paramètres & Cloud</button>
+                </div>
+
+                <div id="view-events" class="block">
+                    <div class="bg-white rounded shadow p-6 mb-6">
+                        <h3 class="text-lg font-bold mb-4">Ajouter / Modifier</h3>
+                        <form onsubmit="app.saveEvent(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="hidden" id="editEventId">
+                            <input type="text" id="eventTitle" placeholder="Titre" required class="border p-2 rounded">
+                            <input type="date" id="eventDate" required class="border p-2 rounded">
+                            <input type="text" id="eventLocation" placeholder="Lieu" class="border p-2 rounded">
+                            <input type="number" id="eventCapacity" placeholder="Capacité" required class="border p-2 rounded">
+                            <input type="file" id="eventImage" accept="image/*" class="border p-2 rounded">
+                            <textarea id="eventDesc" placeholder="Description" class="border p-2 rounded md:col-span-2" rows="2"></textarea>
+                            <div class="md:col-span-2 text-right">
+                                <button type="button" onclick="app.resetEventForm()" class="text-gray-500 mr-4">Annuler</button>
+                                <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-bold">Enregistrer (Local)</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="adminEventsList" class="space-y-4"></div>
+                </div>
+
+                <div id="view-registrations" class="hidden">
+                    <div class="bg-white rounded shadow overflow-x-auto">
+                        <table class="min-w-full leading-normal">
+                            <thead>
+                                <tr>
+                                    <th class="px-5 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">Évènement</th>
+                                    <th class="px-5 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">Nom</th>
+                                    <th class="px-5 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">Email</th>
+                                    <th class="px-5 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registrationsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="view-settings" class="hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div class="bg-gray-800 text-white rounded shadow p-6 md:col-span-2 border border-gray-700">
+                            <h3 class="text-lg font-bold mb-4 text-blue-400"><i class="fab fa-github"></i> Connexion Cloud (GitHub)</h3>
+                            <p class="text-sm mb-4 text-gray-300">Remplissez ceci pour sauvegarder vos évènements et réglages directement sur votre site en ligne.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Pseudo GitHub (Owner)</label>
+                                    <input type="text" id="ghOwner" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="Ex: JeanDupont (PAS l'email !)">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Nom du Dépôt (Repo)</label>
+                                    <input type="text" id="ghRepo" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="Ex: mon-asso-site">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Token (Secret)</label>
+                                    <input type="password" id="ghToken" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="ghp_xxxxxxxxxxxx">
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <p class="text-xs text-gray-500 italic">Le token est stocké uniquement sur cet ordinateur.</p>
+                                <button id="btnPushGithub" type="button" onclick="app.pushToGitHub()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded transition flex items-center gap-2">
+                                    <i class="fas fa-cloud-upload-alt"></i> Sauvegarder sur Internet
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded shadow p-6">
+                            <h3 class="text-lg font-bold mb-4 border-b pb-2">Personnalisation</h3>
+                            <form onsubmit="app.saveCustomSettings(event)" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium">Nom Organisation</label>
+                                    <input type="text" id="setOrgName" class="w-full border p-2 rounded">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium">Couleur (Hex)</label>
+                                    <div class="flex gap-2">
+                                        <input type="color" id="setThemeColorPicker" class="h-10 w-10 p-0 border-0" onchange="document.getElementById('setThemeColor').value = this.value">
+                                        <input type="text" id="setThemeColor" class="w-full border p-2 rounded" placeholder="#2563eb">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium">Logo</label>
+                                    <input type="file" id="setLogo" accept="image/*" class="w-full border p-2 rounded">
+                                </div>
+                                <button type="submit" class="w-full bg-gray-200 text-gray-800 py-2 rounded hover:bg-gray-300">Enregistrer Apparence (Local)</button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white rounded shadow p-6">
+                            <h3 class="text-lg font-bold mb-4 border-b pb-2">Sécurité</h3>
+                            <form onsubmit="app.changePassword(event)" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium">Nouveau mot de passe Admin</label>
+                                    <input type="text" id="setAdminPass" class="w-full border p-2 rounded" placeholder="Ex: asso2025">
+                                </div>
+                                <button type="submit" class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">Changer Mot de Passe</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
         class EventApp {
             constructor() {
+                // CONFIG GITHUB (Initialisée vide)
                 this.githubConfig = { owner: "", repo: "", path: "index.html", token: "" };
+
+                // --- DONNÉES PAR DÉFAUT (Ne pas toucher manuellement) ---
                 this.defaultData = {
                     events: [
                         { id: 1, title: "Exemple d'évènement", date: "2025-09-01", location: "En ligne", capacity: 50, image: null, description: "Ceci est un exemple. Connectez-vous en Admin pour le supprimer et créer les vôtres." }
                     ],
-                    settings: { orgName: "Mon Asso", themeColor: "#2563eb", logoUrl: null, adminPassword: "admin" }
+                    settings: {
+                        orgName: "Mon Asso",
+                        themeColor: "#2563eb",
+                        logoUrl: null,
+                        adminPassword: "admin"
+                    }
                 };
+
                 this.state = this.loadState();
                 this.init();
             }
 
+            // --- CORE ---
             loadState() {
                 const storedData = localStorage.getItem('asso_app_data');
                 const storedGh = localStorage.getItem('asso_gh_config');
@@ -29,7 +259,7 @@
                 document.getElementById('footerYear').textContent = new Date().getFullYear();
                 this.applyTheme();
                 this.renderEvents();
-                // Remplit les champs GitHub avec ce qu'on a en mémoire
+                // Remplir champs admin
                 if(this.githubConfig.owner) document.getElementById('ghOwner').value = this.githubConfig.owner;
                 if(this.githubConfig.repo) document.getElementById('ghRepo').value = this.githubConfig.repo;
                 if(this.githubConfig.token) document.getElementById('ghToken').value = this.githubConfig.token;
@@ -46,6 +276,7 @@
                 if (s.logoUrl) { logo.src = s.logoUrl; logo.classList.remove('hidden'); }
             }
 
+            // --- ÉVÈNEMENTS & BOOKING ---
             renderEvents() {
                 const grid = document.getElementById('eventsGrid');
                 grid.innerHTML = '';
@@ -93,9 +324,11 @@
                 this.state.registrations.push(newReg);
                 this.saveState();
                 
+                // Email
                 if(typeof emailjs !== 'undefined') {
                     const params = { event_title: evt.title, user_name: newReg.name, user_email: newReg.email, user_status: status, admin_email: "accueil@cor-tech.fr" };
                     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params).catch(e => console.error(e));
+                    // Copie admin
                     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {...params, user_email: "accueil@cor-tech.fr"}).catch(e=>{});
                 }
                 
@@ -104,6 +337,7 @@
                 this.renderEvents();
             }
 
+            // --- ADMIN ---
             openAdminLogin() { this.openModal('modalLogin'); }
             
             handleLogin(e) {
@@ -192,11 +426,14 @@
                 `).join('');
             }
 
+            // --- SETTINGS & GITHUB PUSH ---
             saveCustomSettings(e) {
                 e.preventDefault();
                 this.state.settings.orgName = document.getElementById('setOrgName').value;
                 this.state.settings.themeColor = document.getElementById('setThemeColor').value;
-                // Note: La config Github est désormais sauvegardée dans pushToGitHub
+                
+                // Note: On ne sauvegarde la config Github que lors du push désormais
+                // mais on peut le faire ici aussi si on veut que ça reste en local
                 
                 const file = document.getElementById('setLogo').files[0];
                 if(file) {
@@ -212,20 +449,20 @@
                 if(p) { this.state.settings.adminPassword = p; this.saveState(); alert("Mot de passe changé."); }
             }
 
-            // --- NOUVELLE VERSION CORRIGÉE DE LA SAUVEGARDE GITHUB ---
+            // FONCTION DE SAUVEGARDE GITHUB ROBUSTE
             async pushToGitHub() {
-                // 1. Lire les valeurs directement dans les cases
+                // 1. Lire les valeurs fraîches depuis l'interface
                 const owner = document.getElementById('ghOwner').value.trim();
                 const repo = document.getElementById('ghRepo').value.trim();
                 const token = document.getElementById('ghToken').value.trim();
 
-                // 2. Sauvegarder dans la mémoire locale
+                // 2. Stockage local pour la prochaine fois
                 this.githubConfig = { owner, repo, token, path: "index.html" };
                 localStorage.setItem('asso_gh_config', JSON.stringify(this.githubConfig));
 
-                // 3. Vérifications
-                if(!owner || !repo || !token) return alert("Configuration GitHub incomplète. Vérifiez les 3 cases.");
-                if(owner.includes('@')) return alert("ERREUR: Le 'Pseudo GitHub' ne doit pas être un email.\nMettez votre nom d'utilisateur (ex: AliceFormation).");
+                // 3. Validation stricte
+                if(!owner || !repo || !token) return alert("ERREUR : Il manque des informations. Remplissez les 3 cases.");
+                if(owner.includes('@')) return alert("ERREUR : Le 'Pseudo GitHub' ne doit pas être un email. Utilisez votre nom d'utilisateur (ex: AliceFormation).");
 
                 if(!confirm("Mettre à jour le site public ? Cela prendra environ 2 min.")) return;
 
@@ -236,34 +473,41 @@
                 try {
                     const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${this.githubConfig.path}`;
                     
-                    // Lecture du fichier actuel
+                    // GET : On lit le fichier actuel
                     const getRes = await fetch(apiUrl, { headers: { "Authorization": `token ${token}` } });
-                    if(!getRes.ok) throw new Error("Accès refusé. Vérifiez le Pseudo, le nom du Repo et le Token.");
+                    if(!getRes.ok) throw new Error("Accès refusé. Vérifiez le token et le nom du dépôt.");
                     const getData = await getRes.json();
                     
-                    // Préparation du nouveau contenu
+                    // On décode le contenu
                     const currentContent = new TextDecoder().decode(Uint8Array.from(atob(getData.content), c => c.charCodeAt(0)));
+                    
+                    // On prépare les nouvelles données
                     const newDataJson = JSON.stringify(this.state, null, 4);
-                    // Remplacement intelligent
+                    
+                    // On remplace le bloc "this.defaultData"
                     const newContent = currentContent.replace(/(this\.defaultData\s*=\s*)({[\s\S]*?})(;)/, `$1${newDataJson}$3`);
+                    
+                    // On encode en Base64 (compatible UTF-8)
                     const contentEncoded = btoa(unescape(encodeURIComponent(newContent)));
 
-                    // Envoi de la mise à jour
+                    // PUT : On envoie la mise à jour
                     const putRes = await fetch(apiUrl, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
                         body: JSON.stringify({ message: "Update via Admin", content: contentEncoded, sha: getData.sha })
                     });
-                    if(!putRes.ok) throw new Error("Erreur d'écriture sur GitHub.");
                     
-                    alert("✅ SUCCÈS ! Votre site a été mis à jour.\nLes changements seront visibles dans 2-3 minutes.");
+                    if(!putRes.ok) throw new Error("Erreur lors de l'écriture sur GitHub.");
+                    
+                    alert("✅ SUCCÈS ! Site mis à jour.\nLes changements seront visibles dans 2-3 minutes.");
                 } catch(err) { 
                     console.error(err);
-                    alert("Erreur : " + err.message); 
+                    alert("ERREUR : " + err.message); 
                 } 
                 finally { btn.innerHTML = oldHTML; btn.disabled = false; }
             }
 
+            // --- UTILS ---
             openModal(id) { document.getElementById(id).classList.remove('hidden'); }
             closeModal(id) { document.getElementById(id).classList.add('hidden'); }
             switchTab(t) {
@@ -277,3 +521,5 @@
         }
         const app = new EventApp();
     </script>
+</body>
+</html>
