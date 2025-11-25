@@ -11,7 +11,7 @@
         :root { --primary-color: #2563eb; }
         .text-primary { color: var(--primary-color); }
         .bg-primary { background-color: var(--primary-color); }
-        .border-primary { border-color: var(--primary-color); }
+        .border-primary { border-primary: var(--primary-color); }
         /* Loader */
         #loading { position: fixed; inset: 0; background: white; z-index: 50; display: flex; justify-content: center; align-items: center; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
@@ -35,17 +35,16 @@
         
         <div class="lg:col-span-1">
             <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-bullhorn text-red-500 mr-3"></i> Dernières Actualités</h2>
-            <div id="newsList" class="space-y-6"> 
+            <div id="newsList" class="grid grid-cols-1 gap-6">
                 <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
             </div>
         </div>
 
-
         <div class="lg:col-span-2 space-y-6">
             
             <div id="eventsContainer" class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-primary">
-                <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-calendar-alt text-primary mr-3"></i> Évènements à venir</h2>
-                <div id="eventsList" class="space-y-4">
+                <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-calendar-alt text-primary mr-3"></i> Évènements à venir</h2>
+                <div id="eventsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <p id="noEvents" class="text-gray-500 italic hidden">Aucun événement planifié pour le moment.</p>
                 </div>
             </div>
@@ -84,7 +83,7 @@
                 <input type="text" id="userName" placeholder="Nom Complet" required class="w-full px-3 py-2 border rounded mb-3">
                 <input type="email" id="userEmail" placeholder="Email" required class="w-full px-3 py-2 border rounded mb-3">
                 <input type="tel" id="userPhone" placeholder="Téléphone" class="w-full px-3 py-2 border rounded mb-3">
-                <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded">Confirmer</button>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded">Confirmer l'inscription</button>
             </form>
         </div>
     </div>
@@ -92,6 +91,17 @@
     <script>
         let DATA = {};
         const THEME_COLOR = '#2563eb';
+        
+        // --- CONFIGURATION CRITIQUE POUR L'ENVOI SILENCIEUX ---
+        // ⚠️ REMPLACER CES PLACEHOLDERS PAR VOS IDS GOOGLE FORM ⚠️
+        const GOOGLE_FORM_SUBMISSION_URL = "VOTRE_URL_SUBMISSION_FORM_ICI"; 
+        const ENTRY_ID_NOM = "VOTRE_ID_NOM";       // Ex: 123456789
+        const ENTRY_ID_EMAIL = "VOTRE_ID_EMAIL";   // Ex: 987654321
+        const ENTRY_ID_EVENT = "VOTRE_ID_EVENT";   // Ex: 555444333
+
+        // Si vous utilisez EmailJS en parallèle pour les notifications (Optionnel)
+        const EMAILJS_SERVICE_ID = "VOTRE_SERVICE_ID";
+        const EMAILJS_TEMPLATE_ID = "VOTRE_TEMPLATE_ID";
 
         async function initApp() {
             try {
@@ -247,56 +257,68 @@
             });
         }
         
-        // LOGIQUE MODAL ET EMAIL
+        // LOGIQUE MODAL ET SUBMISSION SILENCIEUSE
         function openBookingModal(id) {
             const event = DATA.events.find(e => e.id == id);
             if (!event) return;
+            
+            // Si l'URL de soumission est présente, on ouvre le modal (sinon alerte)
+            if (GOOGLE_FORM_SUBMISSION_URL === "VOTRE_URL_SUBMISSION_FORM_ICI" && !DATA.settings.formUrl) {
+                alert("Erreur: L'URL du formulaire n'est pas configurée dans l'Admin. Veuillez la configurer.");
+                return;
+            }
+
             document.getElementById('bookingEventId').value = id;
             document.getElementById('bookingEventTitle').innerHTML = `Pour : <strong>${event.title}</strong>`;
             document.getElementById('modalBooking').classList.remove('hidden');
         }
 
-        function handleBooking(e) {
+        async function handleBooking(e) {
             e.preventDefault();
             const id = document.getElementById('bookingEventId').value;
             const event = DATA.events.find(x => x.id == id);
-            const name = document.getElementById('userName').value;
-            const mail = document.getElementById('userEmail').value;
             
-            const S = DATA.settings;
+            const formUrl = DATA.settings.formUrl || GOOGLE_FORM_SUBMISSION_URL;
+
+            if (formUrl === "VOTRE_URL_SUBMISSION_FORM_ICI" || !formUrl) {
+                 return alert("Erreur: L'URL du formulaire n'est pas configurée.");
+            }
+            if (ENTRY_ID_NOM === "VOTRE_ID_NOM") {
+                 return alert("Erreur: Les IDs de champ du formulaire ne sont pas configurés dans le code.");
+            }
             
-            let userStatusForEmail = 'Demande prise en compte';
-            if (event.status === 'Ouvert') {
-                userStatusForEmail = 'Confirmé';
-            } else if (event.status === 'Complet') {
-                userStatusForEmail = 'Liste d\'attente';
-            } else if (event.status === 'Annulé') {
-                userStatusForEmail = 'Annulé (Ne pas tenir compte de votre demande)';
+            const dataToSend = {
+                [`entry.${ENTRY_ID_NOM}`]: document.getElementById('userName').value,
+                [`entry.${ENTRY_ID_EMAIL}`]: document.getElementById('userEmail').value,
+                [`entry.${ENTRY_ID_EVENT}`]: `${event.title} (${event.date} à ${event.time || 'Non spécifié'})`,
+                // Ajoutez ici d'autres champs si nécessaire
+            };
+            
+            // Construction du corps de la requête (URL encoded)
+            const formData = new URLSearchParams();
+            for (const key in dataToSend) {
+                formData.append(key, dataToSend[key]);
             }
 
-            if(S.emailjs?.serviceId && S.emailjs?.templateId) {
-                const p = { 
-                    event_title: event.title, 
-                    user_name: name, 
-                    user_email: mail, 
-                    admin_email: "accueil@cor-tech.fr",
-                    user_status: userStatusForEmail
-                };
+            // Exécution du POST silencieux vers Google Forms
+            try {
+                const res = await fetch(formUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // Important pour ne pas avoir d'erreur CORS car c'est un POST simple
+                    body: formData,
+                });
                 
-                emailjs.send(S.emailjs.serviceId, S.emailjs.templateId, p)
-                    .then(() => {
-                        alert(`Inscription envoyée avec le statut : ${userStatusForEmail}.`);
-                        document.getElementById('modalBooking').classList.add('hidden');
-                        document.getElementById('bookingForm').reset();
-                    })
-                    .catch(err => {
-                        alert("Erreur d'envoi EmailJS. Détails: " + err.text);
-                        document.getElementById('modalBooking').classList.add('hidden');
-                    });
-            } else {
-                alert("Erreur: Les clés EmailJS n'ont pas été configurées dans la page Admin. Contactez l'administrateur.");
-                document.getElementById('modalBooking').classList.add('hidden');
+                // Mettre à jour le statut (seulement visuel)
+                let statusMessage = event.status === 'Complet' ? "Liste d'attente enregistrée !" : "Inscription enregistrée !";
+                
+                alert(`✅ ${statusMessage} Vous recevrez un mail de l'association si le service EmailJS est configuré.`);
+
+            } catch (error) {
+                 alert("Erreur: Impossible d'envoyer les données au formulaire externe. Vérifiez l'URL de soumission.");
             }
+            
+            document.getElementById('modalBooking').classList.add('hidden');
+            document.getElementById('bookingForm').reset();
         }
 
         // Lancement au chargement de la page
