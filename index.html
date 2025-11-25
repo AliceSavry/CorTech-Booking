@@ -33,36 +33,36 @@
 
     <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 hidden" id="mainContent">
         
-        <div class="lg:col-span-1 space-y-6">
+        <div class="lg:col-span-1">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-bullhorn text-red-500 mr-3"></i> Dernières Actualités</h2>
+            <div id="newsList" class="grid grid-cols-1 gap-6">
+                <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
+            </div>
+        </div>
 
+        <div class="lg:col-span-2 space-y-6">
+            
             <div id="eventsContainer" class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-primary">
-                <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-calendar-alt text-primary mr-3"></i> Évènements à venir</h2>
-                <div id="eventsList" class="space-y-4">
+                <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-calendar-alt text-primary mr-3"></i> Évènements à venir</h2>
+                <div id="eventsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <p id="noEvents" class="text-gray-500 italic hidden">Aucun événement planifié pour le moment.</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-clock text-orange-500 mr-3"></i> Horaires</h2>
-                <div class="space-y-4">
-                    <div><h3 class="font-bold text-gray-700 mb-1">Période Scolaire :</h3><pre id="hoursSchool" class="text-gray-600 whitespace-pre-wrap"></pre></div>
-                    <div><h3 class="font-bold text-gray-700 mb-1">Vacances :</h3><pre id="hoursHolidays" class="text-gray-600 whitespace-pre-wrap"></pre></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-clock text-orange-500 mr-3"></i> Horaires</h2>
+                    <div class="space-y-4">
+                        <div><h3 class="font-bold text-gray-700 mb-1">Période Scolaire :</h3><pre id="hoursSchool" class="text-gray-600 whitespace-pre-wrap"></pre></div>
+                        <div><h3 class="font-bold text-gray-700 mb-1">Vacances :</h3><pre id="hoursHolidays" class="text-gray-600 whitespace-pre-wrap"></pre></div>
+                    </div>
+                </div>
+                <div id="socialContainer" class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-share-alt text-teal-500 mr-3"></i> Nous suivre</h2>
+                    <div id="socialLinks" class="flex justify-around items-center text-3xl"></div>
                 </div>
             </div>
-
-            <div id="socialContainer" class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-share-alt text-teal-500 mr-3"></i> Nous suivre</h2>
-                <div id="socialLinks" class="flex justify-around items-center text-3xl"></div>
-            </div>
-
-        </div>
-
-
-        <div class="lg:col-span-2">
-            <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-bullhorn text-red-500 mr-3"></i> Dernières Actualités</h2>
-            <div id="newsList" class="grid grid-cols-1 gap-6"> 
-                <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
-            </div>
+            
         </div>
 
     </main>
@@ -94,6 +94,7 @@
 
         async function initApp() {
             try {
+                // Ajout d'un timestamp pour forcer le navigateur à recharger la version la plus récente de data.json
                 const response = await fetch('data.json?t=' + Date.now());
                 if (!response.ok) throw new Error('Erreur chargement data.json');
                 DATA = await response.json();
@@ -158,7 +159,19 @@
         function renderEvents(events) {
             const list = document.getElementById('eventsList');
             list.innerHTML = '';
-            const sortedEvents = events.sort((a, b) => new Date(a.date) - new Date(b.date));
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Pour comparer uniquement les dates
+
+            // Filtrer les événements futurs et trier
+            const futureEvents = events.filter(evt => {
+                const eventDate = new Date(evt.date);
+                // Si la date est invalide, on ne l'affiche pas
+                if (isNaN(eventDate)) return false; 
+                // Affiche si la date est >= aujourd'hui
+                return eventDate >= today;
+            });
+            
+            const sortedEvents = futureEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
 
             if (sortedEvents.length === 0) {
                 document.getElementById('noEvents').classList.remove('hidden');
@@ -170,6 +183,17 @@
                 const dateStatus = isNaN(eventDate) 
                     ? `<span class="text-red-500 font-semibold">Date Invalide</span>` 
                     : `<i class="fas fa-calendar-day mr-1"></i> ${eventDate.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}`;
+                
+                // Gérer l'affichage du Statut de l'événement (Ouvert, Complet, Annulé)
+                let statusBadge = '';
+                if (evt.status) {
+                    let color = 'text-gray-700 bg-gray-100';
+                    if (evt.status === 'Complet') color = 'text-red-700 bg-red-100';
+                    else if (evt.status === 'Ouvert') color = 'text-green-700 bg-green-100';
+                    else if (evt.status === 'Annulé') color = 'text-yellow-700 bg-yellow-100';
+
+                    statusBadge = `<span class="text-xs font-semibold px-2 py-0.5 rounded-full ${color} self-start">${evt.status}</span>`;
+                }
 
                 const html = `
                     <div class="flex bg-gray-50 p-3 rounded-lg border border-gray-200 hover:shadow-lg transition">
@@ -178,7 +202,10 @@
                         </div>
                         <div class="flex-grow">
                             <h3 class="font-bold text-gray-800">${evt.title}</h3>
-                            <p class="text-sm text-primary font-semibold">${dateStatus}</p>
+                            <div class="flex justify-between items-center">
+                                <p class="text-sm text-primary font-semibold">${dateStatus}</p>
+                                ${statusBadge}
+                            </div>
                             <p class="text-sm text-gray-500 overflow-hidden max-h-10">${evt.description}</p>
                             <a href="#" onclick="openBookingModal(${evt.id})" class="text-xs font-semibold text-primary hover:text-blue-700">S'inscrire <i class="fas fa-arrow-right ml-1"></i></a>
                         </div>
@@ -240,21 +267,36 @@
             
             const S = DATA.settings;
             
+            // Logique pour déterminer le statut de l'inscription en fonction du statut de l'événement défini par l'Admin
+            let userStatusForEmail = 'Demande prise en compte'; // Statut par défaut
+            
+            if (event.status === 'Ouvert') {
+                userStatusForEmail = 'Confirmé';
+            } else if (event.status === 'Complet') {
+                userStatusForEmail = 'Liste d\'attente';
+            } else if (event.status === 'Annulé') {
+                userStatusForEmail = 'Annulé (Veuillez ne pas tenir compte de votre demande)';
+            }
+
             if(S.emailjs?.serviceId && S.emailjs?.templateId) {
                 const p = { 
                     event_title: event.title, 
                     user_name: name, 
                     user_email: mail, 
                     admin_email: "accueil@cor-tech.fr",
-                    user_status: 'Confirmée'
+                    user_status: userStatusForEmail // Le statut déterminé par l'Admin
                 };
                 
                 emailjs.send(S.emailjs.serviceId, S.emailjs.templateId, p)
                     .then(() => {
-                        alert("Inscription envoyée ! Un email de confirmation a été envoyé.");
+                        alert(`Inscription envoyée avec le statut : ${userStatusForEmail}. Un email de confirmation a été envoyé.`);
                         document.getElementById('modalBooking').classList.add('hidden');
+                        document.getElementById('bookingForm').reset(); // Nettoyer le formulaire
                     })
-                    .catch(err => alert("Erreur d'envoi EmailJS. Détails: " + err.text));
+                    .catch(err => {
+                        alert("Erreur d'envoi EmailJS. Les clés sont-elles bien configurées dans l'Admin ? Détails: " + err.text);
+                        document.getElementById('modalBooking').classList.add('hidden');
+                    });
             } else {
                 alert("Erreur: Les clés EmailJS n'ont pas été configurées dans la page Admin. Contactez l'administrateur.");
                 document.getElementById('modalBooking').classList.add('hidden');
