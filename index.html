@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cor-Tech</title>
+    <title>Portail Cor-Tech</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         :root { --primary-color: #2563eb; }
         .text-primary { color: var(--primary-color); }
         .bg-primary { background-color: var(--primary-color); }
-        .border-primary { border-primary: var(--primary-color); }
+        .border-primary { border-color: var(--primary-color); }
         /* Loader */
         #loading { position: fixed; inset: 0; background: white; z-index: 50; display: flex; justify-content: center; align-items: center; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
@@ -33,35 +33,34 @@
 
     <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 hidden" id="mainContent">
         
-        <div class="lg:col-span-2 space-y-6">
-            
+        <div class="lg:col-span-1 space-y-6">
+
             <div id="eventsContainer" class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-primary">
                 <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-calendar-alt text-primary mr-3"></i> Évènements à venir</h2>
-                <div id="eventsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="eventsList" class="space-y-4">
                     <p id="noEvents" class="text-gray-500 italic hidden">Aucun événement planifié pour le moment.</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-clock text-orange-500 mr-3"></i> Horaires</h2>
-                    <div class="space-y-4">
-                        <div><h3 class="font-bold text-gray-700 mb-1">Période Scolaire :</h3><pre id="hoursSchool" class="text-gray-600 whitespace-pre-wrap"></pre></div>
-                        <div><h3 class="font-bold text-gray-700 mb-1">Vacances :</h3><pre id="hoursHolidays" class="text-gray-600 whitespace-pre-wrap"></pre></div>
-                    </div>
-                </div>
-                <div id="socialContainer" class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-share-alt text-teal-500 mr-3"></i> Nous suivre</h2>
-                    <div id="socialLinks" class="flex justify-around items-center text-3xl"></div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-clock text-orange-500 mr-3"></i> Horaires</h2>
+                <div class="space-y-4">
+                    <div><h3 class="font-bold text-gray-700 mb-1">Période Scolaire :</h3><pre id="hoursSchool" class="text-gray-600 whitespace-pre-wrap"></pre></div>
+                    <div><h3 class="font-bold text-gray-700 mb-1">Vacances :</h3><pre id="hoursHolidays" class="text-gray-600 whitespace-pre-wrap"></pre></div>
                 </div>
             </div>
-            
+
+            <div id="socialContainer" class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-share-alt text-teal-500 mr-3"></i> Nous suivre</h2>
+                <div id="socialLinks" class="flex justify-around items-center text-3xl"></div>
+            </div>
+
         </div>
 
-        <div class="lg:col-span-1">
+
+        <div class="lg:col-span-2">
             <h2 class="text-2xl font-extrabold text-gray-800 mb-4 flex items-center"><i class="fas fa-bullhorn text-red-500 mr-3"></i> Dernières Actualités</h2>
-            <div id="newsList" class="grid grid-cols-1 gap-6">
-                <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
+            <div id="newsList" class="grid grid-cols-1 gap-6 space-y-6"> <div id="loadingNews" class="md:col-span-2 text-center text-gray-500">Chargement...</div>
             </div>
         </div>
 
@@ -92,15 +91,12 @@
         let DATA = {};
         const THEME_COLOR = '#2563eb';
         
-        // =========================================================================
-        // ⚠️ ÉTAPE CRITIQUE : VEUILLEZ REMPLACER CES PLACEHOLDERS PAR VOS IDs GOOGLE FORM
-        // =========================================================================
-        const ENTRY_ID_NOM = "169108047";        // Champ "Nom"
-        const ENTRY_ID_EMAIL = "1030002564";     // Champ "Adresse mail"
-        const ENTRY_ID_PHONE = "224337788";      // Champ "Téléphone"
-        const ENTRY_ID_EVENT = "801717205";      // Champ "Évènement"
-        // =========================================================================
-
+        // --- VEUILLEZ REMPLACER CES PLACEHOLDERS PAR VOS IDs GOOGLE FORM ---
+        const ENTRY_ID_NOM = "169108047";
+        const ENTRY_ID_EMAIL = "1030002564";
+        const ENTRY_ID_PHONE = "224337788";
+        const ENTRY_ID_EVENT = "801717205";
+        // ---------------------------------------------------------------------
 
         async function initApp() {
             try {
@@ -164,7 +160,7 @@
             }
         }
 
-        // RENDU ÉVÈNEMENTS (Colonne 2)
+        // RENDU ÉVÈNEMENTS (Colonne 1)
         function renderEvents(events) {
             const list = document.getElementById('eventsList');
             list.innerHTML = '';
@@ -183,6 +179,10 @@
                 document.getElementById('noEvents').classList.remove('hidden');
                 return;
             }
+
+            // Mise en page en pile (space-y-4)
+            list.classList.remove('grid');
+            list.classList.remove('md:grid-cols-2');
 
             sortedEvents.forEach(evt => {
                 const eventDate = new Date(evt.date);
@@ -222,7 +222,7 @@
             });
         }
         
-        // RENDU NEWS (Colonne 1)
+        // RENDU NEWS (Colonne 2)
         function renderNews(news) {
             const list = document.getElementById('newsList');
             list.innerHTML = '';
@@ -233,6 +233,9 @@
                 return;
             }
 
+            // Rendu en pile (colonne unique)
+            list.classList.remove('md:grid-cols-2');
+            
             sortedNews.forEach(n => {
                 const tagClasses = { 'info': 'bg-blue-100 text-blue-800', 'urgent': 'bg-red-100 text-red-800', 'event': 'bg-green-100 text-green-800' };
                 const tagText = { 'info': 'Information', 'urgent': 'URGENT', 'event': 'Vie Asso' };
@@ -261,20 +264,16 @@
             const event = DATA.events.find(e => e.id == id);
             if (!event) return;
             
-            // Si l'URL de soumission est présente, on ouvre le modal (sinon alerte)
             if (DATA.settings.formUrl) {
-                // On prépare la redirection directe
                 redirectToForm(event, id);
                 return;
             }
 
-            // Fallback: Si pas d'URL configurée, on affiche le modal local pour avertir ou collecter si EmailJS est configuré
             document.getElementById('bookingEventId').value = id;
             document.getElementById('bookingEventTitle').innerHTML = `Pour : <strong>${event.title}</strong>`;
             document.getElementById('modalBooking').classList.remove('hidden');
         }
 
-        // REDIRECTION (méthode de secours si le modal est utilisé sans URL de soumission)
         function handleBooking(e) {
             e.preventDefault();
             const id = document.getElementById('bookingEventId').value;
@@ -284,7 +283,6 @@
             
             const S = DATA.settings;
             
-            // Logique de statut
             let userStatusForEmail = event.status === 'Complet' ? 'Liste d\'attente' : 'Confirmé';
 
             if(S.emailjs?.serviceId && S.emailjs?.templateId) {
@@ -321,23 +319,18 @@
                 return alert("L'URL de soumission du formulaire de réservation n'est pas configurée dans l'Admin. Veuillez la configurer et sauvegarder.");
             }
             
-            // On trouve l'événement pour pré-remplir le champ
             const evt = DATA.events.find(e => e.id == id);
             
             if (ENTRY_ID_EVENT === "VOTRE_ID_EVENT_ICI") {
                 return alert("Erreur de configuration: Veuillez d'abord insérer les IDs de vos champs Google Form dans le fichier index.html, puis recharger la page.");
             }
 
-            // L'URL de soumission doit être formResponse
             const submissionUrl = formUrl.includes('formResponse') ? formUrl : formUrl.split('/viewform')[0] + '/formResponse';
-
-            // Construction de l'URL avec l'événement pré-rempli (Nom et Date sont passés dans le champ Event)
             const eventInfo = encodeURIComponent(evt.title + (evt.date ? ' - ' + new Date(evt.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''));
             
-            // Redirection vers le formulaire de Google avec le champ Évènement pré-rempli
-            const redirectUrl = `${submissionUrl}?entry.${ENTRY_ID_EVENT}=${eventInfo}`;
+            const redirectUrl = `${submissionUrl}?entry.${ENTRY_ID_EVENT}=${eventInfo}`; // Simplification, les autres champs sont vides
             
-            window.open(redirectUrl, '_blank'); // Ouvre le lien dans un nouvel onglet
+            window.open(redirectUrl, '_blank');
         }
         
         // Lancement au chargement de la page
