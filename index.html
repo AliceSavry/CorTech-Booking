@@ -70,7 +70,7 @@
     </div>
 
     <script>
-        // --- ZONE DE DONNÉES (L'ADMIN MODIFIE CECI) ---
+        // --- ZONE DE DONNÉES ---
         window.ASSO_DATA = {
             events: [],
             news: [{id:1, title:"Bienvenue", date:"2025-01-01", tag:"info", content:"Site en construction"}],
@@ -81,9 +81,8 @@
                 social: { facebook: "", instagram: "", website: "" }
             }
         };
-        // -----------------------------------------------
+        // -----------------------
 
-        // INITIALISATION
         const DATA = window.ASSO_DATA;
         const S = DATA.settings;
         
@@ -93,11 +92,9 @@
         document.getElementById('footerYear').textContent = new Date().getFullYear();
         if(S.logoUrl) { const l=document.getElementById('navLogo'); l.src=S.logoUrl; l.classList.remove('hidden'); }
 
-        // RENDU HORAIRES
         document.getElementById('hoursSchool').innerHTML = "<b>Scolaire:</b><br>" + (S.hours?.school || "-");
         document.getElementById('hoursHolidays').innerHTML = "<b>Vacances:</b><br>" + (S.hours?.holidays || "-");
 
-        // RENDU NEWS
         const nList = document.getElementById('newsList');
         DATA.news.sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(n => {
             let c="text-gray-500", i="fa-info-circle";
@@ -106,7 +103,6 @@
             nList.innerHTML += `<div class="news-card bg-gray-50 p-4 rounded shadow-sm"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg">${n.title}</h3><span class="text-xs border px-2 py-1 rounded ${c}"><i class="fas ${i}"></i> ${n.date}</span></div><p class="text-gray-600 text-sm whitespace-pre-line">${n.content}</p></div>`;
         });
 
-        // RENDU EVENTS
         const eGrid = document.getElementById('eventsGrid');
         eGrid.innerHTML = DATA.events.length ? '' : '<p class="text-gray-500 italic p-4">Aucun évènement.</p>';
         DATA.events.forEach(evt => {
@@ -114,13 +110,11 @@
             eGrid.innerHTML += `<div class="bg-white border rounded shadow-sm overflow-hidden flex flex-col">${imgHtml}<div class="p-4 flex-grow"><h3 class="font-bold text-lg mb-1">${evt.title}</h3><p class="text-gray-600 text-xs mb-2">${evt.date} - ${evt.location}</p><p class="text-gray-700 text-sm line-clamp-2">${evt.description}</p></div><div class="px-4 pb-4 mt-auto"><button onclick="openBooking(${evt.id})" class="w-full btn-theme text-sm font-bold py-2 rounded">S'inscrire</button></div></div>`;
         });
 
-        // SOCIAL
         const soc = document.getElementById('socialLinks');
         if(S.social?.facebook) soc.innerHTML += `<a href="${S.social.facebook}" target="_blank" class="text-blue-600 text-2xl"><i class="fab fa-facebook"></i></a>`;
         if(S.social?.instagram) soc.innerHTML += `<a href="${S.social.instagram}" target="_blank" class="text-pink-600 text-2xl"><i class="fab fa-instagram"></i></a>`;
         if(soc.innerHTML) document.getElementById('socialBlock').classList.remove('hidden');
 
-        // LOGIQUE RESERVATION
         if(S.emailjs?.publicKey) emailjs.init(S.emailjs.publicKey);
 
         function openBooking(id) {
@@ -136,8 +130,6 @@
             const evt = DATA.events.find(x => x.id == id);
             const name = document.getElementById('userName').value;
             const mail = document.getElementById('userEmail').value;
-            
-            // Envoi Email
             const p = { event_title: evt.title, user_name: name, user_email: mail, admin_email: "accueil@cor-tech.fr" };
             if(S.emailjs?.serviceId) {
                 emailjs.send(S.emailjs.serviceId, S.emailjs.templateId, p).then(() => {
