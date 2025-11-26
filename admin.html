@@ -32,7 +32,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div><label class="block text-xs text-gray-400 mb-1">Nom de l'Asso</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
                     <div><label class="block text-xs text-gray-400 mb-1">Couleur Principale</label><div class="flex gap-2"><input type="color" id="confColorPicker" class="h-9 w-9 border-0 bg-transparent cursor-pointer" onchange="document.getElementById('confColor').value=this.value"><input type="text" id="confColor" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
-                    <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1">Logo</label><div class="flex items-center gap-4"><input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.uploadLogoAndRender()"><img id="logoPreview" src="" class="h-12 w-12 object-contain bg-white rounded hidden border border-gray-500 p-1"></div></div>
+                    <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1">Logo</label><div class="flex items-center gap-4"><input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.uploadLogoAndRender()"><img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden border border-gray-500 p-1"></div></div>
                 </div>
             </div>
 
@@ -96,33 +96,36 @@
                     <div>
                         <label class="text-xs text-gray-500">Logo</label>
                         <div class="flex items-center gap-4">
-                            <input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.uploadLogoAndRender()">
-                            <img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden border border-gray-500 p-1">
+                            <input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.uploadLogoAndRender()"><img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden border border-gray-500 p-1">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="text-xs text-gray-500">Scolaire</label><textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
                         <div><label class="text-xs text-gray-500">Vacances</label><textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
                     </div>
+                    
                     <div class="border-t border-gray-700 pt-2">
                         <h3 class="text-sm font-bold text-gray-400 mb-2">EmailJS</h3>
                         <div class="grid grid-cols-3 gap-2"><input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
                     </div>
+                    
                     <div class="border-t border-gray-700 pt-2">
                         <h3 class="text-sm font-bold text-gray-400 mb-2">Social</h3>
                         <div class="grid grid-cols-2 gap-2"><input type="text" id="confFb" placeholder="Facebook" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confInsta" placeholder="Instagram" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confTiktok" placeholder="TikTok (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confYoutube" placeholder="YouTube (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
                     </div>
-                    <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-red-400 mb-2">IDs Google Form (Obligatoire)</h3>
-                        <input type="text" id="confEntryIdNom" placeholder="ID Nom" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
-                        <input type="text" id="confEntryIdMail" placeholder="ID Email" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
-                        <input type="text" id="confEntryIdPhone" placeholder="ID Téléphone" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
-                        <input type="text" id="confEntryIdEvent" placeholder="ID Évènement" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
+                    
+                    <div class="border-t border-gray-700 pt-4">
+                        <h3 class="text-sm font-bold text-red-400 mb-3">2. IDs Google Form (Obligatoire)</h3>
+                        <p class="text-xs text-gray-500 mb-2">Entrez les numéros entry.XXXXXX de votre formulaire (Nom, Email, Téléphone, Évènement).</p>
+                        <input type="text" id="confEntryIdNom" placeholder="ID Nom (ex: 169108047)" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
+                        <input type="text" id="confEntryIdMail" placeholder="ID Email (ex: 1030002564)" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
+                        <input type="text" id="confEntryIdPhone" placeholder="ID Téléphone (ex: 224337788)" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
+                        <input type="text" id="confEntryIdEvent" placeholder="ID Événement (ex: 801717205)" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
                     </div>
 
                     <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-gray-400 mb-2">URL de Réservation</h3>
-                        <input type="url" id="confFormUrl" placeholder="URL de soumission du Google Form (formResponse)" class="w-full bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
+                        <h3 class="text-sm font-bold text-gray-400 mb-2">URL de Soumission</h3>
+                        <input type="url" id="confFormUrl" placeholder="URL de soumission (formResponse)" class="w-full bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
                     </div>
                 </div>
             </div>
