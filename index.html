@@ -12,7 +12,7 @@
 
     <style>
         :root { 
-            --primary-color: #2563eb; /* Sera mis à jour par data.json */
+            --primary-color: #2563eb; /* Sera mis à jour par data.json (Couleur) */
             --font-main: 'Rajdhani', sans-serif;
             --font-title: 'Orbitron', sans-serif;
         }
@@ -30,8 +30,6 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         /* Fix pour le texte des news (respecte les retours à la ligne) */
         .news-content { white-space: pre-line; }
-        /* Style pour l'extrait */
-        .news-excerpt { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 5; /* Limite à 5 lignes pour l'extrait */ }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans flex flex-col min-h-screen">
@@ -267,8 +265,8 @@
             
             sortedNews.forEach(n => {
                 const date = new Date(n.date).toLocaleDateString('fr-FR');
-                // Limite le contenu à 250 caractères et ajoute "..."
-                const excerpt = n.content.length > 250 ? n.content.substring(0, 250) + '...' : n.content;
+                // Logique pour l'extrait de 250 caractères
+                const excerpt = n.content.length > 250 ? n.content.substring(0, 250).replace(/\s\S*$/, '') + '...' : n.content;
 
                 list.innerHTML += `
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full hover:shadow-xl transition duration-300">
