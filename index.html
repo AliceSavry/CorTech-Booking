@@ -204,9 +204,8 @@
 
             renderSocialLinks(S.social);
 
-            // ANCIENNE LIGNE POTENTIELLEMENT PROBLÉMATIQUE : if(S.emailjs?.publicKey) emailjs.init(S.emailjs.publicKey);
-            // Laisser cette ligne commentée ou retirée pour l'instant pour éviter les erreurs d'initialisation externe.
-            // Si le site fonctionne, l'erreur était là.
+            // Note: EmailJS initialization est délibérément désactivée pour éviter les plantages
+            // si la librairie n'est pas prête ou mal configurée.
 
             renderEvents();
             renderNews();
@@ -394,7 +393,7 @@
             const date = new Date(newsItem.date).toLocaleDateString('fr-FR');
             
             const imageHtml = newsItem.image 
-                ? `<img src="${newsItem.image}" alt="${newsItem.title}" class="w-full h-auto max-h-[60vh] object-contain mb-4 rounded-lg shadow-md">` 
+                ? `<img src="${newsItem.image}" alt="${newsItem.title}" class="w-full h-48 object-cover rounded-lg shadow-md mb-4">` 
                 : '';
 
             detailContainer.innerHTML = `
@@ -422,8 +421,8 @@
             document.body.classList.remove('overflow-hidden');
         }
 
-        // Démarrer l'application
-        window.onload = initApp;
+        // Démarrage du script lorsque le DOM est chargé (Correction finale)
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
