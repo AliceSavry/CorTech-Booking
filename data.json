@@ -1,379 +1,69 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Cor-Tech</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>.loader{border:4px solid #f3f3f3;border-top:4px solid #3498db;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite;display:inline-block;}</style>
-</head>
-<body class="bg-gray-900 text-white min-h-screen p-6">
-
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-2xl font-bold text-blue-400"><i class="fas fa-database"></i> Admin Cor-Tech</h1>
-            <a href="index.html" target="_blank" class="text-gray-400 hover:text-white">Voir le site <i class="fas fa-external-link-alt"></i></a>
-        </div>
-
-        <div id="configPanel" class="bg-gray-800 p-6 rounded shadow-lg mb-8 border border-gray-700">
-            <h2 class="text-xl font-bold mb-4 text-white">1. Connexion (GitHub)</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <input type="text" id="ghOwner" placeholder="Pseudo GitHub" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
-                <input type="text" id="ghRepo" placeholder="Nom du Dépôt" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
-                <input type="password" id="ghToken" placeholder="Token Secret" class="bg-gray-900 p-3 rounded border border-gray-600 text-white">
-            </div>
-            <button onclick="admin.loadData()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded font-bold w-full shadow-lg">CHARGER LA BASE DE DONNÉES</button>
-        </div>
-
-        <div id="editorPanel" class="hidden space-y-8 pb-24">
-            
-            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-yellow-400 border-b border-gray-700 pb-2"><i class="fas fa-paint-brush"></i> Apparence</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div><label class="block text-xs text-gray-400 mb-1">Nom de l'Asso</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
-                    <div><label class="block text-xs text-gray-400 mb-1">Couleur Principale</label><div class="flex gap-2"><input type="color" id="confColorPicker" class="h-9 w-9 border-0 bg-transparent cursor-pointer" onchange="document.getElementById('confColor').value=this.value"><input type="text" id="confColor" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
-                    <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1">Logo</label><div class="flex items-center gap-4"><input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.uploadLogoAndRender()"><img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden border border-gray-500 p-1"></div></div>
-                </div>
-            </div>
-
-            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-green-400 border-b border-gray-700 pb-2">Actualités</h2>
-                <div id="newsList" class="space-y-3 mb-6"></div>
-                <div class="bg-gray-900 p-4 rounded border border-gray-700 relative">
-                    <h3 id="newsFormTitle" class="text-sm font-bold text-gray-400 mb-3">Ajouter / Modifier</h3>
-                    <button id="btnCancelNews" onclick="admin.resetNewsForm()" class="hidden absolute top-4 right-4 text-xs border px-2 rounded">Annuler</button>
-                    <div class="grid gap-3">
-                        <input type="hidden" id="newsId">
-                        <input type="text" id="newsTitle" placeholder="Titre" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                        <div class="flex gap-2">
-                            <input type="date" id="newsDate" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                            <select id="newsTag" class="bg-gray-800 p-2 rounded text-white border border-gray-600"><option value="info">Info</option><option value="urgent">Urgent</option><option value="event">Vie Asso</option></select>
-                        </div>
-                        <textarea id="newsContent" placeholder="Message..." class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
-                        <div class="border-t border-gray-700 pt-2"><label class="text-xs text-gray-500">Image (Optionnel)</label><input type="file" id="newsImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400"></div>
-                        <button id="btnSubmitNews" onclick="admin.submitNews()" class="bg-green-600 px-4 py-2 rounded font-bold">Valider</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-purple-400 border-b border-gray-700 pb-2">Évènements</h2>
-                <div id="eventsList" class="space-y-3 mb-6"></div>
-                <div class="bg-gray-900 p-4 rounded border border-gray-700 relative">
-                    <h3 id="evtFormTitle" class="text-sm font-bold text-gray-400 mb-3">Ajouter / Modifier</h3>
-                    <button id="btnCancelEvt" onclick="admin.resetEventForm()" class="hidden absolute top-4 right-4 text-xs border px-2 rounded">Annuler</button>
-                    <div class="grid gap-3">
-                        <input type="hidden" id="evtId">
-                        <input type="text" id="evtTitle" placeholder="Titre" class="bg-gray-800 p-2 rounded text-white border border-gray-600">
-                        <div class="flex gap-2">
-                            <input type="date" id="evtDate" class="bg-gray-800 p-2 rounded w-1/3 text-white border border-gray-600">
-                            <input type="text" id="evtLoc" placeholder="Lieu" class="bg-gray-800 p-2 rounded w-2/3 text-white border border-gray-600">
-                        </div>
-                        <textarea id="evtDesc" placeholder="Description" class="bg-gray-800 p-2 rounded text-white border border-gray-600" rows="2"></textarea>
-                        
-                        <div class="flex gap-2">
-                            <select id="evtStatus" class="bg-gray-800 p-2 rounded text-white border border-gray-600 w-1/2">
-                                <option value="Ouvert">Ouvert</option>
-                                <option value="Complet">Complet</option>
-                                <option value="Annulé">Annulé</option>
-                            </select>
-                            <input type="number" id="evtCapacity" placeholder="Capacité (Max)" class="bg-gray-800 p-2 rounded w-1/2 text-white border border-gray-600">
-                        </div>
-
-                        <div class="border-t border-gray-700 pt-2"><label class="text-xs text-gray-500">Image (Optionnel)</label><input type="file" id="evtImgFile" accept="image/*" class="w-full bg-gray-800 p-1 rounded text-xs text-gray-400"></div>
-                        <button id="btnSubmitEvt" onclick="admin.submitEvent()" class="bg-purple-600 px-4 py-2 rounded font-bold">Valider</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gray-800 p-6 rounded shadow border border-gray-700">
-                <h2 class="text-xl font-bold mb-4 text-orange-400 border-b border-gray-700 pb-2">Paramètres</h2>
-                <div class="grid gap-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-xs text-gray-500">Nom</label><input type="text" id="confName" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div>
-                        <div><label class="text-xs text-gray-500">Couleur</label><div class="flex gap-2"><input type="color" id="confColorPicker" class="h-9 w-9 border-0 bg-transparent cursor-pointer" onchange="document.getElementById('confColor').value=this.value"><input type="text" id="confColor" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600"></div></div>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500">Logo</label>
-                        <div class="flex items-center gap-4">
-                            <input type="file" id="confLogoFile" accept="image/*" class="bg-gray-900 p-2 text-sm w-full border border-gray-600" onchange="admin.uploadLogoAndRender()"><img id="logoPreview" src="" class="h-10 w-10 bg-white rounded hidden border border-gray-500 p-1">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-xs text-gray-500">Scolaire</label><textarea id="confSchool" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
-                        <div><label class="text-xs text-gray-500">Vacances</label><textarea id="confHolidays" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600" rows="3"></textarea></div>
-                    </div>
-                    
-                    <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-gray-400 mb-2">EmailJS</h3>
-                        <div class="grid grid-cols-3 gap-2"><input type="text" id="confEmailPub" placeholder="Public Key" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailServ" placeholder="Service ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confEmailTempl" placeholder="Template ID" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
-                    </div>
-                    
-                    <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-gray-400 mb-2">Social</h3>
-                        <div class="grid grid-cols-2 gap-2"><input type="text" id="confFb" placeholder="Facebook" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confInsta" placeholder="Instagram" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confTiktok" placeholder="TikTok (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"><input type="text" id="confYoutube" placeholder="YouTube (URL)" class="bg-gray-900 p-2 rounded text-sm text-white border border-gray-600"></div>
-                    </div>
-                    
-                    <div class="border-t border-gray-700 pt-4">
-                        <h3 class="text-sm font-bold text-red-400 mb-3">2. IDs Google Form (Obligatoire)</h3>
-                        <p class="text-xs text-gray-500 mb-2">Entrez les numéros entry.XXXXXX de votre formulaire (Nom, Email, Téléphone, Évènement).</p>
-                        <input type="text" id="confEntryIdNom" placeholder="ID Nom (ex: 169108047)" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
-                        <input type="text" id="confEntryIdMail" placeholder="ID Email (ex: 1030002564)" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
-                        <input type="text" id="confEntryIdPhone" placeholder="ID Téléphone (ex: 224337788)" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
-                        <input type="text" id="confEntryIdEvent" placeholder="ID Événement (ex: 801717205)" class="w-full bg-gray-900 p-2 rounded text-white border border-gray-600 mb-2">
-                    </div>
-
-                    <div class="border-t border-gray-700 pt-2">
-                        <h3 class="text-sm font-bold text-gray-400 mb-2">URL de Soumission</h3>
-                        <input type="url" id="confFormUrl" placeholder="URL de soumission (formResponse)" class="w-full bg-gray-900 p-2 rounded text-sm text-white border border-gray-600">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="saveBar" class="hidden fixed bottom-0 left-0 w-full bg-gray-900 p-4 border-t border-gray-700 flex justify-center shadow-lg">
-            <button id="btnSave" onclick="admin.saveToGitHub()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-10 rounded-full shadow-lg transform hover:scale-105 transition flex items-center gap-3 text-lg"><i class="fas fa-cloud-upload-alt"></i> SAUVEGARDER</button>
-        </div>
-    </div>
-
-    <script>
-        const admin = {
-            data: null, sha: null,
-            
-            init: function() {
-                const c = JSON.parse(localStorage.getItem('admin_gh_config') || '{}');
-                if(c.owner) document.getElementById('ghOwner').value = c.owner;
-                if(c.repo) document.getElementById('ghRepo').value = c.repo;
-                if(c.token) document.getElementById('ghToken').value = c.token;
-            },
-
-            loadData: async function() {
-                const owner = document.getElementById('ghOwner').value.trim();
-                const repo = document.getElementById('ghRepo').value.trim();
-                const token = document.getElementById('ghToken').value.trim();
-                if(!owner || !repo || !token) return alert("Champs incomplets");
-                localStorage.setItem('admin_gh_config', JSON.stringify({owner, repo, token}));
-
-                const btn = document.querySelector('button[onclick="admin.loadData()"]');
-                const old = btn.innerHTML; btn.innerHTML = "Chargement...";
-
-                try {
-                    const url = `https://api.github.com/repos/${owner}/${repo}/contents/data.json`;
-                    const res = await fetch(url + "?t=" + Date.now(), { headers: { Authorization: `token ${token}` } });
-                    if(!res.ok) throw new Error("Fichier data.json introuvable ou accès refusé");
-                    
-                    const json = await res.json();
-                    this.sha = json.sha;
-                    const content = new TextDecoder().decode(Uint8Array.from(atob(json.content), c => c.charCodeAt(0)));
-                    this.data = JSON.parse(content);
-
-                    document.getElementById('configPanel').classList.add('hidden');
-                    document.getElementById('editorPanel').classList.remove('hidden');
-                    document.getElementById('saveBar').classList.remove('hidden');
-                    this.renderUI();
-                } catch(e) { alert("Erreur: " + e.message); } 
-                finally { btn.innerHTML = old; }
-            },
-
-            uploadImageToGitHub: async function(file) {
-                if(!file) return null;
-                const c = JSON.parse(localStorage.getItem('admin_gh_config'));
-                const filename = `images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-                const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${filename}`;
-
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        const base64Content = e.target.result.split(',')[1];
-                        try {
-                            const res = await fetch(url, {
-                                method: "PUT",
-                                headers: { Authorization: `token ${c.token}`, "Content-Type": "application/json" },
-                                body: JSON.stringify({ message: "Upload Image", content: base64Content })
-                            });
-                            if(!res.ok) throw new Error("Erreur Upload GitHub");
-                            const publicUrl = `https://${c.owner}.github.io/${c.repo}/${filename}`;
-                            resolve(publicUrl);
-                        } catch(err) { reject(err); }
-                    };
-                    reader.readAsDataURL(file);
-                });
-            },
-
-            uploadLogoAndRender: async function() {
-                const file = document.getElementById('confLogoFile').files[0];
-                if (!file) return;
-
-                const preview = document.getElementById('logoPreview');
-                preview.src = '';
-                preview.classList.remove('hidden');
-                preview.className = 'h-12 w-12 object-contain bg-white rounded border border-gray-500 p-1 animate-pulse';
-
-                try {
-                    const url = await this.uploadImageToGitHub(file);
-                    this.data.settings.logoUrl = url;
-                    this.renderUI();
-                    alert("Logo téléchargé. N'oubliez pas de SAUVEGARDER pour enregistrer le lien dans data.json !");
-                } catch(e) {
-                    alert("Erreur Logo: Échec du téléchargement. " + e.message);
-                } finally {
-                    preview.classList.remove('animate-pulse');
-                    preview.className = 'h-12 w-12 object-contain bg-white rounded border border-gray-500 p-1';
-                }
-            },
-
-            renderUI: function() {
-                const D = this.data; const S = D.settings;
-                
-                document.getElementById('newsList').innerHTML = D.news.map(n => `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${n.title}</span> <div class="flex gap-2"><button onclick="admin.editNews(${n.id})" class="text-blue-400"><i class="fas fa-edit"></i></button><button onclick="admin.delNews(${n.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('');
-                document.getElementById('eventsList').innerHTML = D.events.map(e => `<div class="flex justify-between bg-gray-900 p-3 rounded border border-gray-600 mb-2"><span>${e.title}</span> <div class="flex gap-2"><button onclick="admin.editEvent(${e.id})" class="text-blue-400"><i class="fas fa-edit"></i></button><button onclick="admin.delEvent(${e.id})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('');
-                
-                // Settings
-                document.getElementById('confName').value = S.orgName || "";
-                document.getElementById('confColor').value = S.themeColor || "#2563eb";
-                document.getElementById('confColorPicker').value = S.themeColor || "#2563eb";
-                if(S.logoUrl) { document.getElementById('logoPreview').src = S.logoUrl; document.getElementById('logoPreview').classList.remove('hidden'); }
-                document.getElementById('confSchool').value = S.hours?.school || "";
-                document.getElementById('confHolidays').value = S.hours?.holidays || "";
-                document.getElementById('confEmailPub').value = S.emailjs?.publicKey || "";
-                document.getElementById('confEmailServ').value = S.emailjs?.serviceId || "";
-                document.getElementById('confEmailTempl').value = S.emailjs?.templateId || "";
-                document.getElementById('confFb').value = S.social?.facebook || "";
-                document.getElementById('confInsta').value = S.social?.instagram || "";
-                document.getElementById('confTiktok').value = S.social?.tiktok || "";
-                document.getElementById('confYoutube').value = S.social?.youtube || "";
-                document.getElementById('confFormUrl').value = S.formUrl || "";
-                
-                // NOUVEAUX CHAMPS (PLACEHOLDERS)
-                document.getElementById('confEntryIdNom').value = S.entryIds?.nom || "";
-                document.getElementById('confEntryIdMail').value = S.entryIds?.email || "";
-                document.getElementById('confEntryIdPhone').value = S.entryIds?.phone || "";
-                document.getElementById('confEntryIdEvent').value = S.entryIds?.event || "";
-            },
-
-            // NEWS
-            submitNews: async function() {
-                const t=document.getElementById('newsTitle').value; if(!t) return alert("Titre requis");
-                const id=document.getElementById('newsId').value; const file=document.getElementById('newsImgFile').files[0];
-                const btn = document.getElementById('btnSubmitNews'); const oldTxt = btn.innerText; btn.innerText = "Téléchargement..."; btn.disabled = true;
-
-                try {
-                    let imgUrl = null;
-                    if(file) imgUrl = await this.uploadImageToGitHub(file);
-
-                    const d={id:id?parseInt(id):Date.now(), title:t, date:document.getElementById('newsDate').value, tag:document.getElementById('newsTag').value, content:document.getElementById('newsContent').value};
-                    
-                    if(id){ 
-                        const idx=this.data.news.findIndex(x=>x.id==id); 
-                        d.image = imgUrl ? imgUrl : this.data.news[idx].image;
-                        this.data.news[idx]=d; 
-                    } else { 
-                        d.image = imgUrl;
-                        this.data.news.push(d); 
-                    }
-                    this.renderUI(); this.resetNewsForm();
-                } catch(e) { alert("Erreur News: " + e.message); }
-                finally { btn.innerText = oldTxt; btn.disabled = false; }
-            },
-            editNews: function(id) {
-                const n=this.data.news.find(x=>x.id==id); if(!n)return;
-                document.getElementById('newsId').value=n.id; document.getElementById('newsTitle').value=n.title; document.getElementById('newsDate').value=n.date; document.getElementById('newsTag').value=n.tag; document.getElementById('newsContent').value=n.content;
-                document.getElementById('newsFormTitle').innerText="Modifier : " + n.title;
-                document.getElementById('btnSubmitNews').innerText="Modifier"; document.getElementById('btnSubmitNews').className="bg-blue-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelNews').classList.remove('hidden');
-            },
-            resetNewsForm: function() {
-                document.getElementById('newsId').value=""; document.getElementById('newsTitle').value=""; document.getElementById('newsContent').value=""; document.getElementById('newsImgFile').value="";
-                document.getElementById('newsFormTitle').innerText="Ajouter / Modifier"; document.getElementById('btnSubmitNews').innerText="Valider"; document.getElementById('btnSubmitNews').className="bg-green-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelNews').classList.add('hidden');
-            },
-            delNews: function(id){ if(confirm("Supprimer ?")){this.data.news=this.data.news.filter(x=>x.id!=id);this.renderUI();} },
-
-            // EVENTS
-            submitEvent: async function() {
-                const t=document.getElementById('evtTitle').value; if(!t) return alert("Titre requis");
-                const id=document.getElementById('evtId').value; const file=document.getElementById('evtImgFile').files[0];
-                const btn = document.getElementById('btnSubmitEvt'); const oldTxt = btn.innerText; btn.innerText = "Téléchargement..."; btn.disabled = true;
-                
-                try {
-                    let imgUrl = null;
-                    if(file) imgUrl = await this.uploadImageToGitHub(file);
-
-                    const d={
-                        id:id?parseInt(id):Date.now(), 
-                        title:t, 
-                        date:document.getElementById('evtDate').value, 
-                        location:document.getElementById('evtLoc').value, 
-                        description:document.getElementById('evtDesc').value, 
-                        status: document.getElementById('evtStatus').value,
-                        capacity: document.getElementById('evtCapacity').value,
-                        image: imgUrl
-                    };
-                    
-                    if(id){ 
-                        const idx=this.data.events.findIndex(x=>x.id==id); 
-                        d.image = imgUrl ? imgUrl : this.data.events[idx].image;
-                        this.data.events[idx]=d; 
-                    } else { 
-                        this.data.events.push(d); 
-                    }
-                    this.renderUI(); this.resetEventForm();
-                } catch(e) { alert("Erreur Event: " + e.message); }
-                finally { btn.innerText = oldTxt; btn.disabled = false; }
-            },
-            editEvent: function(id){
-                const e=this.data.events.find(x=>x.id==id); if(!e)return;
-                document.getElementById('evtId').value=e.id; document.getElementById('evtTitle').value=e.title; document.getElementById('evtDate').value=e.date; document.getElementById('evtLoc').value=e.location; document.getElementById('evtDesc').value=e.description;
-                document.getElementById('evtStatus').value=e.status;
-                document.getElementById('evtCapacity').value=e.capacity;
-                document.getElementById('evtFormTitle').innerText="Modifier : " + e.title;
-                document.getElementById('btnSubmitEvt').innerText="Modifier"; document.getElementById('btnSubmitEvt').className="bg-blue-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelEvt').classList.remove('hidden');
-            },
-            resetEventForm: function(){
-                document.getElementById('evtId').value=""; document.getElementById('evtTitle').value=""; document.getElementById('evtLoc').value=""; document.getElementById('evtDesc').value=""; document.getElementById('evtImgFile').value="";
-                document.getElementById('evtStatus').value='Ouvert'; document.getElementById('evtCapacity').value='';
-                document.getElementById('evtFormTitle').innerText="Ajouter / Modifier"; document.getElementById('btnSubmitEvt').innerText="Valider"; document.getElementById('btnSubmitEvt').className="bg-purple-600 px-4 py-2 rounded font-bold"; document.getElementById('btnCancelEvt').classList.add('hidden');
-            },
-            delEvent: function(id){ if(confirm("Supprimer ?")){this.data.events=this.data.events.filter(x=>x.id!=id);this.renderUI();} },
-
-            saveToGitHub: async function() {
-                if(!confirm("Sauvegarder en ligne ?")) return;
-                const btn = document.getElementById('btnSave'); const old = btn.innerHTML; btn.innerHTML = "Envoi...";
-                
-                // Mise à jour des Settings
-                this.data.settings.orgName = document.getElementById('confName').value;
-                this.data.settings.themeColor = document.getElementById('confColor').value;
-                this.data.settings.hours = { school: document.getElementById('confSchool').value, holidays: document.getElementById('confHolidays').value };
-                this.data.settings.emailjs = { publicKey: document.getElementById('confEmailPub').value, serviceId: document.getElementById('confEmailServ').value, templateId: document.getElementById('confEmailTempl').value };
-                this.data.settings.social = { facebook: document.getElementById('confFb').value, instagram: document.getElementById('confInsta').value, tiktok: document.getElementById('confTiktok').value, youtube: document.getElementById('confYoutube').value };
-                this.data.settings.formUrl = document.getElementById('confFormUrl').value;
-                
-                // SAUVEGARDE DES ENTRY IDs
-                this.data.settings.entryIds = {
-                    nom: document.getElementById('confEntryIdNom').value,
-                    email: document.getElementById('confEntryIdMail').value,
-                    phone: document.getElementById('confEntryIdPhone').value,
-                    event: document.getElementById('confEntryIdEvent').value
-                };
-
-
-                const c = JSON.parse(localStorage.getItem('admin_gh_config'));
-                const url = `https://api.github.com/repos/${c.owner}/${c.repo}/contents/data.json`;
-
-                try {
-                    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(this.data, null, 4))));
-                    const putRes = await fetch(url, {
-                        method: "PUT",
-                        headers: { Authorization: `token ${c.token}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: "Update Data JSON", content: encoded, sha: this.sha })
-                    });
-                    if(!putRes.ok) throw new Error("Erreur écriture");
-                    const putJson = await putRes.json();
-                    this.sha = putJson.content.sha;
-                    alert("✅ SAUVEGARDE RÉUSSIE !");
-                } catch(e) { alert("Erreur: " + e.message); } 
-                finally { btn.innerHTML = old; }
-            }
-        };
-        admin.init();
-    </script>
-</body>
-</html>
+{
+    "events": [
+        {
+            "id": 1764100236051,
+            "title": "Tournois Fortnite",
+            "date": "2025-12-03",
+            "location": "Locaux Cor-Tech",
+            "description": "Mercredi 3 décembre, de 14h à 18h, viens affronter les joueurs les plus chauds de Cordemais dans des Battle Royales Epiques !",
+            "status": "Ouvert",
+            "capacity": "20",
+            "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764100234918_Design_sans_titre.jpg"
+        },
+        {
+            "id": 1764100303582,
+            "title": "Soirée Mario Kart sur Switch",
+            "date": "2025-12-12",
+            "location": "Locaux cor-Tech",
+            "description": "Vendredi 12 décembre, de 19h30 à 23h30, prépare tes peaux de banane et tes carapaces pour affronter Peach, Wario ou Luidgi sur les meilleurs circuits de Mario Kart 8 Delux sur Switch.",
+            "status": "Ouvert",
+            "capacity": "30",
+            "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764100302083_Design_sans_titre_2.jpg"
+        }
+    ],
+    "news": [
+        {
+            "id": 1,
+            "title": "🎮 Bienvenue chez Cor-Tech — Le club numérique de Cordemais",
+            "date": "2025-01-01",
+            "tag": "info",
+            "content": "⭐ Événements à venir\n\n🔫 Tournoi Fortnite – Mardi 3 décembre\n\nUn tournoi fun et accessible pour tous les niveaux !\n➡️ Classements + petits lots\n➡️ Ambiance conviviale et sécurisée\n Infos pratiques et inscription via notre page événements.\n\n 🏎️ Soirée Mario Kart – Jeudi 12 décembre \n\nLa soirée incontournable pour finir l’année !\n➡️ Sessions libres + mini-tournoi\n➡️ Pour tous âges\n➡️ Ambiance conviviale, écran géant et manettes fournies\n Infos pratiques et inscription via notre page événements.\n\n 🧡 Rejoignez l’aventure Cor-Tech\n\nAteliers YouTube, jeux vidéo, e-sport, Labo Ludik pour enfants, 3D, informatique, projets créatifs…\nIl y a toujours quelque chose à découvrir ou à apprendre !",
+            "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764109622402_ChatGPT_Image_25_nov._2025_a__21_43_04.png"
+        },
+        {
+            "id": 1764109928805,
+            "title": "Premières créations du labo ludik !",
+            "date": "2025-11-25",
+            "tag": "info",
+            "content": "Ça y est, les premières créations du Labo Ludik viennent tout juste de voir le jour… et elles sont impressionnantes !\nPour inaugurer cette nouvelle saison, les enfants ont réalisé un jeu de parcours électrique, un défi mêlant créativité, logique et précision.\nAu programme :\n🔧 Modélisation 3D pour concevoir les formes et supports du jeu,\n⚡ Initiation à l’électricité pour comprendre comment fonctionne un circuit simple,\n🔋 Découverte du chemin de l’énergie : où elle circule, comment elle s’interrompt, comment elle déclenche une action,\n🎨 et bien sûr une bonne dose d’imagination pour personnaliser leur création !\nUn magnifique projet qui montre déjà tout le potentiel du Labo Ludik : apprendre en créant, comprendre en expérimentant, et repartir fier de ce que l’on a fabriqué soi-même.",
+            "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764111340909_IMG_4553.jpeg"
+        }
+    ],
+    "settings": {
+        "orgName": "Cor-Tech",
+        "themeColor": "#000000",
+        "logoUrl": "https://AliceSavry.github.io/CorTech-Booking/images/1764109258776_Logo_Cor_Tech_n_b.png",
+        "hours": {
+            "school": "Mardi : 9h-12h ; 13h30-18h\nMercredi : 10h-12h ; 13h30-18h\nJeudi : 9h-12h ; 13h30-18h",
+            "holidays": "Lundi : 14h-18h\nMardi : 14h-18h\nMercredi : 14h-18h\nJeudi : 14h-18h\nVendredi : 14h-18h"
+        },
+        "emailjs": {
+            "publicKey": "",
+            "serviceId": "",
+            "templateId": ""
+        },
+        "social": {
+            "facebook": "https://www.facebook.com/profile.php?id=61577815437889",
+            "instagram": "https://www.instagram.com/cortech44/",
+            "tiktok": "https://www.tiktok.com/@cortech44?is_from_webapp=1&sender_device=pc",
+            "youtube": "https://www.youtube.com/@Cor-techYoutube"
+        },
+        "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfkxQG8I94XDBU87iacU_Xi9quFY-hbiT3177YwktG-_VuUHw/viewform?usp=pp_url&entry.1259647626=Nom&entry.2023375045=Mail&entry.1475779178=Tel&entry.748557003=Event",
+        "entryIds": {
+            "nom": "1259647626",
+            "email": "2023375045",
+            "phone": "1475779178",
+            "event": "748557003"
+        }
+    }
+}
