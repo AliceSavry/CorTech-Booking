@@ -11,19 +11,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        :root { 
-            --primary-color: #00FFFF; /* Bleu Néon (défaut) */
-            --font-main: 'Rajdhani', sans-serif; /* Textes standards */
-            --font-title: 'Orbitron', sans-serif; /* Titres principaux */
-        }
-        
-        /* Application des polices */
-        body { font-family: var(--font-main); }
-        h1, h2, h3 { font-family: var(--font-title); }
-
+        :root { --primary-color: #2563eb; }
         .text-primary { color: var(--primary-color); }
         .bg-primary { background-color: var(--primary-color); }
         .border-primary { border-color: var(--primary-color); }
+        /* Application des polices */
+        body { font-family: 'Rajdhani', sans-serif; }
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+
         /* Loader */
         #loading { position: fixed; inset: 0; background: white; z-index: 50; display: flex; justify-content: center; align-items: center; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
@@ -115,14 +110,10 @@
 
     <script>
         let DATA = {};
-        const THEME_COLOR = '#00FFFF'; // Bleu Néon
+        const THEME_COLOR = '#00FFFF'; // Défini par la charte graphique
         
-        // --- VEUILLEZ REMPLACER CES PLACEHOLDERS PAR VOS IDs GOOGLE FORM ---
-        const ENTRY_ID_NOM = "169108047";
-        const ENTRY_ID_EMAIL = "1030002564";
-        const ENTRY_ID_PHONE = "224337788";
-        const ENTRY_ID_EVENT = "801717205";
-        // ---------------------------------------------------------------------
+        // Les IDs sont chargés depuis data.json (DATA.settings.entryIds)
+        // Les constantes ENTRY_ID_X sont retirées du code HTML pour éviter les erreurs.
 
         async function initApp() {
             try {
@@ -146,6 +137,7 @@
 
         function renderApp() {
             const S = DATA.settings;
+            // Met à jour la couleur principale avec celle de la charte ou l'ancienne
             if (S.themeColor) setThemColor(S.themeColor); else setThemColor(THEME_COLOR);
 
             document.getElementById('orgName').textContent = S.orgName || 'Cor-Tech';
@@ -264,9 +256,8 @@
             
             sortedNews.forEach(n => {
                 const date = new Date(n.date).toLocaleDateString('fr-FR');
-                // Limite le contenu à 250 caractères et ajoute "..."
+                // Logique pour l'extrait de 250 caractères
                 const excerpt = n.content.length > 250 ? n.content.substring(0, 250).replace(/\s\S*$/, '') + '...' : n.content;
-
 
                 list.innerHTML += `
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full hover:shadow-xl transition duration-300">
@@ -316,9 +307,11 @@
             // 1. Logique de statut
             let userStatusForEmail = event.status === 'Complet' ? 'Liste d\'attente' : 'Confirmé';
 
-            // 2. Vérification des IDs du formulaire
-            if (ENTRY_ID_EVENT === "VOTRE_ID_EVENT_ICI" || !formUrl || !formUrl.includes('http')) {
-                 alert("Erreur critique: Le lien de soumission (Admin Panel) ou les IDs (Code JS) sont invalides.");
+            // 2. Vérification des IDs du formulaire (on les prend depuis data.json)
+            const entryIds = S.entryIds;
+
+            if (!entryIds?.event || !formUrl || !formUrl.includes('http')) {
+                 alert("Erreur critique: Le lien de soumission ou les IDs du formulaire ne sont pas configurés dans l'Admin Panel.");
                  return;
             }
 
@@ -327,10 +320,10 @@
             const eventInfo = `${event.title} - ${event.date} à ${event.time || ''}`;
             
             const dataToSend = new URLSearchParams();
-            dataToSend.append(`entry.${ENTRY_ID_NOM}`, name);
-            dataToSend.append(`entry.${ENTRY_ID_EMAIL}`, email);
-            dataToSend.append(`entry.${ENTRY_ID_PHONE}`, phone);
-            dataToSend.append(`entry.${ENTRY_ID_EVENT}`, eventInfo);
+            dataToSend.append(`entry.${entryIds.nom}`, name);
+            dataToSend.append(`entry.${entryIds.email}`, email);
+            dataToSend.append(`entry.${entryIds.phone}`, phone);
+            dataToSend.append(`entry.${entryIds.event}`, eventInfo);
 
             const btn = e.target.querySelector('button');
             const oldTxt = btn.innerText;
