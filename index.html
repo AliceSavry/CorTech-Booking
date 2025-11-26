@@ -12,9 +12,9 @@
 
     <style>
         :root { 
-            --primary-color: #2563eb; /* Sera mis à jour par data.json (Couleur) */
-            --font-main: 'Rajdhani', sans-serif;
-            --font-title: 'Orbitron', sans-serif;
+            --primary-color: #00FFFF; /* Bleu Néon (défaut) */
+            --font-main: 'Rajdhani', sans-serif; /* Textes standards */
+            --font-title: 'Orbitron', sans-serif; /* Titres principaux */
         }
         
         /* Application des polices */
@@ -115,7 +115,7 @@
 
     <script>
         let DATA = {};
-        const THEME_COLOR = '#2563eb';
+        const THEME_COLOR = '#00FFFF'; // Bleu Néon
         
         // --- VEUILLEZ REMPLACER CES PLACEHOLDERS PAR VOS IDs GOOGLE FORM ---
         const ENTRY_ID_NOM = "169108047";
@@ -146,8 +146,7 @@
 
         function renderApp() {
             const S = DATA.settings;
-            // Met à jour la couleur principale avec celle de la charte ou l'ancienne
-            if (S.themeColor) setThemColor(S.themeColor); else setThemColor('#00FFFF'); // Utilisation du Bleu Néon comme défaut si non configuré
+            if (S.themeColor) setThemColor(S.themeColor); else setThemColor(THEME_COLOR);
 
             document.getElementById('orgName').textContent = S.orgName || 'Cor-Tech';
             document.getElementById('footerOrgName').textContent = S.orgName || 'Cor-Tech';
@@ -265,8 +264,9 @@
             
             sortedNews.forEach(n => {
                 const date = new Date(n.date).toLocaleDateString('fr-FR');
-                // Logique pour l'extrait de 250 caractères
+                // Limite le contenu à 250 caractères et ajoute "..."
                 const excerpt = n.content.length > 250 ? n.content.substring(0, 250).replace(/\s\S*$/, '') + '...' : n.content;
+
 
                 list.innerHTML += `
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full hover:shadow-xl transition duration-300">
