@@ -26,7 +26,7 @@
         body { font-family: 'Rajdhani', sans-serif; }
         h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 
-        /* Loader adapté au thème sombre */
+        /* Loader adapté au thème sombre et en Néon */
         #loading { position: fixed; inset: 0; background: var(--bg-dark); z-index: 50; display: flex; justify-content: center; align-items: center; }
         .spinner { border: 4px solid #374151; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -97,9 +97,9 @@
             <p id="bookingEventTitle" class="text-gray-600 mb-6 font-medium"></p>
             <form id="bookingForm" onsubmit="handleBooking(event)">
                 <input type="hidden" id="bookingEventId">
-                <input type="text" id="userName" placeholder="Nom Complet" required class="w-full px-3 py-2 border rounded mb-3">
-                <input type="email" id="userEmail" placeholder="Email" required class="w-full px-3 py-2 border rounded mb-3">
-                <input type="tel" id="userPhone" placeholder="Téléphone" class="w-full px-3 py-2 border rounded mb-3">
+                <input type="text" id="userName" placeholder="Nom Complet" required class="w-full px-3 py-2 border rounded mb-3 text-gray-800">
+                <input type="email" id="userEmail" placeholder="Email" required class="w-full px-3 py-2 border rounded mb-3 text-gray-800">
+                <input type="tel" id="userPhone" placeholder="Téléphone" class="w-full px-3 py-2 border rounded mb-3 text-gray-800">
                 <button type="submit" class="w-full bg-primary text-black font-bold py-3 px-4 rounded">Confirmer l'inscription</button>
             </form>
         </div>
@@ -169,7 +169,7 @@
             const socialIcons = [
                 { key: 'facebook', icon: 'fab fa-facebook-square', color: 'text-blue-600' },
                 { key: 'instagram', icon: 'fab fa-instagram', color: 'text-pink-600' },
-                { key: 'tiktok', icon: 'fab fa-tiktok', color: 'text-white' }, // Ajusté pour le thème sombre
+                { key: 'tiktok', icon: 'fab fa-tiktok', color: 'text-gray-200' }, // Clair sur fond sombre
                 { key: 'youtube', icon: 'fab fa-youtube', color: 'text-red-600' }
             ];
 
