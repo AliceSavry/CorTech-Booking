@@ -25,20 +25,20 @@
     ],
     "news": [
         {
-            "id": 1,
-            "title": "🎮 Bienvenue chez Cor-Tech — Le club numérique de Cordemais",
-            "date": "2025-01-01",
-            "tag": "info",
-            "content": "⭐ Événements à venir\n\n🔫 Tournoi Fortnite – Mardi 3 décembre\n\nUn tournoi fun et accessible pour tous les niveaux !\n➡️ Classements + petits lots\n➡️ Ambiance conviviale et sécurisée\n Infos pratiques et inscription via notre page événements.\n\n 🏎️ Soirée Mario Kart – Jeudi 12 décembre \n\nLa soirée incontournable pour finir l’année !\n➡️ Sessions libres + mini-tournoi\n➡️ Pour tous âges\n➡️ Ambiance conviviale, écran géant et manettes fournies\n Infos pratiques et inscription via notre page événements.\n\n 🧡 Rejoignez l’aventure Cor-Tech\n\nAteliers YouTube, jeux vidéo, e-sport, Labo Ludik pour enfants, 3D, informatique, projets créatifs…\nIl y a toujours quelque chose à découvrir ou à apprendre !",
-            "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764109622402_ChatGPT_Image_25_nov._2025_a__21_43_04.png"
-        },
-        {
             "id": 1764109928805,
             "title": "Premières créations du labo ludik !",
             "date": "2025-11-25",
             "tag": "info",
             "content": "Ça y est, les premières créations du Labo Ludik viennent tout juste de voir le jour… et elles sont impressionnantes !\nPour inaugurer cette nouvelle saison, les enfants ont réalisé un jeu de parcours électrique, un défi mêlant créativité, logique et précision.\nAu programme :\n🔧 Modélisation 3D pour concevoir les formes et supports du jeu,\n⚡ Initiation à l’électricité pour comprendre comment fonctionne un circuit simple,\n🔋 Découverte du chemin de l’énergie : où elle circule, comment elle s’interrompt, comment elle déclenche une action,\n🎨 et bien sûr une bonne dose d’imagination pour personnaliser leur création !\nUn magnifique projet qui montre déjà tout le potentiel du Labo Ludik : apprendre en créant, comprendre en expérimentant, et repartir fier de ce que l’on a fabriqué soi-même.",
             "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764111340909_IMG_4553.jpeg"
+        },
+        {
+            "id": 1,
+            "title": "🎮 Bienvenue chez Cor-Tech — Le club numérique de Cordemais",
+            "date": "2025-01-01",
+            "tag": "info",
+            "content": "⭐ Événements à venir\n\n🔫 Tournoi Fortnite – Mardi 3 décembre\n\nUn tournoi fun et accessible pour tous les niveaux !\n➡️ Classements + petits lots\n➡️ Ambiance conviviale et sécurisée\n Infos pratiques et inscription via notre page événements.\n\n 🏎️ Soirée Mario Kart – Jeudi 12 décembre \n\nLa soirée incontournable pour finir l’année !\n➡️ Sessions libres + mini-tournoi\n➡️ Pour tous âges\n➡️ Ambiance conviviale, écran géant et manettes fournies\n Infos pratiques et inscription via notre page événements.\n\n 🧡 Rejoignez l’aventure Cor-Tech\n\nAteliers YouTube, jeux vidéo, e-sport, Labo Ludik pour enfants, 3D, informatique, projets créatifs…\nIl y a toujours quelque chose à découvrir ou à apprendre !",
+            "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764109622402_ChatGPT_Image_25_nov._2025_a__21_43_04.png"
         }
     ],
     "settings": {
