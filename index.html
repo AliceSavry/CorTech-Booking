@@ -7,8 +7,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
-        :root { --primary-color: #2563eb; }
+        :root { 
+            --primary-color: #2563eb; /* Couleur par défaut, mise à jour par data.json */
+            --font-main: 'Rajdhani', sans-serif;
+            --font-title: 'Orbitron', sans-serif;
+        }
+        
+        /* Application des polices */
+        body { font-family: var(--font-main); }
+        h1, h2, h3 { font-family: var(--font-title); }
+
         .text-primary { color: var(--primary-color); }
         .bg-primary { background-color: var(--primary-color); }
         .border-primary { border-color: var(--primary-color); }
@@ -134,7 +146,8 @@
 
         function renderApp() {
             const S = DATA.settings;
-            if (S.themeColor) setThemColor(S.themeColor); else setThemColor(THEME_COLOR);
+            // Met à jour la couleur principale avec celle de la charte ou l'ancienne
+            if (S.themeColor) setThemColor(S.themeColor); else setThemColor('#00FFFF'); // Utilisation du Bleu Néon comme défaut si non configuré
 
             document.getElementById('orgName').textContent = S.orgName || 'Cor-Tech';
             document.getElementById('footerOrgName').textContent = S.orgName || 'Cor-Tech';
