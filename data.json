@@ -4,22 +4,20 @@
             "id": 1764100236051,
             "title": "Tournois Fortnite",
             "date": "2025-12-03",
-            "time": "14:00",
             "location": "Locaux Cor-Tech",
             "description": "Mercredi 3 décembre, de 14h à 18h, viens affronter les joueurs les plus chauds de Cordemais dans des Battle Royales Epiques !",
             "status": "Ouvert",
-            "capacity": "20",
+            "capacity": "12",
             "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764100234918_Design_sans_titre.jpg"
         },
         {
             "id": 1764100303582,
             "title": "Soirée Mario Kart sur Switch",
             "date": "2025-12-12",
-            "time": "19:30",
             "location": "Locaux cor-Tech",
             "description": "Vendredi 12 décembre, de 19h30 à 23h30, prépare tes peaux de banane et tes carapaces pour affronter Peach, Wario ou Luidgi sur les meilleurs circuits de Mario Kart 8 Delux sur Switch.",
             "status": "Ouvert",
-            "capacity": "30",
+            "capacity": "12",
             "image": "https://AliceSavry.github.io/CorTech-Booking/images/1764100302083_Design_sans_titre_2.jpg"
         }
     ],
