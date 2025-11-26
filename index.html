@@ -90,6 +90,8 @@
     <footer class="bg-gray-900 text-gray-400 p-6 mt-12 border-t border-gray-800">
         <div class="max-w-7xl mx-auto text-center">
             <p id="orgFooterName" class="font-bold text-lg text-white mb-1"></p>
+            <p>&copy; <span id="currentYear"></span> Cor-Tech. Tous droits réservés.</p>
+            
             <p class="mt-2 text-sm text-gray-500">
                 <a href="mentions.html" class="text-gray-500 hover:text-primary underline">Mentions Légales</a>
                 | <a href="admin.html" class="text-gray-500 hover:text-primary underline">Administration</a>
@@ -147,7 +149,6 @@
     <script>
         // emailjs.init("YOUR_PUBLIC_KEY"); // La clé sera écrasée par data.json
 
-        // Constante pour la couleur d'accentuation selon la charte, utilisée comme fallback
         const CHARTE_PRIMARY_COLOR = '#00FFFF'; 
 
         let DATA = {};
@@ -174,8 +175,9 @@
                 document.getElementById('mainContent').classList.remove('hidden');
 
             } catch (error) {
-                console.error('Erreur au chargement des données:', error);
-                document.getElementById('loading').innerHTML = '<p class="text-red-500">Erreur de chargement du portail.</p>';
+                // Si le chargement échoue, on affiche l'erreur dans le loader
+                console.error('Erreur critique au chargement des données:', error);
+                document.getElementById('loading').innerHTML = '<p class="text-red-500">Erreur de chargement du portail. (Vérifiez data.json ou votre console F12)</p>';
             }
         }
 
@@ -183,22 +185,25 @@
         function renderApp() {
             const S = SETTINGS;
 
-            // Applique la couleur Néon de la charte (#00FFFF) en priorité si la couleur est le noir (#000000)
+            // Met à jour l'année dans le footer (CORRIGÉ)
+            if (document.getElementById('currentYear')) document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Applique la couleur Néon de la charte (#00FFFF)
             const finalColor = (S.themeColor && S.themeColor !== '#000000') ? S.themeColor : CHARTE_PRIMARY_COLOR;
             setThemColor(finalColor);
 
-            // Logo et Nom
+            // Logo et Nom (Avec vérifications)
             const logoEl = document.getElementById('logoSite');
-            if (S.logoUrl) {
+            if (S.logoUrl && logoEl) {
                 logoEl.src = S.logoUrl;
                 logoEl.classList.remove('hidden');
             }
-            document.getElementById('orgName').textContent = S.orgName || 'Portail Cor-Tech';
-            document.getElementById('orgFooterName').textContent = S.orgName || 'Portail Cor-Tech';
+            if (document.getElementById('orgName')) document.getElementById('orgName').textContent = S.orgName || 'Portail Cor-Tech';
+            if (document.getElementById('orgFooterName')) document.getElementById('orgFooterName').textContent = S.orgName || 'Portail Cor-Tech';
 
             // Horaires
-            document.getElementById('hoursSchool').textContent = S.hours?.school || 'Non défini';
-            document.getElementById('hoursHolidays').textContent = S.hours?.holidays || 'Non défini';
+            if (document.getElementById('hoursSchool')) document.getElementById('hoursSchool').textContent = S.hours?.school || 'Non défini';
+            if (document.getElementById('hoursHolidays')) document.getElementById('hoursHolidays').textContent = S.hours?.holidays || 'Non défini';
 
             // Social
             renderSocialLinks(S.social);
@@ -219,12 +224,14 @@
         // 4. Rendu des liens sociaux
         function renderSocialLinks(social) {
             const list = document.getElementById('socialLinks');
+            if (!list) return;
+
             list.innerHTML = '';
             
             const socialIcons = {
                 facebook: { icon: 'fab fa-facebook-f', color: 'text-blue-600', name: 'Facebook' },
                 instagram: { icon: 'fab fa-instagram', color: 'text-pink-500', name: 'Instagram' },
-                tiktok: { icon: 'fab fa-tiktok', color: 'text-white', name: 'TikTok' }, // Ajout de TikTok
+                tiktok: { icon: 'fab fa-tiktok', color: 'text-white', name: 'TikTok' },
                 youtube: { icon: 'fab fa-youtube', color: 'text-red-600', name: 'YouTube' }
             };
 
@@ -238,12 +245,14 @@
                     `;
                 }
             }
-            if(list.innerHTML === '') document.getElementById('socialContainer').classList.add('hidden');
+            const socialContainer = document.getElementById('socialContainer');
+            if(list.innerHTML === '' && socialContainer) socialContainer.classList.add('hidden');
         }
 
         // 5. Rendu des événements
         function renderEvents() {
             const list = document.getElementById('eventsList');
+            if (!list) return;
             list.innerHTML = '';
 
             const now = new Date();
@@ -251,12 +260,13 @@
                 .filter(evt => evt.status !== 'Annulé' && new Date(evt.date) >= now)
                 .sort((a, b) => new Date(a.date) - new Date(b.date));
 
+            const noEventsEl = document.getElementById('noEvents');
             if (sortedEvents.length === 0) {
-                document.getElementById('noEvents').classList.remove('hidden');
+                if(noEventsEl) noEventsEl.classList.remove('hidden');
                 return;
             }
 
-            document.getElementById('noEvents').classList.add('hidden');
+            if(noEventsEl) noEventsEl.classList.add('hidden');
 
             sortedEvents.forEach(evt => {
                 const eventDate = new Date(evt.date);
@@ -274,7 +284,6 @@
 
                 const buttonText = evt.status === 'Complet' ? "Liste d'attente" : "S'inscrire";
 
-                // *** NOUVEAU STYLE DE CARTE D'ÉVÈNEMENT (Thème sombre) ***
                 const html = `
                     <div class="flex bg-gray-900 p-3 rounded-xl border border-gray-700 hover:shadow-primary hover:border-primary transition">
                         <div class="flex-shrink-0 w-16 h-16 mr-3 rounded-md overflow-hidden border border-gray-600">
@@ -298,26 +307,27 @@
         // 6. Rendu des actualités
         function renderNews() {
             const list = document.getElementById('newsList');
+            if (!list) return;
             list.innerHTML = '';
             
             const sortedNews = NEWS
                 .sort((a, b) => new Date(b.date) - new Date(a.date))
                 .slice(0, 4); // Affiche les 4 dernières actualités
 
+            const noNewsEl = document.getElementById('noNews');
+
             if (sortedNews.length === 0) {
-                document.getElementById('noNews').classList.remove('hidden');
+                if(noNewsEl) noNewsEl.classList.remove('hidden');
                 return;
             }
 
-            document.getElementById('noNews').classList.add('hidden');
+            if(noNewsEl) noNewsEl.classList.add('hidden');
 
             sortedNews.forEach(n => {
                 const date = new Date(n.date).toLocaleDateString('fr-FR');
-                // Logique pour l'extrait de 250 caractères (coupe au dernier mot si besoin)
                 const excerpt = n.content.length > 250 ? n.content.substring(0, 250).replace(/\s\S*$/, '') + '...' : n.content;
 
-                // *** NOUVEAU STYLE DE CARTE D'ACTUALITÉ (Thème sombre) ***
-                list.innerHTML += `
+                const html = `
                     <div class="bg-gray-800 rounded-xl shadow-xl overflow-hidden flex flex-col h-full hover:shadow-2xl hover:shadow-primary transition duration-300 border border-gray-700">
                         ${n.image ? `<img src="${n.image}" alt="${n.title}" class="w-full h-48 object-cover">` : `<div class="w-full h-48 flex items-center justify-center bg-gray-900 text-gray-500 text-lg"><i class="fas fa-info-circle"></i></div>`}
                         <div class="p-5 flex flex-col flex-grow">
@@ -331,6 +341,7 @@
                         </div>
                     </div>
                 `;
+                list.innerHTML += html;
             });
         }
         
@@ -351,14 +362,14 @@
             document.getElementById('formMessage').textContent = '';
             document.getElementById('bookingForm').reset();
 
-            // S'assurer que le focus est sur le premier champ
             setTimeout(() => document.getElementById('nom').focus(), 100);
         }
 
         // 8. Fermeture de la Modale d'Inscription
         function closeBookingModal(event) {
             if (event && event.target.id !== 'modalBooking') return;
-            document.getElementById('modalBooking').classList.add('hidden');
+            const modal = document.getElementById('modalBooking');
+            if(modal) modal.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
         }
 
@@ -382,23 +393,20 @@
             const S = SETTINGS;
 
             if (!eventData || !S.emailjs?.templateId || !S.emailjs?.serviceId) {
-                messageEl.textContent = "Erreur: Le service de réservation n'est pas configuré correctement dans l'administration.";
+                messageEl.textContent = "Erreur: Le service de réservation n'est pas configuré dans l'admin.";
                 messageEl.classList.add('text-red-500');
                 btn.innerHTML = originalBtnText;
                 btn.disabled = false;
                 return;
             }
 
-            // Création du templateParams avec les Entry IDs pour Google Forms via EmailJS
             const entryIds = S.entryIds || {};
             const templateParams = {
-                // Champs pour l'e-mail de confirmation
                 'event_title': eventTitle,
                 'user_name': form.nom.value,
                 'user_email': form.email.value,
                 'user_phone': form.phone.value,
 
-                // Champs pour la base de données (si le template utilise les Entry IDs)
                 [entryIds.nom || 'entry.1000000']: form.nom.value,
                 [entryIds.email || 'entry.1000001']: form.email.value,
                 [entryIds.phone || 'entry.1000002']: form.phone.value,
@@ -406,7 +414,6 @@
             };
 
             try {
-                // Envoi de l'email via EmailJS
                 await emailjs.send(
                     S.emailjs.serviceId, 
                     S.emailjs.templateId, 
@@ -419,7 +426,6 @@
                 
                 form.reset();
                 
-                // Mettre un timeout pour la fermeture de la modale
                 setTimeout(() => {
                     closeBookingModal();
                     messageEl.textContent = '';
@@ -441,7 +447,9 @@
             if (!newsItem) return;
 
             const detailContainer = document.getElementById('newsDetailContent');
-            detailContainer.innerHTML = ''; // Nettoyer l'ancien contenu
+            if (!detailContainer) return;
+
+            detailContainer.innerHTML = '';
 
             const tagClasses = { 'info': 'bg-blue-100 text-blue-800', 'urgent': 'bg-red-100 text-red-800', 'event': 'bg-green-100 text-green-800' };
             const tagText = { 'info': 'Information', 'urgent': 'URGENT', 'event': 'Vie Asso' };
@@ -466,13 +474,14 @@
 
             document.getElementById('modalNewsDetail').classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
-            detailContainer.scrollTop = 0; // Remonter au début
+            detailContainer.scrollTop = 0;
         }
 
         // 11. Fermeture de la Modale d'Actualité
         function closeNewsDetailModal(event) {
             if (event && event.target.id !== 'modalNewsDetail') return;
-            document.getElementById('modalNewsDetail').classList.add('hidden');
+            const modal = document.getElementById('modalNewsDetail');
+            if(modal) modal.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
         }
 
