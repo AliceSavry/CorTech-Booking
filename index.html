@@ -9,10 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* CHARTE GRAPHIQUE COR-TECH */
+        /* --- CHARTE GRAPHIQUE COR-TECH --- */
         :root { 
             --primary-color: #00FFFF; /* Bleu Néon */
             --bg-dark: #111827;
+            --panel-bg: #1f2937;
         }
         body { font-family: 'Rajdhani', sans-serif; background-color: var(--bg-dark); color: #e5e7eb; }
         h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
@@ -21,25 +22,66 @@
         .bg-primary { background-color: var(--primary-color); color: #000; }
         .border-primary { border-color: var(--primary-color); }
         
-        .neon-shadow { box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
-        .neon-button:hover { box-shadow: 0 0 20px var(--primary-color); transform: translateY(-2px); }
-        
-        /* Iframe du jeu */
-        #game-frame {
-            width: 100%;
-            height: 600px;
+        .neon-shadow { box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); }
+        .neon-text { text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+
+        /* --- STYLES ARCADE --- */
+        #arcade-container {
             border: 2px solid var(--primary-color);
             border-radius: 12px;
             overflow: hidden;
+            background: #000;
+            position: relative;
+            aspect-ratio: 16/9; /* Format écran large */
+            max-height: 700px;
         }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block; /* Masque les scrollbars par défaut */
+        }
+
+        /* Boutons de sélection de jeu */
+        .game-btn {
+            background-color: var(--panel-bg);
+            border: 1px solid #374151;
+            color: white;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .game-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
+        }
+
+        .game-btn.active {
+            background-color: var(--primary-color);
+            color: black;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        /* Bouton Notion Principal */
+        .notion-btn:hover { box-shadow: 0 0 20px var(--primary-color); transform: translateY(-2px); }
+
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <nav class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+    <nav class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <h1 class="text-3xl font-bold text-white tracking-wider">COR-TECH</h1>
+                <h1 class="text-3xl font-bold text-white tracking-wider neon-text">COR-TECH</h1>
             </div>
             <a href="mailto:accueil@cor-tech.fr" class="text-sm text-gray-400 hover:text-primary transition">
                 <i class="fas fa-envelope"></i> Contact
@@ -50,33 +92,75 @@
     <main class="flex-grow">
         
         <section class="max-w-7xl mx-auto px-4 py-12 text-center">
-            <h2 class="text-4xl md:text-6xl font-bold mb-6 text-white">L'ASSOCIATION <span class="text-primary">NUMÉRIQUE</span></h2>
+            <h2 class="text-4xl md:text-6xl font-bold mb-6 text-white">L'ASSOCIATION <span class="text-primary neon-text">NUMÉRIQUE</span></h2>
             <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-                Retrouvez toutes nos actualités, l'agenda des ateliers et les formulaires d'inscription directement sur notre espace membre Notion.
+                Retrouvez l'agenda des ateliers, les inscriptions et toute la vie de l'association sur notre espace membre Notion.
             </p>
             
-            <div class="flex flex-col md:flex-row gap-6 justify-center">
+            <div class="flex flex-col md:flex-row gap-6 justify-center mb-12">
                 <a href="https://notion.so/ton-lien-ici" target="_blank" 
-                   class="bg-primary neon-button font-bold py-4 px-8 rounded-full text-lg transition duration-300 flex items-center justify-center gap-3">
-                    <i class="fas fa-calendar-alt"></i> VOIR L'AGENDA & S'INSCRIRE
-                </a>
-                
-                <a href="https://notion.so/ton-lien-actus" target="_blank" 
-                   class="border border-primary text-primary hover:bg-gray-800 font-bold py-4 px-8 rounded-full text-lg transition duration-300 flex items-center justify-center gap-3">
-                    <i class="fas fa-newspaper"></i> LES ACTUS
+                   class="bg-primary notion-btn font-bold py-4 px-10 rounded-full text-lg transition duration-300 flex items-center justify-center gap-3">
+                    <i class="fas fa-rocket"></i> ACCÉDER À L'ESPACE MEMBRE
                 </a>
             </div>
         </section>
 
-        <section class="bg-gray-800 py-12 border-t border-gray-700">
-            <div class="max-w-4xl mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold mb-2 text-white"><i class="fas fa-gamepad text-primary"></i> ZONE DÉTENTE</h2>
-                <p class="text-gray-400 mb-6">En attendant le prochain atelier, tentez de battre le record !</p>
-                
-                <div class="neon-shadow rounded-xl">
-                    <iframe id="game-frame" src="game.html" title="Flappy Cor-Tech"></iframe>
+        <section class="bg-gray-800 py-12 border-t border-gray-700 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-color to-transparent opacity-50"></div>
+
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-white"><i class="fas fa-gamepad text-primary"></i> ARCADE COR-TECH</h2>
+                    <p class="text-gray-400">Sélectionnez une cartouche pour lancer le jeu !</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-4">Cliquez dans la zone de jeu pour activer les contrôles.</p>
+                
+                <div id="arcade-container" class="neon-shadow mb-8 bg-black">
+                    <iframe id="game-frame" src="flappy.html" title="Ecran de Jeu" allow="autoplay; fullscreen"></iframe>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    
+                    <button onclick="loadGame('flappy.html', this)" class="game-btn active">
+                        <i class="fas fa-dove text-2xl mb-2"></i>
+                        <span>Flappy Cor-Tech</span>
+                    </button>
+
+                    <button onclick="loadGame('tetris.html', this)" class="game-btn">
+                        <i class="fas fa-cubes text-2xl mb-2"></i>
+                        <span>Tetris 8-Bit</span>
+                    </button>
+
+                    <button onclick="loadGame('candy.html', this)" class="game-btn">
+                        <i class="fas fa-gem text-2xl mb-2"></i>
+                        <span>Candy Crush</span>
+                    </button>
+
+                    <button onclick="loadGame('hockey.html', this)" class="game-btn">
+                        <i class="fas fa-circle text-2xl mb-2"></i>
+                        <span>Air Hockey</span>
+                    </button>
+
+                    <button onclick="loadGame('breakout.html', this)" class="game-btn">
+                        <i class="fas fa-th text-2xl mb-2"></i>
+                        <span>Casse-Briques</span>
+                    </button>
+
+                    <button onclick="loadGame('course.html', this)" class="game-btn">
+                        <i class="fas fa-car text-2xl mb-2"></i>
+                        <span>Cor-Tech Racing</span>
+                    </button>
+
+                    <button onclick="loadGame('sinapse.html', this)" class="game-btn">
+                        <i class="fas fa-brain text-2xl mb-2"></i>
+                        <span>Sinapse</span>
+                    </button>
+
+                    <button onclick="loadGame('reflexe.html', this)" class="game-btn">
+                        <i class="fas fa-bolt text-2xl mb-2"></i>
+                        <span>Réflexe Kawaii</span>
+                    </button>
+
+                </div>
             </div>
         </section>
 
@@ -90,7 +174,30 @@
     </footer>
 
     <script>
+        // Mettre à jour l'année automatiquement
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Fonction pour changer le jeu dans l'iframe
+        function loadGame(filename, btnElement) {
+            // 1. Changer la source de l'iframe
+            const frame = document.getElementById('game-frame');
+            frame.src = filename;
+
+            // 2. Mettre à jour le bouton actif (visuel)
+            // Retire la classe 'active' de tous les boutons
+            const buttons = document.querySelectorAll('.game-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Ajoute la classe 'active' au bouton cliqué
+            if(btnElement) {
+                btnElement.classList.add('active');
+            }
+            
+            // 3. Petit scroll doux vers l'écran de jeu sur mobile
+            if(window.innerWidth < 768) {
+                document.getElementById('arcade-container').scrollIntoView({behavior: 'smooth'});
+            }
+        }
     </script>
 </body>
 </html>
