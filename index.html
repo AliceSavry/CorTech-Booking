@@ -113,23 +113,23 @@
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     
-                    <button onclick="loadGame('flappy.html', this)" class="game-btn active">
+                    <button onclick="loadGame('Flappy.html', this)" class="game-btn active">
                         <i class="fas fa-dove text-2xl mb-2"></i> <span>Flappy</span>
                     </button>
 
-                    <button onclick="loadGame('tetris.html', this)" class="game-btn">
+                    <button onclick="loadGame('tetris 8bit fx.html', this)" class="game-btn">
                         <i class="fas fa-cubes text-2xl mb-2"></i> <span>Tetris</span>
                     </button>
 
-                    <button onclick="loadGame('candy.html', this)" class="game-btn">
+                    <button onclick="loadGame('candy crush .html', this)" class="game-btn">
                         <i class="fas fa-gem text-2xl mb-2"></i> <span>Candy</span>
                     </button>
 
-                    <button onclick="loadGame('hockey.html', this)" class="game-btn">
+                    <button onclick="loadGame('air hockey.html', this)" class="game-btn">
                         <i class="fas fa-circle text-2xl mb-2"></i> <span>Hockey</span>
                     </button>
 
-                    <button onclick="loadGame('breakout.html', this)" class="game-btn">
+                    <button onclick="loadGame('casse brick .html', this)" class="game-btn">
                         <i class="fas fa-th text-2xl mb-2"></i> <span>Casse-Briques</span>
                     </button>
 
@@ -141,14 +141,14 @@
                         <i class="fas fa-brain text-2xl mb-2"></i> <span>Sinapse</span>
                     </button>
 
-                    <button onclick="loadGame('reflexe.html', this)" class="game-btn">
+                    <button onclick="loadGame('reflexe kawaii .html', this)" class="game-btn">
                         <i class="fas fa-bolt text-2xl mb-2"></i> <span>Réflexe</span>
                     </button>
 
                 </div>
                 
                 <div id="arcade-container" class="neon-shadow bg-black">
-                    <iframe id="game-frame" src="flappy.html" title="Ecran de Jeu" allow="autoplay; fullscreen"></iframe>
+                    <iframe id="game-frame" src="Flappy.html" title="Ecran de Jeu" allow="autoplay; fullscreen"></iframe>
                 </div>
             </div>
         </section>
@@ -165,15 +165,8 @@
         function loadGame(filename, btnElement) {
             const frame = document.getElementById('game-frame');
             
-            // Vérification si le fichier existe (Astuce pour debugger)
-            fetch(filename, { method: 'HEAD' })
-            .then(res => {
-                if (res.ok) {
-                    frame.src = filename;
-                } else {
-                    alert("ERREUR 404 : Le fichier '" + filename + "' est introuvable sur GitHub.\n\nVérifiez que le fichier existe bien et qu'il est écrit en MINUSCULES (pas de majuscules !).");
-                }
-            }).catch(err => console.log("Erreur réseau"));
+            // On charge directement le fichier sans vérification préalable (plus d'alerte)
+            frame.src = filename;
 
             // Animation bouton
             const buttons = document.querySelectorAll('.game-btn');
