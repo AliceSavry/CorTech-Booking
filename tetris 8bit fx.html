@@ -1,928 +1,138 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON TETRA BLOCKS</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Press+Start+2P&display=swap" rel="stylesheet">
-
+    <title>Tetris Cor-Tech</title>
     <style>
-        :root {
-            --neon-pink: #ff00ff;
-            --neon-cyan: #00ffff;
-            --neon-yellow: #ffff00;
-            --neon-green: #00ff00;
-            --bg-dark: #0f0f1a;
-        }
-
-        body {
-            background-color: #050505;
-            background-image: 
-                linear-gradient(rgba(15, 15, 26, 0.9), rgba(15, 15, 26, 0.9)),
-                repeating-linear-gradient(0deg, transparent, transparent 2px, #00ffff 2px, #00ffff 4px);
-            background-size: 100% 100%, 100% 4px;
-            color: white;
-            font-family: 'Press Start 2P', cursive;
-            overflow: hidden;
-            touch-action: none;
-            user-select: none;
-        }
-
-        /* CRT Scanline Effect */
-        .crt::before {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 20;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-        }
-
-        .arcade-frame {
-            box-shadow: 
-                0 0 20px var(--neon-pink),
-                inset 0 0 20px var(--neon-cyan);
-            border: 4px solid var(--neon-pink);
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .neon-text-title {
-            font-family: 'Fredoka One', cursive;
-            text-shadow: 
-                0 0 5px #fff,
-                0 0 10px #fff,
-                0 0 20px var(--neon-pink),
-                0 0 30px var(--neon-pink),
-                0 0 40px var(--neon-pink);
-        }
-
-        .neon-text-cyan {
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
-
-        /* Touch Controls */
-        .d-pad-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid var(--neon-cyan);
-            box-shadow: 0 0 10px var(--neon-cyan);
-            border-radius: 50%;
-            transition: transform 0.1s, background 0.1s;
-        }
-        .d-pad-btn:active {
-            transform: scale(0.9);
-            background: rgba(0, 255, 255, 0.3);
-        }
-
-        /* Mute Button */
-        .mute-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 60;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--neon-yellow);
-            color: var(--neon-yellow);
-            padding: 8px;
-            font-size: 12px;
-            cursor: pointer;
-            box-shadow: 0 0 5px var(--neon-yellow);
-        }
-        .mute-btn:hover {
-            background: var(--neon-yellow);
-            color: black;
-        }
-
-        /* Floating Score Animation */
-        .floating-score {
-            position: absolute;
-            color: var(--neon-yellow);
-            font-size: 14px;
-            font-weight: bold;
-            pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
-            text-shadow: 0 0 5px #fff;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
-        }
-
-        canvas {
-            image-rendering: pixelated;
-        }
-
-        .hidden { display: none !important; }
-        
-        /* Leaderboard Table */
-        .leaderboard-table {
-            width: 100%;
-            font-size: 10px;
-            margin-top: 10px;
-            border-collapse: separate;
-            border-spacing: 0 4px;
-        }
-        .leaderboard-table td {
-            padding: 4px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .leaderboard-table tr:first-child td {
-            color: var(--neon-yellow);
-            font-weight: bold;
-        }
+        body { background: #111; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: 'Courier New', monospace; overflow: hidden; }
+        canvas { border: 2px solid #00FFFF; box-shadow: 0 0 20px rgba(0, 255, 255, 0.2); background-color: #000; }
+        #score { font-size: 20px; margin-bottom: 10px; color: #00FFFF; text-shadow: 0 0 5px #00FFFF; }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-center relative">
-
-    <!-- CRT Overlay -->
-    <div class="absolute inset-0 crt pointer-events-none w-full h-full z-50"></div>
-
-    <!-- Mute Button -->
-    <button id="muteBtn" class="mute-btn">SOUND: ON</button>
-
-    <!-- Main Arcade Container -->
-    <div class="relative z-10 w-full max-w-4xl h-full max-h-[95vh] flex flex-col items-center justify-between p-4">
-        
-        <!-- Header -->
-        <header class="mb-4 text-center">
-            <h1 class="text-4xl md:text-6xl neon-text-title tracking-wider text-white">NEON TETRA</h1>
-            <div class="mt-2 text-xs text-cyan-300 neon-text-cyan">80s RETRO EDITION</div>
-        </header>
-
-        <!-- Game Area (Flex Row on Desktop, Col on Mobile) -->
-        <div class="flex flex-col md:flex-row gap-6 items-start justify-center w-full grow">
-            
-            <!-- Left Panel: Stats -->
-            <div class="hidden md:flex flex-col gap-4 w-32 order-2 md:order-1">
-                <div class="arcade-frame p-4 text-center">
-                    <div class="text-[10px] text-yellow-300 mb-2">SCORE</div>
-                    <div id="score-desktop" class="text-white text-sm">0</div>
-                </div>
-                <div class="arcade-frame p-4 text-center">
-                    <div class="text-[10px] text-pink-500 mb-2">TOP</div>
-                    <div id="high-desktop" class="text-white text-sm">0</div>
-                </div>
-                <div class="arcade-frame p-4 text-center">
-                    <div class="text-[10px] text-green-400 mb-2">LEVEL</div>
-                    <div id="level-desktop" class="text-white text-sm">1</div>
-                </div>
-            </div>
-
-            <!-- Center: The Canvas -->
-            <div class="relative arcade-frame p-1 order-1 md:order-2">
-                <!-- Floating Scores Container -->
-                <div id="floatingScores" class="absolute inset-0 pointer-events-none z-40 overflow-hidden"></div>
-
-                <canvas id="gameCanvas" width="300" height="600" class="block bg-black"></canvas>
-                
-                <!-- Start Screen Overlay -->
-                <div id="startScreen" class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-30">
-                    <h2 class="text-2xl text-yellow-400 mb-6 animate-pulse text-center leading-loose">INSERT COIN<br><span class="text-xs text-white">(CLICK TO START)</span></h2>
-                    
-                    <!-- Mini Leaderboard on Start -->
-                    <div class="mb-6 w-4/5">
-                        <h3 class="text-pink-500 text-xs text-center mb-2">TOP 5 PLAYERS</h3>
-                        <table class="leaderboard-table text-cyan-300">
-                            <tbody id="startLeaderboardBody"></tbody>
-                        </table>
-                    </div>
-
-                    <button id="startBtn" class="px-6 py-3 border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition-all font-bold text-sm shadow-[0_0_15px_rgba(0,255,255,0.5)]">PLAY NOW</button>
-                    <div class="mt-4 text-[10px] text-gray-400 text-center max-w-[200px]">
-                        ARROWS to Move<br>UP to Rotate<br>DOWN to Drop
-                    </div>
-                </div>
-
-                <!-- Game Over Overlay -->
-                <div id="gameOverScreen" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center z-30 hidden p-4">
-                    <h2 class="text-3xl text-red-500 mb-2 neon-text-title">GAME OVER</h2>
-                    <div class="text-white mb-4 text-sm">SCORE: <span id="finalScore" class="text-yellow-400">0</span></div>
-                    
-                    <!-- High Score Input Form -->
-                    <div id="highScoreForm" class="hidden flex flex-col items-center mb-4 w-full">
-                        <div class="text-green-400 text-xs animate-bounce mb-2">NEW RECORD! ENTER INITIALS:</div>
-                        <div class="flex gap-2">
-                            <input type="text" id="playerName" maxlength="3" class="bg-black border-2 border-green-400 text-green-400 w-20 text-center uppercase p-1 font-bold outline-none" placeholder="AAA">
-                            <button id="saveScoreBtn" class="bg-green-600 text-white px-3 py-1 text-xs hover:bg-green-500">SAVE</button>
-                        </div>
-                    </div>
-
-                    <!-- Final Leaderboard -->
-                    <div class="w-full mb-4">
-                         <h3 class="text-pink-500 text-xs text-center mb-2">LEADERBOARD</h3>
-                         <table class="leaderboard-table text-cyan-300">
-                            <tbody id="gameOverLeaderboardBody"></tbody>
-                        </table>
-                    </div>
-
-                    <button id="restartBtn" class="mt-2 px-6 py-3 border-2 border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white transition-all font-bold text-sm shadow-[0_0_15px_rgba(255,0,255,0.5)]">TRY AGAIN</button>
-                </div>
-            </div>
-
-            <!-- Right Panel: Next Piece (and mobile stats) -->
-            <div class="flex flex-col gap-4 w-full md:w-32 order-3">
-                <div class="flex justify-between md:flex-col gap-2">
-                    <!-- Mobile Stats -->
-                    <div class="md:hidden flex justify-between w-full px-2">
-                        <div class="text-xs text-yellow-300">SCR:<span id="score-mobile" class="text-white ml-1">0</span></div>
-                        <div class="text-xs text-pink-500">HI:<span id="high-mobile" class="text-white ml-1">0</span></div>
-                    </div>
-
-                    <div class="arcade-frame p-2 text-center w-full flex flex-col items-center justify-center h-24 md:h-32">
-                        <div class="text-[10px] text-cyan-300 mb-2">NEXT</div>
-                        <canvas id="nextCanvas" width="80" height="80" class="bg-black"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Touch Controls (Mobile Only) -->
-        <div class="md:hidden w-full h-32 mt-4 grid grid-cols-3 gap-2 pb-4 z-40">
-            <!-- Left/Down/Right -->
-            <div class="flex flex-col justify-end gap-2 items-center">
-                <button id="btnLeft" class="d-pad-btn w-14 h-14 flex items-center justify-center text-2xl text-cyan-400">←</button>
-            </div>
-            <div class="flex flex-col justify-end gap-2 items-center">
-                <button id="btnDown" class="d-pad-btn w-14 h-14 flex items-center justify-center text-2xl text-cyan-400">↓</button>
-            </div>
-            <div class="flex flex-col justify-end gap-2 items-center">
-                 <button id="btnRight" class="d-pad-btn w-14 h-14 flex items-center justify-center text-2xl text-cyan-400">→</button>
-            </div>
-        </div>
-        <!-- Separate Rotate Button for better ergonomics -->
-        <button id="btnRotate" class="md:hidden absolute bottom-20 right-4 d-pad-btn w-16 h-16 flex items-center justify-center text-xl text-pink-400 border-pink-400 shadow-[0_0_10px_#ff00ff] z-50">↻</button>
-
-    </div>
-
+<body>
+    <div id="score">SCORE: 0</div>
+    <canvas id="tetris" width="240" height="400"></canvas>
     <script>
-        /**
-         * SOUND ENGINE - 8-Bit Chiptune Procedural Audio
-         */
-        class SoundEngine {
-            constructor() {
-                this.ctx = null;
-                this.gainNode = null;
-                this.isMuted = false;
-                this.isPlayingMusic = false;
-                this.tempo = 140; // BPM
-                this.noteTime = 0;
-                this.melodyQueue = [];
-                // Korobeiniki Theme (Tetris A) - Simplified notes
-                // 4 = quarter note, 8 = eighth note
-                this.melody = [
-                    {n:'E5',d:4}, {n:'B4',d:8}, {n:'C5',d:8}, {n:'D5',d:4}, {n:'C5',d:8}, {n:'B4',d:8},
-                    {n:'A4',d:4}, {n:'A4',d:8}, {n:'C5',d:8}, {n:'E5',d:4}, {n:'D5',d:8}, {n:'C5',d:8},
-                    {n:'B4',d:4}, {n:'B4',d:8}, {n:'C5',d:8}, {n:'D5',d:4}, {n:'E5',d:4},
-                    {n:'C5',d:4}, {n:'A4',d:4}, {n:'A4',d:2},
-                    // Part B
-                    {n:'D5',d:4}, {n:'F5',d:8}, {n:'A5',d:4}, {n:'G5',d:8}, {n:'F5',d:8},
-                    {n:'E5',d:4}, {n:'C5',d:8}, {n:'E5',d:4}, {n:'D5',d:8}, {n:'C5',d:8},
-                    {n:'B4',d:4}, {n:'B4',d:8}, {n:'C5',d:8}, {n:'D5',d:4}, {n:'E5',d:4},
-                    {n:'C5',d:4}, {n:'A4',d:4}, {n:'A4',d:2}
-                ];
-                this.melodyIndex = 0;
-                this.nextNoteTime = 0;
-            }
+        const cvs = document.getElementById('tetris');
+        const ctx = cvs.getContext('2d');
+        const ROW = 20, COL = 12, SQ = 20, VACANT = "BLACK";
 
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    this.gainNode = this.ctx.createGain();
-                    this.gainNode.gain.value = 0.1; // Master volume
-                    this.gainNode.connect(this.ctx.destination);
-                }
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-            }
+        function drawSquare(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x*SQ, y*SQ, SQ, SQ);
+            ctx.strokeStyle = "BLACK";
+            ctx.strokeRect(x*SQ, y*SQ, SQ, SQ);
+        }
 
-            toggleMute() {
-                this.isMuted = !this.isMuted;
-                const btn = document.getElementById('muteBtn');
-                if (this.isMuted) {
-                    btn.innerText = "SOUND: OFF";
-                    btn.style.color = "#666";
-                    btn.style.borderColor = "#666";
-                    if(this.ctx) this.ctx.suspend();
-                } else {
-                    btn.innerText = "SOUND: ON";
-                    btn.style.color = "var(--neon-yellow)";
-                    btn.style.borderColor = "var(--neon-yellow)";
-                    if(this.ctx) this.ctx.resume();
-                }
-            }
+        let board = [];
+        for(let r = 0; r < ROW; r++){
+            board[r] = [];
+            for(let c = 0; c < COL; c++){ board[r][c] = VACANT; }
+        }
 
-            getFreq(note) {
-                const notes = {'C':261.63,'D':293.66,'E':329.63,'F':349.23,'G':392.00,'A':440.00,'B':493.88};
-                if (!note) return 0;
-                const key = note.charAt(0);
-                const octave = parseInt(note.charAt(1));
-                let freq = notes[key];
-                if (octave === 5) freq *= 2;
-                if (octave === 3) freq /= 2;
-                return freq;
-            }
-
-            playTone(freq, type = 'square', duration = 0.1, vol = 1.0) {
-                if (!this.ctx || this.isMuted) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                gain.gain.setValueAtTime(vol * 0.1, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + duration);
-            }
-
-            playSFX(type) {
-                if (!this.ctx || this.isMuted) return;
-                switch(type) {
-                    case 'move': this.playTone(200, 'triangle', 0.05, 0.5); break;
-                    case 'rotate': this.playTone(400, 'square', 0.05, 0.6); break;
-                    case 'drop': this.playTone(150, 'sawtooth', 0.1, 0.8); break;
-                    case 'clear': 
-                        this.playTone(600, 'square', 0.1, 0.8);
-                        setTimeout(() => this.playTone(800, 'square', 0.2, 0.8), 100);
-                        break;
-                    case 'tetris':
-                        this.playTone(800, 'square', 0.1, 1);
-                        setTimeout(() => this.playTone(1000, 'square', 0.1, 1), 100);
-                        setTimeout(() => this.playTone(1200, 'square', 0.4, 1), 200);
-                        break;
-                    case 'gameover':
-                        this.playTone(300, 'sawtooth', 0.5, 1);
-                        setTimeout(() => this.playTone(200, 'sawtooth', 0.5, 1), 400);
-                        setTimeout(() => this.playTone(100, 'sawtooth', 1.0, 1), 800);
-                        break;
-                }
-            }
-
-            scheduleMusic() {
-                if (!this.isPlayingMusic || !this.ctx || this.isMuted) return;
-                
-                // Lookahead to schedule notes
-                while (this.nextNoteTime < this.ctx.currentTime + 0.1) {
-                    const noteData = this.melody[this.melodyIndex];
-                    const freq = this.getFreq(noteData.n);
-                    const duration = (60 / this.tempo) * (4 / noteData.d); // duration in seconds
-                    
-                    if (freq > 0) {
-                        const osc = this.ctx.createOscillator();
-                        const gain = this.ctx.createGain();
-                        osc.type = 'square'; // 8-bit sound
-                        osc.frequency.value = freq;
-                        
-                        // Enveloppe courte pour effet staccato
-                        gain.gain.setValueAtTime(0.05, this.nextNoteTime);
-                        gain.gain.exponentialRampToValueAtTime(0.001, this.nextNoteTime + duration * 0.9);
-                        
-                        osc.connect(gain);
-                        gain.connect(this.ctx.destination);
-                        osc.start(this.nextNoteTime);
-                        osc.stop(this.nextNoteTime + duration);
-                    }
-
-                    this.nextNoteTime += duration;
-                    this.melodyIndex = (this.melodyIndex + 1) % this.melody.length;
-                }
-            }
-
-            startMusic() {
-                if (!this.ctx) this.init();
-                this.isPlayingMusic = true;
-                this.nextNoteTime = this.ctx.currentTime;
-                this.melodyIndex = 0;
-            }
-
-            stopMusic() {
-                this.isPlayingMusic = false;
+        function drawBoard(){
+            for(let r = 0; r < ROW; r++){
+                for(let c = 0; c < COL; c++){ drawSquare(c, r, board[r][c]); }
             }
         }
 
-        /**
-         * GAME LOGIC
-         */
-        const COLS = 10;
-        const ROWS = 20;
-        const BLOCK_SIZE = 30; // Base size, scaled by canvas CSS
-
-        // Tetromino definitions
-        const SHAPES = [
-            [[1, 1, 1, 1]],             // I
-            [[1, 0, 0], [1, 1, 1]],     // J
-            [[0, 0, 1], [1, 1, 1]],     // L
-            [[1, 1], [1, 1]],           // O
-            [[0, 1, 1], [1, 1, 0]],     // S
-            [[0, 1, 0], [1, 1, 1]],     // T
-            [[1, 1, 0], [0, 1, 1]]      // Z
-        ];
-
-        const COLORS = [
-            '#00ffff', // I - Cyan
-            '#3b82f6', // J - Blue
-            '#f97316', // L - Orange
-            '#ffff00', // O - Yellow
-            '#22c55e', // S - Green
-            '#d946ef', // T - Purple
-            '#ef4444'  // Z - Red
-        ];
-
-        class TetrisGame {
-            constructor() {
-                this.canvas = document.getElementById('gameCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.nextCanvas = document.getElementById('nextCanvas');
-                this.nextCtx = this.nextCanvas.getContext('2d');
-                
-                this.audio = new SoundEngine();
-                
-                this.grid = this.createGrid();
-                this.score = 0;
-                this.level = 1;
-                this.lines = 0;
-                
-                // Leaderboard system
-                this.leaderboard = this.loadLeaderboard();
-                this.highScore = this.leaderboard.length > 0 ? this.leaderboard[0].score : 0;
-                
-                this.gameOver = false;
-                this.isPaused = false;
-                
-                // Animation loop
-                this.lastTime = 0;
-                this.dropCounter = 0;
-                this.dropInterval = 1000;
-                
-                this.piece = null;
-                this.nextPieceObj = null;
-                
-                this.updateUI();
-                this.renderLeaderboardTable('startLeaderboardBody');
-                this.setupInputs();
-                
-                this.particles = [];
-            }
-
-            createGrid() {
-                return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-            }
-
-            loadLeaderboard() {
-                const stored = localStorage.getItem('neonTetrisLB');
-                if (stored) return JSON.parse(stored);
-                // Default high scores
-                return [
-                    { name: 'NEO', score: 2000 },
-                    { name: 'ARC', score: 1500 },
-                    { name: 'ADE', score: 1000 },
-                    { name: 'RET', score: 500 },
-                    { name: 'RO_', score: 100 }
-                ];
-            }
-
-            saveLeaderboard(name, score) {
-                this.leaderboard.push({ name, score });
-                this.leaderboard.sort((a, b) => b.score - a.score);
-                this.leaderboard = this.leaderboard.slice(0, 5); // Keep top 5
-                localStorage.setItem('neonTetrisLB', JSON.stringify(this.leaderboard));
-                this.highScore = this.leaderboard[0].score;
-            }
-
-            checkHighScore(score) {
-                if (this.leaderboard.length < 5) return true;
-                return score > this.leaderboard[this.leaderboard.length - 1].score;
-            }
-
-            reset() {
-                this.grid = this.createGrid();
-                this.score = 0;
-                this.level = 1;
-                this.lines = 0;
-                this.dropInterval = 1000;
-                this.gameOver = false;
-                this.audio.tempo = 140;
-                this.particles = [];
-                
-                this.piece = this.randomPiece();
-                this.nextPieceObj = this.randomPiece();
-                
-                this.audio.startMusic();
-                this.updateUI();
-                
-                document.getElementById('gameOverScreen').classList.add('hidden');
-                document.getElementById('startScreen').classList.add('hidden');
-                document.getElementById('floatingScores').innerHTML = ''; // Clear floaters
-                
-                this.loop();
-            }
-
-            randomPiece() {
-                const typeId = Math.floor(Math.random() * SHAPES.length);
-                return {
-                    shape: SHAPES[typeId],
-                    color: COLORS[typeId],
-                    x: Math.floor(COLS / 2) - Math.floor(SHAPES[typeId][0].length / 2),
-                    y: 0,
-                    typeId: typeId // Needed to store color in grid
-                };
-            }
-
-            drawBlock(ctx, x, y, color, size, isGhost = false) {
-                if (isGhost) {
-                    ctx.fillStyle = 'transparent';
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(x * size, y * size, size, size);
-                    ctx.fillStyle = color + '22';
-                    ctx.fillRect(x * size, y * size, size, size);
-                } else {
-                    ctx.fillStyle = color;
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = color;
-                    ctx.fillRect(x * size, y * size, size, size);
-                    ctx.shadowBlur = 0;
-                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-                    ctx.fillRect(x * size, y * size, size, 2);
-                    ctx.fillRect(x * size, y * size, 2, size);
-                    ctx.fillStyle = 'rgba(0,0,0,0.4)';
-                    ctx.fillRect(x * size + size - 2, y * size, 2, size);
-                    ctx.fillRect(x * size, y * size + size - 2, size, 2);
-                }
-            }
-
-            draw() {
-                this.ctx.fillStyle = '#000';
-                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-                this.grid.forEach((row, y) => {
-                    row.forEach((value, x) => {
-                        if (value !== 0) {
-                            this.drawBlock(this.ctx, x, y, value, BLOCK_SIZE);
-                        }
-                    });
-                });
-                
-                this.ctx.strokeStyle = '#1a1a2e';
-                this.ctx.lineWidth = 1;
-                for(let i=0; i<=COLS; i++) {
-                    this.ctx.beginPath(); this.ctx.moveTo(i*BLOCK_SIZE,0); this.ctx.lineTo(i*BLOCK_SIZE, this.canvas.height); this.ctx.stroke();
-                }
-                for(let i=0; i<=ROWS; i++) {
-                    this.ctx.beginPath(); this.ctx.moveTo(0, i*BLOCK_SIZE); this.ctx.lineTo(this.canvas.width, i*BLOCK_SIZE); this.ctx.stroke();
-                }
-
-                if (this.piece) {
-                    const ghost = { ...this.piece };
-                    while (!this.collide(ghost)) {
-                        ghost.y++;
-                    }
-                    ghost.y--; 
-                    
-                    if (ghost.y > this.piece.y) {
-                        ghost.shape.forEach((row, y) => {
-                            row.forEach((value, x) => {
-                                if (value) {
-                                    this.drawBlock(this.ctx, ghost.x + x, ghost.y + y, this.piece.color, BLOCK_SIZE, true);
-                                }
-                            });
-                        });
-                    }
-                }
-
-                if (this.piece) {
-                    this.piece.shape.forEach((row, y) => {
-                        row.forEach((value, x) => {
-                            if (value) {
-                                this.drawBlock(this.ctx, this.piece.x + x, this.piece.y + y, this.piece.color, BLOCK_SIZE);
-                            }
-                        });
-                    });
-                }
-
-                this.particles.forEach((p, index) => {
-                    this.ctx.fillStyle = p.color;
-                    this.ctx.globalAlpha = p.life;
-                    this.ctx.fillRect(p.x, p.y, p.size, p.size);
-                    this.ctx.globalAlpha = 1.0;
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.life -= 0.05;
-                    if(p.life <= 0) this.particles.splice(index, 1);
-                });
-
-                this.nextCtx.fillStyle = '#000';
-                this.nextCtx.fillRect(0, 0, this.nextCanvas.width, this.nextCanvas.height);
-                if (this.nextPieceObj) {
-                    const scale = 20;
-                    const offsetX = (this.nextCanvas.width - this.nextPieceObj.shape[0].length * scale) / 2;
-                    const offsetY = (this.nextCanvas.height - this.nextPieceObj.shape.length * scale) / 2;
-                    
-                    this.nextPieceObj.shape.forEach((row, y) => {
-                        row.forEach((value, x) => {
-                            if (value) {
-                                this.drawBlock(this.nextCtx, x + offsetX/scale, y + offsetY/scale, this.nextPieceObj.color, scale);
-                            }
-                        });
-                    });
-                }
-            }
-
-            collide(piece) {
-                for (let y = 0; y < piece.shape.length; ++y) {
-                    for (let x = 0; x < piece.shape[y].length; ++x) {
-                        if (piece.shape[y][x] !== 0 &&
-                            (this.grid[piece.y + y] &&
-                            this.grid[piece.y + y][piece.x + x]) !== 0) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-
-            merge() {
-                this.piece.shape.forEach((row, y) => {
-                    row.forEach((value, x) => {
-                        if (value) {
-                            this.grid[this.piece.y + y][this.piece.x + x] = this.piece.color;
-                        }
-                    });
-                });
-            }
-
-            rotate() {
-                const rotatedShape = this.piece.shape[0].map((val, index) =>
-                    this.piece.shape.map(row => row[index]).reverse()
-                );
-                const prevShape = this.piece.shape;
-                
-                this.piece.shape = rotatedShape;
-                
-                if (this.collide(this.piece)) {
-                    this.piece.x++;
-                    if (this.collide(this.piece)) {
-                        this.piece.x -= 2;
-                        if (this.collide(this.piece)) {
-                            this.piece.x++;
-                            this.piece.shape = prevShape;
-                            return;
-                        }
-                    }
-                }
-                this.audio.playSFX('rotate');
-            }
-
-            showFloatingScore(points) {
-                const container = document.getElementById('floatingScores');
-                const el = document.createElement('div');
-                el.classList.add('floating-score');
-                el.innerText = `+${points}`;
-                // Random position near center-top of game area
-                el.style.left = `${Math.random() * 100 + 100}px`;
-                el.style.top = `${this.piece.y * 30}px`; // Approximate Y pos
-                container.appendChild(el);
-                setTimeout(() => el.remove(), 1000);
-            }
-
-            arenaSweep() {
-                let rowCount = 0;
-                
-                outer: for (let y = this.grid.length - 1; y > 0; --y) {
-                    for (let x = 0; x < this.grid[y].length; ++x) {
-                        if (this.grid[y][x] === 0) {
-                            continue outer;
-                        }
-                    }
-                    
-                    const row = this.grid.splice(y, 1)[0].fill(0);
-                    this.grid.unshift(row);
-                    ++y;
-                    rowCount++;
-                    this.spawnParticles(y * BLOCK_SIZE);
-                }
-
-                if (rowCount > 0) {
-                    this.lines += rowCount;
-                    
-                    const lineScores = [0, 40, 100, 300, 1200];
-                    const points = lineScores[rowCount] * this.level;
-                    this.score += points;
-                    this.showFloatingScore(points);
-                    
-                    this.level = Math.floor(this.lines / 10) + 1;
-                    this.dropInterval = Math.max(100, 1000 - (this.level * 50));
-                    this.audio.tempo = Math.min(200, 140 + (this.level * 5));
-                    
-                    this.updateUI();
-                    
-                    if (rowCount === 4) {
-                        this.audio.playSFX('tetris');
-                        confetti({
-                            particleCount: 100,
-                            spread: 70,
-                            origin: { y: 0.6 },
-                            colors: ['#ff00ff', '#00ffff']
-                        });
-                    } else {
-                        this.audio.playSFX('clear');
-                    }
-                }
-            }
-            
-            spawnParticles(yPos) {
-                for(let i=0; i<20; i++) {
-                    this.particles.push({
-                        x: Math.random() * this.canvas.width,
-                        y: yPos + (Math.random() * BLOCK_SIZE),
-                        vx: (Math.random() - 0.5) * 10,
-                        vy: (Math.random() - 0.5) * 10,
-                        life: 1.0,
-                        color: '#fff',
-                        size: Math.random() * 4 + 2
-                    });
-                }
-            }
-
-            playerDrop() {
-                this.piece.y++;
-                if (this.collide(this.piece)) {
-                    this.piece.y--;
-                    this.merge();
-                    this.audio.playSFX('drop');
-                    this.arenaSweep();
-                    
-                    this.piece = this.nextPieceObj;
-                    this.nextPieceObj = this.randomPiece();
-                    
-                    if (this.collide(this.piece)) {
-                        this.handleGameOver();
-                    }
-                }
-                this.dropCounter = 0;
-            }
-
-            handleGameOver() {
-                this.gameOver = true;
-                this.audio.stopMusic();
-                this.audio.playSFX('gameover');
-                document.getElementById('finalScore').innerText = this.score;
-                
-                const goScreen = document.getElementById('gameOverScreen');
-                const form = document.getElementById('highScoreForm');
-                const restartBtn = document.getElementById('restartBtn');
-                
-                goScreen.classList.remove('hidden');
-                
-                // Update Leaderboard Table
-                this.renderLeaderboardTable('gameOverLeaderboardBody');
-
-                if (this.checkHighScore(this.score)) {
-                    form.classList.remove('hidden');
-                    form.classList.add('flex');
-                    restartBtn.classList.add('hidden'); // Hide restart until saved
-                    document.getElementById('playerName').value = '';
-                    document.getElementById('playerName').focus();
-                } else {
-                    form.classList.add('hidden');
-                    form.classList.remove('flex');
-                    restartBtn.classList.remove('hidden');
-                }
-            }
-
-            renderLeaderboardTable(elementId) {
-                const tbody = document.getElementById(elementId);
-                tbody.innerHTML = '';
-                this.leaderboard.forEach((entry, index) => {
-                    const row = `<tr>
-                        <td class="text-right w-8">${index + 1}.</td>
-                        <td class="text-center w-16">${entry.name}</td>
-                        <td class="text-right">${entry.score}</td>
-                    </tr>`;
-                    tbody.innerHTML += row;
-                });
-            }
-
-            playerMove(dir) {
-                this.piece.x += dir;
-                if (this.collide(this.piece)) {
-                    this.piece.x -= dir;
-                } else {
-                    this.audio.playSFX('move');
-                }
-            }
-
-            update(deltaTime) {
-                if (this.gameOver) return;
-
-                this.dropCounter += deltaTime;
-                if (this.dropCounter > this.dropInterval) {
-                    this.playerDrop();
-                }
-                
-                this.audio.scheduleMusic();
-            }
-
-            loop(time = 0) {
-                if (this.gameOver) return;
-                
-                const deltaTime = time - this.lastTime;
-                this.lastTime = time;
-
-                this.update(deltaTime);
-                this.draw();
-
-                requestAnimationFrame(this.loop.bind(this));
-            }
-
-            updateUI() {
-                ['desktop', 'mobile'].forEach(suffix => {
-                    const s = document.getElementById(`score-${suffix}`);
-                    if(s) s.innerText = this.score;
-                    const h = document.getElementById(`high-${suffix}`);
-                    if(h) h.innerText = this.highScore;
-                });
-                document.getElementById('level-desktop').innerText = this.level;
-            }
-
-            setupInputs() {
-                document.addEventListener('keydown', event => {
-                    if (this.gameOver) return;
-                    if (document.getElementById('startScreen').classList.contains('hidden') === false) return;
-
-                    switch(event.keyCode) {
-                        case 37: this.playerMove(-1); break;
-                        case 39: this.playerMove(1); break;
-                        case 40: this.playerDrop(); break;
-                        case 38: this.rotate(); break;
-                    }
-                });
-
-                const bindBtn = (id, action) => {
-                    const btn = document.getElementById(id);
-                    if (!btn) return;
-                    
-                    const trigger = (e) => {
-                        e.preventDefault();
-                        if (this.gameOver || !document.getElementById('startScreen').classList.contains('hidden')) return;
-                        action();
-                    };
-
-                    btn.addEventListener('mousedown', trigger);
-                    btn.addEventListener('touchstart', trigger);
-                };
-
-                bindBtn('btnLeft', () => this.playerMove(-1));
-                bindBtn('btnRight', () => this.playerMove(1));
-                bindBtn('btnDown', () => this.playerDrop());
-                bindBtn('btnRotate', () => this.rotate());
-
-                const startGame = () => {
-                    this.audio.init();
-                    this.reset();
-                };
-                
-                document.getElementById('startBtn').addEventListener('click', startGame);
-                
-                // Mute Button
-                document.getElementById('muteBtn').addEventListener('click', (e) => {
-                    e.preventDefault(); // Focus handling
-                    this.audio.toggleMute();
-                });
-
-                // Save Score Button
-                document.getElementById('saveScoreBtn').addEventListener('click', () => {
-                    const nameInput = document.getElementById('playerName');
-                    let name = nameInput.value.toUpperCase() || 'UNK';
-                    this.saveLeaderboard(name, this.score);
-                    this.renderLeaderboardTable('gameOverLeaderboardBody');
-                    
-                    document.getElementById('highScoreForm').classList.add('hidden');
-                    document.getElementById('highScoreForm').classList.remove('flex');
-                    document.getElementById('restartBtn').classList.remove('hidden');
-                });
-                
-                document.getElementById('restartBtn').addEventListener('click', startGame);
-            }
+        const PIECES = [ [Z,"red"], [S,"green"], [T,"#00FFFF"], [O,"yellow"], [L,"purple"], [I,"cyan"], [J,"orange"] ];
+        function randomPiece(){
+            let r = Math.floor(Math.random() * PIECES.length);
+            return new Piece(PIECES[r][0], PIECES[r][1]);
         }
 
-        const game = new TetrisGame();
+        // Formes simplifiées
+        var Z = [[[1,1,0],[0,1,1],[0,0,0]], [[0,0,1],[0,1,1],[0,1,0]], [[0,0,0],[1,1,0],[0,1,1]], [[0,1,0],[1,1,0],[1,0,0]]];
+        var S = [[[0,1,1],[1,1,0],[0,0,0]], [[0,1,0],[0,1,1],[0,0,1]], [[0,0,0],[0,1,1],[1,1,0]], [[1,0,0],[1,1,0],[0,1,0]]];
+        var J = [[[1,0,0],[1,1,1],[0,0,0]], [[0,1,1],[0,1,0],[0,1,0]], [[0,0,0],[1,1,1],[0,0,1]], [[0,1,0],[0,1,0],[1,1,0]]];
+        var T = [[[0,1,0],[1,1,1],[0,0,0]], [[0,1,0],[0,1,1],[0,1,0]], [[0,0,0],[1,1,1],[0,1,0]], [[0,1,0],[1,1,0],[0,1,0]]];
+        var L = [[[0,0,1],[1,1,1],[0,0,0]], [[0,1,0],[0,1,0],[0,1,1]], [[0,0,0],[1,1,1],[1,0,0]], [[1,1,0],[0,1,0],[0,1,0]]];
+        var I = [[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]], [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]]];
+        var O = [[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]]];
 
+        function Piece(tetromino, color){
+            this.tetromino = tetromino;
+            this.color = color;
+            this.tetrominoN = 0;
+            this.activeTetromino = this.tetromino[this.tetrominoN];
+            this.x = 3; this.y = -2;
+        }
+
+        Piece.prototype.fill = function(color){
+            for(let r = 0; r < this.activeTetromino.length; r++){
+                for(let c = 0; c < this.activeTetromino.length; c++){
+                    if(this.activeTetromino[r][c]) drawSquare(this.x + c, this.y + r, color);
+                }
+            }
+        }
+        Piece.prototype.draw = function(){ this.fill(this.color); }
+        Piece.prototype.unDraw = function(){ this.fill(VACANT); }
+        Piece.prototype.moveDown = function(){
+            if(!this.collision(0,1,this.activeTetromino)){
+                this.unDraw(); this.y++; this.draw();
+            }else{
+                this.lock(); p = randomPiece();
+            }
+        }
+        Piece.prototype.moveRight = function(){ if(!this.collision(1,0,this.activeTetromino)){ this.unDraw(); this.x++; this.draw(); } }
+        Piece.prototype.moveLeft = function(){ if(!this.collision(-1,0,this.activeTetromino)){ this.unDraw(); this.x--; this.draw(); } }
+        Piece.prototype.rotate = function(){
+            let nextPattern = this.tetromino[(this.tetrominoN + 1)%this.tetromino.length];
+            if(!this.collision(0,0,nextPattern)){
+                this.unDraw(); this.tetrominoN = (this.tetrominoN + 1)%this.tetromino.length;
+                this.activeTetromino = this.tetromino[this.tetrominoN]; this.draw();
+            }
+        }
+        Piece.prototype.collision = function(x,y,piece){
+            for(let r = 0; r < piece.length; r++){
+                for(let c = 0; c < piece.length; c++){
+                    if(!piece[r][c]) continue;
+                    let newX = this.x + c + x;
+                    let newY = this.y + r + y;
+                    if(newX < 0 || newX >= COL || newY >= ROW) return true;
+                    if(newY < 0) continue;
+                    if(board[newY][newX] != VACANT) return true;
+                }
+            }
+            return false;
+        }
+        Piece.prototype.lock = function(){
+            for(let r = 0; r < this.activeTetromino.length; r++){
+                for(let c = 0; c < this.activeTetromino.length; c++){
+                    if(!this.activeTetromino[r][c]) continue;
+                    if(this.y + r < 0){ alert("Game Over"); board = []; for(let r=0;r<ROW;r++){board[r]=[];for(let c=0;c<COL;c++)board[r][c]=VACANT;} score=0; }
+                    else board[this.y+r][this.x+c] = this.color;
+                }
+            }
+            for(let r = 0; r < ROW; r++){
+                let isRowFull = true;
+                for(let c = 0; c < COL; c++) isRowFull = isRowFull && (board[r][c] != VACANT);
+                if(isRowFull){
+                    for(let y = r; y > 1; y--) for(let c = 0; c < COL; c++) board[y][c] = board[y-1][c];
+                    for(let c = 0; c < COL; c++) board[0][c] = VACANT;
+                    score += 10;
+                }
+            }
+            drawBoard();
+            document.getElementById('score').innerHTML = "SCORE: " + score;
+        }
+
+        let p = randomPiece();
+        let score = 0;
+        document.addEventListener("keydown",CONTROL);
+        function CONTROL(event){
+            if(event.keyCode == 37) p.moveLeft();
+            else if(event.keyCode == 38) p.rotate();
+            else if(event.keyCode == 39) p.moveRight();
+            else if(event.keyCode == 40) p.moveDown();
+        }
+        let dropStart = Date.now();
+        function drop(){
+            let now = Date.now();
+            if(now - dropStart > 1000){ p.moveDown(); dropStart = Date.now(); }
+            requestAnimationFrame(drop);
+        }
+        drawBoard(); drop();
     </script>
 </body>
 </html>
