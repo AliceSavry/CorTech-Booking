@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Flappy Cor-Tech HD Optimized</title>
+    <title>Flappy Cor-Tech 1080x1920</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka+One&display=swap');
 
@@ -18,16 +18,22 @@
             touch-action: none;
             -webkit-user-select: none;
             user-select: none;
-            /* Optimisation curseur */
             cursor: pointer;
+            /* Centrer le canvas */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #game-container {
             position: relative;
-            width: 100%;
+            /* On force le ratio 9:16 via le canvas, le conteneur s'adapte */
+            width: auto;
             height: 100%;
+            aspect-ratio: 9/16;
+            max-width: 100%;
             background-color: #4FC3F7;
-            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
         canvas {
@@ -58,7 +64,7 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            max-width: 500px;
+            max-width: 800px; /* Plus large pour la HD */
             padding: 20px;
         }
 
@@ -77,11 +83,11 @@
 
         h1 {
             font-family: 'Fredoka One', cursive;
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            margin-bottom: 2vh;
+            font-size: 3.5rem; /* Taille fixe relative à la résolution 1080p */
+            margin-bottom: 30px;
             color: #FFEB3B;
-            -webkit-text-stroke: 2px #000;
-            text-shadow: 0.5rem 0.5rem 0 #e65100;
+            -webkit-text-stroke: 3px #000;
+            text-shadow: 8px 8px 0 #e65100;
             animation: bounceTitle 2s infinite ease-in-out;
             line-height: 1.1;
             text-align: center;
@@ -99,10 +105,10 @@
             width: 100%;
             text-align: center;
             font-family: 'Fredoka One', cursive;
-            font-size: clamp(3rem, 10vw, 5rem);
+            font-size: 6rem;
             color: white;
-            -webkit-text-stroke: 2px #000;
-            text-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+            -webkit-text-stroke: 4px #000;
+            text-shadow: 6px 6px 0 rgba(0,0,0,0.3);
             z-index: 5;
             pointer-events: none;
             transition: transform 0.1s;
@@ -112,13 +118,13 @@
 
         #demo-indicator {
             position: absolute;
-            bottom: 5vh;
+            bottom: 50px;
             width: 100%;
             text-align: center;
             color: white;
             font-family: 'Press Start 2P', cursive;
-            font-size: clamp(0.6rem, 2vw, 1rem);
-            text-shadow: 2px 2px 0 #000;
+            font-size: 1.2rem;
+            text-shadow: 3px 3px 0 #000;
             animation: pulse 1s infinite;
             display: none;
             z-index: 30;
@@ -129,73 +135,82 @@
             font-family: 'Press Start 2P', cursive;
             background: #FFEB3B;
             color: #000;
-            border: 4px solid #000;
-            padding: 1.2rem 2rem;
-            font-size: clamp(0.7rem, 2.5vw, 1rem);
+            border: 5px solid #000;
+            padding: 25px 40px;
+            font-size: 1.2rem;
             cursor: pointer;
-            margin-top: 2vh;
-            border-radius: 12px;
-            box-shadow: 0 0.5rem 0 #F57F17;
+            margin-top: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 0 #F57F17;
             transition: all 0.1s;
             text-transform: uppercase;
             width: 80%;
-            max-width: 300px;
+            max-width: 500px;
         }
 
-        .menu-btn:active { box-shadow: 0 0.2rem 0 #F57F17; transform: translateY(0.3rem); }
-        .menu-btn.primary { background: #00E676; box-shadow: 0 0.5rem 0 #00aa55; }
-        .menu-btn.primary:active { box-shadow: 0 0.2rem 0 #00aa55; }
-        .menu-btn.secondary { background: #FFF; box-shadow: 0 0.5rem 0 #ccc; }
-        .menu-btn.secondary:active { box-shadow: 0 0.2rem 0 #ccc; }
+        .menu-btn:active { box-shadow: 0 4px 0 #F57F17; transform: translateY(4px); }
+        .menu-btn.primary { background: #00E676; box-shadow: 0 8px 0 #00aa55; }
+        .menu-btn.primary:active { box-shadow: 0 4px 0 #00aa55; }
+        .menu-btn.secondary { background: #FFF; box-shadow: 0 8px 0 #ccc; }
+        .menu-btn.secondary:active { box-shadow: 0 4px 0 #ccc; }
 
         #leaderboard-screen {
             background: rgba(0,0,0,0.85);
-            padding: 30px;
-            border-radius: 20px;
-            border: 4px solid #fff;
+            padding: 40px;
+            border-radius: 25px;
+            border: 5px solid #fff;
             backdrop-filter: blur(8px);
             width: 90%;
-            max-width: 400px;
+            max-width: 600px;
         }
 
-        .leaderboard-box { width: 100%; margin-bottom: 20px; }
+        .leaderboard-box { width: 100%; margin-bottom: 30px; }
         .leaderboard-row {
             display: flex;
             justify-content: space-between;
-            font-size: clamp(0.7rem, 3vw, 0.9rem);
-            margin: 1.5vh 0;
+            font-size: 1.1rem;
+            margin: 15px 0;
             color: #fff;
-            border-bottom: 2px dotted #555;
-            padding-bottom: 5px;
+            border-bottom: 3px dotted #555;
+            padding-bottom: 8px;
         }
         .leaderboard-row:first-child { color: #FFEB3B; font-weight: bold; }
 
-        #new-record-section { display: none; margin-bottom: 15px; width: 100%; flex-direction:column; align-items:center;}
+        #new-record-section { display: none; margin-bottom: 20px; width: 100%; flex-direction:column; align-items:center;}
         input[type="text"] {
             font-family: 'Press Start 2P', cursive;
             background: #fff;
-            border: 4px solid #000;
+            border: 5px solid #000;
             color: #000;
-            padding: 15px;
+            padding: 20px;
             width: 90%;
             text-transform: uppercase;
-            font-size: 1rem;
+            font-size: 1.2rem;
             text-align: center;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            border-radius: 15px;
+            margin-bottom: 20px;
         }
         
         @keyframes blinker { 50% { opacity: 0; } }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         .blink { animation: blinker 0.8s linear infinite; }
 
+        /* Media query pour les écrans très larges pour éviter que le jeu ne soit trop grand */
+        @media (min-aspect-ratio: 9/16) {
+            #game-container {
+                width: auto;
+                height: 100vh;
+                aspect-ratio: 9/16;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div id="game-container">
         <div id="score-display">0</div>
-        <canvas id="gameCanvas"></canvas>
+        <!-- Canvas fixé en 1080x1920 -->
+        <canvas id="gameCanvas" width="1080" height="1920"></canvas>
         <div id="demo-indicator">MODE DÉMO<br>TOUCHER POUR JOUER</div>
         
         <div id="ui-layer">
@@ -203,14 +218,14 @@
                 
                 <div id="start-screen" class="message" style="display: flex;">
                     <h1>FLAPPY<br>COR-TECH</h1>
-                    <p class="blink" style="font-size: clamp(0.6rem, 2vw, 0.8rem); color:#fff; text-shadow:2px 2px 0 #000; margin-bottom: 3vh;">
+                    <p class="blink" style="font-size: 1rem; color:#fff; text-shadow:3px 3px 0 #000; margin-bottom: 40px;">
                         APPUYER POUR DÉCOLLER
                     </p>
                     <button id="btn-show-scores" class="menu-btn">🏆 CLASSEMENT</button>
                 </div>
                 
                 <div id="leaderboard-screen" class="message">
-                    <h2 style="color:#FFEB3B; margin-bottom:2vh; font-family:'Fredoka One'; font-size: 2rem; -webkit-text-stroke: 1px #000;">TOP PILOTES</h2>
+                    <h2 style="color:#FFEB3B; margin-bottom:30px; font-family:'Fredoka One'; font-size: 3rem; -webkit-text-stroke: 2px #000;">TOP PILOTES</h2>
                     <div class="leaderboard-box">
                         <div id="leaderboard-list">Chargement...</div>
                     </div>
@@ -219,15 +234,15 @@
                 
                 <div id="game-over-screen" class="message">
                     <h1 style="color: #FF5252;">BOOM !</h1>
-                    <div style="font-size: 1.5rem; margin-bottom: 2vh; font-family:'Fredoka One';">Score: <span id="final-score" style="color:#FFEB3B">0</span></div>
+                    <div style="font-size: 2rem; margin-bottom: 30px; font-family:'Fredoka One';">Score: <span id="final-score" style="color:#FFEB3B">0</span></div>
                     
                     <div id="new-record-section">
-                        <p style="color: #00E676; font-size:0.8rem; margin-bottom:10px;">NOUVEAU RECORD !</p>
+                        <p style="color: #00E676; font-size:1rem; margin-bottom:15px;">NOUVEAU RECORD !</p>
                         <input type="text" id="player-name" placeholder="TON NOM" maxlength="6">
                         <button id="btn-save" class="menu-btn primary">SAUVEGARDER</button>
                     </div>
 
-                    <div id="replay-prompt" style="margin-top:10px; width: 100%; display:flex; flex-direction:column; align-items:center;">
+                    <div id="replay-prompt" style="margin-top:20px; width: 100%; display:flex; flex-direction:column; align-items:center;">
                         <button id="btn-replay" class="menu-btn primary">REJOUER</button>
                         <button id="btn-home-from-over" class="menu-btn secondary">MENU</button>
                     </div>
@@ -244,10 +259,15 @@
         // Optimisation Canvas pour Safari
         ctx.imageSmoothingEnabled = false;
 
+        // --- CONSTANTES DE RÉSOLUTION FIXE ---
+        const CANVAS_WIDTH = 1080;
+        const CANVAS_HEIGHT = 1920;
+        
+        // Le monde logique est basé sur 480 de large, on scale pour atteindre 1080
         const LOGICAL_WIDTH = 480; 
-        const LOGICAL_HEIGHT = 800; 
-        let scaleRatio = 1;
-        let gameOffsetX = 0;
+        // On calcule la hauteur logique en fonction du ratio fixe
+        const SCALE_RATIO = CANVAS_WIDTH / LOGICAL_WIDTH; // 1080 / 480 = 2.25
+        const LOGICAL_HEIGHT = CANVAS_HEIGHT / SCALE_RATIO; // 1920 / 2.25 = 853.33
         
         const scoreEl = document.getElementById('score-display');
         const startScreen = document.getElementById('start-screen');
@@ -294,7 +314,7 @@
         let frames = 0;
         let score = 0;
         let gameState = 'START';
-        let gameSpeed = 3; 
+        // gameSpeed n'est plus utilisé directement, on utilise pipes.dx pour tout synchroniser
         let isHighscoreInputActive = false;
         
         let shakeAmount = 0;
@@ -306,19 +326,6 @@
         let highScores = JSON.parse(localStorage.getItem('cortechScores')) || [
             {name: "PRO", score: 20}, {name: "DUCK", score: 10}, {name: "COR", score: 5}, {name: "TECH", score: 3}, {name: "NOOB", score: 1}
         ];
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            scaleRatio = canvas.height / LOGICAL_HEIGHT;
-            const scaledWidth = LOGICAL_WIDTH * scaleRatio;
-            gameOffsetX = (canvas.width - scaledWidth) / 2;
-            
-            // Re-appliquer pour Safari après resize
-            ctx.imageSmoothingEnabled = false;
-        }
-        window.addEventListener('resize', resize);
-        resize();
 
         // --- AUDIO OPTIMISÉ SAFARI ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -453,13 +460,13 @@
         const ground = {
             height: 80, x: 0,
             draw: function() {
-                const drawX = -gameOffsetX / scaleRatio;
-                const drawWidth = canvas.width / scaleRatio;
-                ctx.fillStyle = '#66BB6A'; ctx.fillRect(drawX, LOGICAL_HEIGHT - this.height, drawWidth, this.height);
-                ctx.fillStyle = '#43A047'; ctx.fillRect(drawX, LOGICAL_HEIGHT - this.height, drawWidth, 15);
+                // On dessine le sol pour couvrir toute la largeur logique + buffer
+                ctx.fillStyle = '#66BB6A'; ctx.fillRect(0, LOGICAL_HEIGHT - this.height, LOGICAL_WIDTH, this.height);
+                ctx.fillStyle = '#43A047'; ctx.fillRect(0, LOGICAL_HEIGHT - this.height, LOGICAL_WIDTH, 15);
                 ctx.fillStyle = '#fff';
-                this.x = (this.x - gameSpeed) % 60;
-                for(let i = drawX; i < drawWidth + drawX; i+=60) ctx.fillRect(i + (this.x % 60), LOGICAL_HEIGHT - 25, 30, 8);
+                // Synchronisé avec pipes.dx
+                this.x = (this.x - pipes.dx) % 60;
+                for(let i = 0; i < LOGICAL_WIDTH; i+=60) ctx.fillRect(i + (this.x % 60), LOGICAL_HEIGHT - 25, 30, 8);
             }
         };
 
@@ -566,6 +573,8 @@
                             score += 5; playSound('bonus_score'); scoreEl.innerText = score;
                             scoreEl.classList.remove('score-pop'); void scoreEl.offsetWidth; scoreEl.classList.add('score-pop');
                             for(let k=0; k<10; k++) particles.push(new Particle(b.x, b.y, 'bonus'));
+                            // Les bonus de score augmentent aussi la difficulté !
+                            if (score % 5 === 0) { pipes.dx = Math.min(pipes.dx + 0.3, 8); }
                         } else if (b.type === 'shield') {
                             player.hasShield = true; playSound('bonus_shield');
                             for(let k=0; k<10; k++) particles.push(new Particle(b.x, b.y, 'bonus'));
@@ -645,6 +654,13 @@
                             scoreEl.classList.remove('score-pop'); void scoreEl.offsetWidth; scoreEl.classList.add('score-pop');
                             playSound('score'); flashOpacity = 0.5;
                             for(let k=0; k<15; k++) particles.push(new Particle(player.x, player.y - 50, 'score'));
+                            
+                            // DIFFICULTY PROGRESSION
+                            // Augmentation de la vitesse tous les 5 points
+                            if (score % 5 === 0) {
+                                // On cap la vitesse max à 8 pour que ce soit jouable
+                                this.dx = Math.min(this.dx + 0.2, 8);
+                            }
                         }
                         p.passed = true; 
                     }
@@ -658,6 +674,7 @@
             init: function() { this.clouds = [{x: 50, y: 100, s: 1.2}, {x: 300, y: 200, s: 0.8}, {x: 500, y: 80, s: 1}]; },
             draw: function() {
                 ctx.save();
+                // Fond sur TOUT l'écran, pas seulement la zone logique
                 ctx.setTransform(1, 0, 0, 1, 0, 0); 
                 let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
                 grad.addColorStop(0, '#4FC3F7'); grad.addColorStop(1, '#B3E5FC'); 
@@ -675,8 +692,9 @@
             },
             update: function() {
                 this.clouds.forEach(c => {
-                    c.x -= 0.5 * c.s;
-                    if(c.x < -150) c.x = LOGICAL_WIDTH + 150 + (gameOffsetX/scaleRatio)*2; 
+                    // Les nuages accélèrent aussi légèrement avec la difficulté
+                    c.x -= pipes.dx * 0.15 * c.s;
+                    if(c.x < -150) c.x = LOGICAL_WIDTH + 150; 
                 });
             }
         };
@@ -715,7 +733,9 @@
 
         function resetGameEnv() {
             player.y = 300; player.velocity = 0; player.hasShield = false; player.invulnerable = 0;
-            pipes.reset(); bonuses.reset();
+            pipes.reset(); 
+            pipes.dx = 3.5; // Reset vitesse normale au début
+            bonuses.reset();
             score = 0; frames = 0; particles = [];
             scoreEl.innerText = score; gameState = 'START';
             scoreEl.style.display = 'block'; scoreEl.classList.remove('score-pop');
@@ -755,10 +775,16 @@
                 shakeAmount *= 0.9; if(shakeAmount < 0.5) shakeAmount = 0;
             }
 
+            // On efface tout
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             ctx.save();
-            ctx.translate(gameOffsetX + tx, 0 + ty); 
-            ctx.scale(scaleRatio, scaleRatio); 
+            
+            // --- TRANSFORMATIONS ---
+            // 1. Shake
+            ctx.translate(tx, ty);
+            // 2. Scale pour passer de monde logique (480px) à monde HD (1080px)
+            ctx.scale(SCALE_RATIO, SCALE_RATIO); 
 
             background.draw();
             if (gameState === 'PLAYING' || gameState === 'DEMO') background.update();
