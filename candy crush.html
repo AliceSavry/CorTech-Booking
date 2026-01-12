@@ -1,80 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Candy Cor-Tech</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Cor-Tech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
-        body { background: #111; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
-        .grid { display: grid; grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(8, 40px); gap: 2px; background: #333; padding: 5px; border-radius: 5px; border: 2px solid #00FFFF; }
-        .cell { width: 40px; height: 40px; background: #222; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; user-select: none; }
-        .cell:hover { background: #444; }
-        .selected { background: #00FFFF !important; color: black; }
-        h2 { color: #00FFFF; text-shadow: 0 0 10px #00FFFF; margin-bottom: 10px; }
+        /* --- CHARTE GRAPHIQUE COR-TECH --- */
+        :root { 
+            --primary-color: #00FFFF;
+            --bg-dark: #111827;
+            --panel-bg: #1f2937;
+        }
+        body { font-family: 'Rajdhani', sans-serif; background-color: var(--bg-dark); color: #e5e7eb; }
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+        
+        .text-primary { color: var(--primary-color); }
+        .bg-primary { background-color: var(--primary-color); color: #000; }
+        
+        .neon-shadow { box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); }
+        .neon-text { text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+
+        /* --- STYLES ARCADE --- */
+        #arcade-container {
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+            aspect-ratio: 16/9;
+            max-height: 700px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Grille des boutons au-dessus */
+        .game-btn {
+            background-color: var(--panel-bg);
+            border: 1px solid #374151;
+            color: white;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .game-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
+        }
+
+        .game-btn.active {
+            background-color: var(--primary-color);
+            color: black;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+        
+        .notion-btn:hover { box-shadow: 0 0 20px var(--primary-color); transform: translateY(-2px); }
     </style>
 </head>
-<body>
-    <h2>SCORE: <span id="score">0</span></h2>
-    <div class="grid" id="grid"></div>
+<body class="flex flex-col min-h-screen">
+
+    <nav class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <h1 class="text-3xl font-bold text-white tracking-wider neon-text">COR-TECH</h1>
+            </div>
+            <a href="mailto:accueil@cor-tech.fr" class="text-sm text-gray-400 hover:text-primary transition">
+                <i class="fas fa-envelope"></i> Contact
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        
+        <section class="max-w-7xl mx-auto px-4 py-12 text-center">
+            <h2 class="text-4xl md:text-6xl font-bold mb-6 text-white">L'ASSOCIATION <span class="text-primary neon-text">NUMÉRIQUE</span></h2>
+            <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+                Retrouvez l'agenda des ateliers, les inscriptions et toute la vie de l'association sur notre espace membre Notion.
+            </p>
+            <div class="flex flex-col md:flex-row gap-6 justify-center mb-12">
+                <a href="https://notion.so/ton-lien-ici" target="_blank" 
+                   class="bg-primary notion-btn font-bold py-4 px-10 rounded-full text-lg transition duration-300 flex items-center justify-center gap-3">
+                    <i class="fas fa-rocket"></i> ACCÉDER À L'ESPACE MEMBRE
+                </a>
+            </div>
+        </section>
+
+        <section class="bg-gray-800 py-12 border-t border-gray-700 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-color to-transparent opacity-50"></div>
+
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-white"><i class="fas fa-gamepad text-primary"></i> ARCADE COR-TECH</h2>
+                    <p class="text-gray-400">Cliquez sur une cartouche pour lancer le jeu !</p>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    
+                    <button onclick="loadGame('flappy.html', this)" class="game-btn active">
+                        <i class="fas fa-dove text-2xl mb-2"></i> <span>Flappy</span>
+                    </button>
+
+                    <button onclick="loadGame('tetris.html', this)" class="game-btn">
+                        <i class="fas fa-cubes text-2xl mb-2"></i> <span>Tetris</span>
+                    </button>
+
+                    <button onclick="loadGame('candy.html', this)" class="game-btn">
+                        <i class="fas fa-gem text-2xl mb-2"></i> <span>Candy</span>
+                    </button>
+
+                    <button onclick="loadGame('hockey.html', this)" class="game-btn">
+                        <i class="fas fa-circle text-2xl mb-2"></i> <span>Hockey</span>
+                    </button>
+
+                    <button onclick="loadGame('breakout.html', this)" class="game-btn">
+                        <i class="fas fa-th text-2xl mb-2"></i> <span>Casse-Briques</span>
+                    </button>
+
+                    <button onclick="loadGame('course.html', this)" class="game-btn">
+                        <i class="fas fa-car text-2xl mb-2"></i> <span>Racing</span>
+                    </button>
+
+                    <button onclick="loadGame('sinapse.html', this)" class="game-btn">
+                        <i class="fas fa-brain text-2xl mb-2"></i> <span>Sinapse</span>
+                    </button>
+
+                    <button onclick="loadGame('reflexe.html', this)" class="game-btn">
+                        <i class="fas fa-bolt text-2xl mb-2"></i> <span>Réflexe</span>
+                    </button>
+
+                </div>
+                
+                <div id="arcade-container" class="neon-shadow bg-black">
+                    <iframe id="game-frame" src="flappy.html" title="Ecran de Jeu" allow="autoplay; fullscreen"></iframe>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 border-t border-gray-800 text-center p-8 mt-auto">
+        <p class="text-gray-500">&copy; <span id="year"></span> Cor-Tech.</p>
+        <p class="mt-2 text-sm"><a href="mentions.html" class="text-gray-600 hover:text-primary">Mentions Légales</a></p>
+    </footer>
+
     <script>
-        const grid = document.getElementById('grid');
-        const width = 8;
-        const candies = ['💎', '🍩', '🍪', '🍎', '🍇', '🍋'];
-        let cells = [];
-        let score = 0;
-        let selected = null;
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-        function createBoard() {
-            for (let i = 0; i < width * width; i++) {
-                const cell = document.createElement('div');
-                cell.setAttribute('id', i);
-                cell.classList.add('cell');
-                let randomCandy = Math.floor(Math.random() * candies.length);
-                cell.innerHTML = candies[randomCandy];
-                grid.appendChild(cell);
-                cells.push(cell);
-                cell.addEventListener('click', clickCandy);
-            }
-        }
-
-        function clickCandy() {
-            if (!selected) {
-                selected = this;
-                this.classList.add('selected');
-            } else {
-                let currentId = parseInt(this.id);
-                let prevId = parseInt(selected.id);
-                cells[prevId].classList.remove('selected');
-                
-                // Swap simple pour l'arcade
-                let temp = cells[currentId].innerHTML;
-                cells[currentId].innerHTML = cells[prevId].innerHTML;
-                cells[prevId].innerHTML = temp;
-                
-                checkMatches();
-                selected = null;
-            }
-        }
-
-        function checkMatches() {
-            // Logique simplifiée horizontale
-            for (let i = 0; i < 64; i++) {
-                let row = [i, i+1, i+2];
-                let decidedColor = cells[i].innerHTML;
-                const isBlank = cells[i].innerHTML === '';
-                if (i % width < width - 2 && !isBlank) {
-                    if (cells[i+1].innerHTML === decidedColor && cells[i+2].innerHTML === decidedColor) {
-                        score += 3;
-                        document.getElementById('score').innerText = score;
-                        row.forEach(index => {
-                            cells[index].innerHTML = ''; 
-                            // Respawn simple
-                            setTimeout(()=> cells[index].innerHTML = candies[Math.floor(Math.random() * candies.length)], 200);
-                        });
-                    }
+        function loadGame(filename, btnElement) {
+            const frame = document.getElementById('game-frame');
+            
+            // Vérification si le fichier existe (Astuce pour debugger)
+            fetch(filename, { method: 'HEAD' })
+            .then(res => {
+                if (res.ok) {
+                    frame.src = filename;
+                } else {
+                    alert("ERREUR 404 : Le fichier '" + filename + "' est introuvable sur GitHub.\n\nVérifiez que le fichier existe bien et qu'il est écrit en MINUSCULES (pas de majuscules !).");
                 }
-            }
+            }).catch(err => console.log("Erreur réseau"));
+
+            // Animation bouton
+            const buttons = document.querySelectorAll('.game-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
         }
-        createBoard();
-        setInterval(checkMatches, 100);
     </script>
 </body>
 </html>
