@@ -122,7 +122,7 @@
                     </button>
 
                     <button onclick="loadGame('candy crush .html', this)" class="game-btn">
-                        <i class="fas fa-gem text-2xl mb-2"></i> <span>Candy</span>
+                        <i class="fas fa-gem text-2xl mb-2"></i> <span>Candy Crush</span>
                     </button>
 
                     <button onclick="loadGame('air hockey.html', this)" class="game-btn">
@@ -165,7 +165,7 @@
         function loadGame(filename, btnElement) {
             const frame = document.getElementById('game-frame');
             
-            // On charge directement le fichier sans vérification préalable (plus d'alerte)
+            // J'ai viré la sécurité .html car tes fichiers ont parfois des espaces avant
             frame.src = filename;
 
             // Animation bouton
