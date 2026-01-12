@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NEON BONBON BLITZ - Campaign Edition</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+            --neon-yellow: #ffff00;
+            --bg-dark: #0f0b1a;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                linear-gradient(rgba(15, 11, 26, 0.9), rgba(15, 11, 26, 0.9)),
+                linear-gradient(0deg, transparent 24%, rgba(255, 0, 255, .1) 25%, rgba(255, 0, 255, .1) 26%, transparent 27%, transparent 74%, rgba(255, 0, 255, .1) 75%, rgba(255, 0, 255, .1) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(0, 255, 255, .1) 25%, rgba(0, 255, 255, .1) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, .1) 75%, rgba(0, 255, 255, .1) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+            font-family: 'Press Start 2P', cursive;
+            color: white;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            height: 100vh;
+            height: 100dvh; 
+            transition: background-color 0.1s;
+        }
+
+        /* Screen Glitch Effect for High Combos */
+        .glitch-active {
+            animation: glitch-anim 0.2s cubic-bezier(.25, .46, .45, .94) both infinite;
+            filter: brightness(1.3) contrast(1.2);
+        }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+
+        .bg-pulse {
+            animation: bgPulse 0.3s forwards;
+        }
+
+        @keyframes bgPulse {
+            0% { background-color: var(--neon-pink); }
+            100% { background-color: var(--bg-dark); }
+        }
+
+        .font-title {
+            font-family: 'Fredoka One', cursive;
+            text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+        }
+
+        .arcade-border {
+            border: 4px solid var(--neon-blue);
+            box-shadow: 
+                0 0 15px var(--neon-blue),
+                inset 0 0 30px var(--neon-blue);
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.85);
+            overflow: hidden; 
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .arcade-border.hot {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 25px var(--neon-pink), inset 0 0 30px var(--neon-pink);
+        }
+
+        .cell {
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(1.2rem, 6.5vw, 2.5rem); 
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 1;
+        }
+
+        .cell:active { transform: scale(0.9); }
+        
+        .selected {
+            background-color: rgba(255, 0, 255, 0.4);
+            border: 3px solid var(--neon-pink);
+            box-shadow: 0 0 25px var(--neon-pink), inset 0 0 10px var(--neon-pink);
+            animation: pulse 0.8s infinite;
+            z-index: 10;
+        }
+
+        /* Hint Animation (Wiggle & Glow) */
+        .hint-anim {
+            animation: hintWiggle 1.5s ease-in-out infinite;
+            box-shadow: 0 0 15px var(--neon-yellow) !important;
+            border: 2px solid var(--neon-yellow) !important;
+            z-index: 20;
+        }
+
+        @keyframes hintWiggle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .match-anim {
+            animation: popOut 0.4s forwards;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes popOut {
+            0% { transform: scale(1); opacity: 1; filter: brightness(3); }
+            40% { transform: scale(1.5) rotate(10deg); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .crt-overlay {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        .glow-text {
+            text-shadow: 2px 2px 0px #000, 0 0 15px currentColor;
+        }
+
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
+        }
+
+        /* Combo Text Animation */
+        .combo-text-anim {
+            animation: comboPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes comboPop {
+            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+            50% { transform: scale(1.5) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1) translateY(-50px); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between py-4">
+
+    <!-- CRT Effect -->
+    <div class="crt-overlay fixed inset-0"></div>
+
+    <!-- UI Header -->
+    <div class="w-full max-w-[600px] px-6 flex justify-between items-end z-10 shrink-0">
+        <div class="text-left w-24">
+            <div class="text-[10px] md:text-xs text-cyan-300 mb-1 tracking-widest">LEVEL</div>
+            <div id="levelDisplay" class="text-xl md:text-2xl text-white glow-text font-bold">1</div>
+        </div>
+        
+        <div class="text-center mx-2 relative flex-grow">
+            <h1 class="font-title text-2xl md:text-4xl text-white tracking-wider leading-none drop-shadow-md">
+                NEON<br><span class="text-pink-500">BLITZ</span>
+            </h1>
+            <div id="comboContainer" class="absolute top-full left-0 w-full flex justify-center mt-2 pointer-events-none"></div>
+        </div>
+        
+        <div class="text-right w-24">
+            <div class="text-[10px] md:text-xs text-yellow-300 mb-1 tracking-widest">MOVES</div>
+            <div id="movesDisplay" class="text-xl md:text-2xl text-white glow-text font-bold">25</div>
+        </div>
+    </div>
+
+    <!-- Progress Bar & Score -->
+    <div class="w-full max-w-[500px] px-6 z-10 flex justify-between items-center text-xs mb-1">
+        <span class="text-gray-400">TARGET: <span id="targetScore" class="text-white">1000</span></span>
+        <span class="text-gray-400">SCORE: <span id="currentScore" class="text-white">0</span></span>
+    </div>
+    <div class="w-full max-w-[500px] px-6 z-10 mb-2">
+        <div class="w-full bg-gray-800 rounded-full h-2.5 border border-gray-600">
+            <div id="scoreProgress" class="bg-gradient-to-r from-pink-500 to-yellow-400 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Game Container (Maximized for Mobile) -->
+    <div id="game-container" class="flex-grow flex items-center justify-center w-full z-10 px-2 transition-transform duration-100">
+        <div id="game-board" class="arcade-border relative bg-gray-900/90 p-2 md:p-3 touch-none select-none w-[92vw] h-[92vw] max-w-[500px] max-h-[500px]">
+            
+            <!-- Grid -->
+            <div id="grid" class="grid grid-cols-8 gap-1 md:gap-2 w-full h-full"></div>
+            
+            <!-- Start Overlay -->
+            <div id="startScreen" class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-20 p-4 text-center backdrop-blur-sm">
+                <h2 class="font-title text-4xl md:text-5xl text-yellow-400 mb-6 animate-pulse drop-shadow-[0_0_10px_rgba(255,255,0,0.8)]">READY ?</h2>
+                <div class="bg-gray-800/80 p-4 rounded-lg border border-pink-500/50 mb-8">
+                    <p class="text-xs md:text-sm text-cyan-300 leading-loose tracking-wide font-bold">
+                        MODE CAMPAGNE<br>
+                        <span class="text-white">ATTEINS L'OBJECTIF</span><br>
+                        AVANT LA FIN DES COUPS !
+                    </p>
+                </div>
+                <button onclick="startGame()" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white py-4 px-10 rounded-full shadow-[0_0_20px_#ff00ff] transition-all transform hover:scale-105 border-2 border-white text-sm md:text-base font-bold">
+                    START LEVEL 1
+                </button>
+            </div>
+
+            <!-- Level Complete Overlay -->
+            <div id="levelCompleteScreen" class="hidden absolute inset-0 bg-black/95 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
+                <h2 class="font-title text-4xl text-green-400 mb-2 drop-shadow-[0_0_15px_green]">LEVEL CLEAR!</h2>
+                <div class="text-xl text-white mb-8">NEXT LEVEL: <span id="nextLevelDisplay" class="text-yellow-400">2</span></div>
+                <button onclick="nextLevel()" class="bg-pink-600 hover:bg-pink-500 text-white py-4 px-10 rounded-full shadow-[0_0_20px_#ff00ff] transition-all border-2 border-white text-sm font-bold">
+                    CONTINUE ▶
+                </button>
+            </div>
+
+            <!-- Game Over Overlay -->
+            <div id="gameOverScreen" class="hidden absolute inset-0 bg-black/95 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
+                <h2 class="font-title text-5xl text-red-500 mb-2 drop-shadow-[0_0_15px_red]">GAME OVER</h2>
+                <div id="gameOverReason" class="text-sm text-gray-400 mb-2 uppercase tracking-widest">OUT OF MOVES</div>
+                <div class="text-xl text-white mb-8">LEVEL REACHED: <span id="finalLevel" class="text-yellow-400">1</span></div>
+                <button onclick="startGame()" class="bg-cyan-600 hover:bg-cyan-500 text-white py-4 px-10 rounded-full shadow-[0_0_20px_#00ffff] transition-all border-2 border-white text-sm font-bold">
+                    RETRY ?
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls Footer -->
+    <div class="mb-4 flex gap-4 z-10 shrink-0">
+        <button id="muteBtn" class="text-[10px] md:text-xs border border-gray-600 bg-black/50 px-4 py-2 rounded-full text-gray-300 hover:text-white hover:border-white transition-all uppercase tracking-wider">
+            🔊 MUSIC: ON
+        </button>
+    </div>
+
+    <script>
+        /**
+         * SOUND ENGINE
+         */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.isMuted = false;
+                this.bgmTimeout = null;
+                this.step = 0;
+                this.melodyData = [
+                    [523.25, 2], [659.25, 2], [783.99, 2], [880.00, 2], 
+                    [783.99, 2], [659.25, 2], [523.25, 4],
+                    [523.25, 2], [659.25, 2], [783.99, 2], [523.25, 2], 
+                    [587.33, 8],
+                    [659.25, 2], [659.25, 2], [698.46, 2], [659.25, 2], 
+                    [587.33, 2], [523.25, 2], [587.33, 4],
+                    [783.99, 2], [880.00, 2], [1046.5, 2], [783.99, 2], 
+                    [523.25, 4], [0, 4]
+                ];
+                this.tempo = 110; 
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume().catch(e => console.log("Audio resume failed", e));
+                }
+            }
+
+            toggleMute() {
+                this.init(); 
+                this.isMuted = !this.isMuted;
+                const btn = document.getElementById('muteBtn');
+                btn.innerText = this.isMuted ? '🔇 MUSIC: OFF' : '🔊 MUSIC: ON';
+                if (this.isMuted) {
+                    clearTimeout(this.bgmTimeout);
+                } else if (gameRunning) {
+                    this.playNextNote();
+                }
+            }
+
+            playTone(freq, type, duration, vol = 0.2) {
+                if (this.isMuted || !this.ctx) return;
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const now = this.ctx.currentTime;
+                
+                osc.type = type;
+                if(freq > 0) {
+                    osc.frequency.setValueAtTime(freq, now);
+                    const attackTime = 0.02;
+                    const releaseTime = Math.max(0.01, duration - attackTime);
+                    
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(vol, now + attackTime);
+                    if (releaseTime > 0.001) {
+                         gain.gain.exponentialRampToValueAtTime(0.01, now + attackTime + releaseTime);
+                    }
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(now + duration + 0.05);
+                }
+            }
+
+            playChord(notes, type, duration, vol) {
+                if (this.isMuted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                
+                notes.forEach(freq => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(vol, now + 1.0); 
+                    gain.gain.setValueAtTime(vol, now + duration - 1.0);
+                    gain.gain.linearRampToValueAtTime(0, now + duration); 
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(now + duration);
+                });
+            }
+
+            playNextNote() {
+                if (this.isMuted || !gameRunning) return;
+                
+                const currentEventIndex = this.step % this.melodyData.length;
+                const noteData = this.melodyData[currentEventIndex];
+                const freq = noteData[0];
+                const noteLen = noteData[1];
+                const sixteenthTime = (60 / this.tempo) / 4;
+                const duration = sixteenthTime * noteLen;
+
+                if (freq > 0) {
+                    this.playTone(freq, 'square', duration * 0.8, 0.15); 
+                    this.playTone(freq * 2, 'sine', duration * 0.5, 0.1);
+                }
+                if (this.step % 4 === 0) {
+                   const root = (this.step % 8 === 0) ? 130.81 : 196.00;
+                   this.playTone(root, 'triangle', sixteenthTime * 2, 0.25);
+                }
+                if (this.step % 2 === 0) {
+                     this.playTone(4000 + Math.random()*1000, 'sawtooth', 0.05, 0.05);
+                }
+
+                const barDuration = sixteenthTime * 16; 
+                const padVol = 0.06; 
+                if (currentEventIndex === 0) this.playChord([261.63, 329.63, 392.00], 'sine', barDuration, padVol); 
+                if (currentEventIndex === 7) this.playChord([349.23, 440.00, 523.25], 'sine', barDuration, padVol); 
+                if (currentEventIndex === 12) this.playChord([392.00, 493.88, 587.33], 'sine', barDuration, padVol); 
+                if (currentEventIndex === 19) this.playChord([261.63, 329.63, 392.00], 'sine', barDuration, padVol); 
+
+                this.step++;
+                this.bgmTimeout = setTimeout(() => this.playNextNote(), duration * 1000);
+            }
+
+            startBGM() {
+                if (this.isMuted) return;
+                this.step = 0;
+                clearTimeout(this.bgmTimeout);
+                this.playNextNote();
+            }
+
+            stopBGM() {
+                clearTimeout(this.bgmTimeout);
+            }
+
+            playSelect() { this.playTone(880, 'sine', 0.05, 0.2); }
+            playSwap() { this.playTone(600, 'triangle', 0.1, 0.2); }
+            playMatch(combo = 1) { 
+                const baseFreq = 523.25 * (1 + (combo * 0.1)); 
+                this.playToneDelayed(baseFreq, 'square', 0.1, 0);
+                this.playToneDelayed(baseFreq * 1.25, 'square', 0.1, 0.05);
+                this.playToneDelayed(baseFreq * 1.5, 'square', 0.2, 0.1);
+                if(combo > 2) this.playToneDelayed(baseFreq * 3, 'sine', 0.3, 0.15);
+            }
+            playLevelUp() {
+                this.playToneDelayed(523.25, 'triangle', 0.1, 0);
+                this.playToneDelayed(659.25, 'triangle', 0.1, 0.1);
+                this.playToneDelayed(783.99, 'triangle', 0.1, 0.2);
+                this.playToneDelayed(1046.50, 'square', 0.4, 0.3);
+            }
+            playToneDelayed(freq, type, dur, delay) {
+                if(this.isMuted) return;
+                setTimeout(() => this.playTone(freq, type, dur, 0.2), delay * 1000);
+            }
+            playInvalid() { 
+                this.playTone(150, 'sawtooth', 0.15, 0.3); 
+                setTimeout(() => this.playTone(140, 'sawtooth', 0.15, 0.3), 150);
+            }
+            playGameOver() {
+                this.playToneDelayed(523.25, 'triangle', 0.3, 0);
+                this.playToneDelayed(493.88, 'triangle', 0.3, 0.3);
+                this.playToneDelayed(466.16, 'triangle', 0.8, 0.6);
+            }
+        }
+
+        const audio = new SoundEngine();
+        
+        document.body.addEventListener('click', () => {
+             if(audio.ctx && audio.ctx.state === 'suspended') audio.ctx.resume();
+        }, {once:true});
+        document.body.addEventListener('touchstart', () => {
+             if(audio.ctx && audio.ctx.state === 'suspended') audio.ctx.resume();
+        }, {once:true});
+
+        /**
+         * GAME LOGIC
+         */
+        const width = 8;
+        const candies = ['🍬', '🍭', '🍫', '🍩', '🍪', '🧁'];
+        const candyColors = {
+            '🍬': '#ff00ff', '🍭': '#ff4d4d', '🍫': '#8b4513',
+            '🍩': '#ff69b4', '🍪': '#deb887', '🧁': '#00ffff'
+        };
+
+        let grid = [];
+        let score = 0;
+        let moves = 0;
+        let level = 1;
+        let targetScore = 0;
+        let gameRunning = false;
+        let selectedTile = null; 
+        let comboMultiplier = 1; 
+        
+        // Hint System Variables
+        let hintTimeout = null;
+        
+        // DOM Elements
+        const gridEl = document.getElementById('grid');
+        const scoreEl = document.getElementById('currentScore');
+        const targetEl = document.getElementById('targetScore');
+        const levelEl = document.getElementById('levelDisplay');
+        const movesEl = document.getElementById('movesDisplay');
+        const scoreProgressEl = document.getElementById('scoreProgress');
+        
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const gameOverReasonEl = document.getElementById('gameOverReason');
+        const levelCompleteScreen = document.getElementById('levelCompleteScreen');
+        
+        const finalLevelEl = document.getElementById('finalLevel');
+        const nextLevelEl = document.getElementById('nextLevelDisplay');
+        const gameContainer = document.getElementById('game-container');
+        const gameBoard = document.getElementById('game-board');
+
+        function createBoard() {
+            gridEl.innerHTML = '';
+            grid = [];
+            for (let r = 0; r < width; r++) {
+                let row = [];
+                for (let c = 0; c < width; c++) {
+                    const cell = document.createElement('div');
+                    cell.setAttribute('data-r', r);
+                    cell.setAttribute('data-c', c);
+                    cell.classList.add('cell');
+                    
+                    let randomCandy;
+                    do {
+                        randomCandy = candies[Math.floor(Math.random() * candies.length)];
+                    } while (
+                        (c >= 2 && row[c-1] === randomCandy && row[c-2] === randomCandy) ||
+                        (r >= 2 && grid[r-1][c] === randomCandy && grid[r-2][c] === randomCandy)
+                    );
+                    
+                    cell.innerText = randomCandy;
+                    cell.addEventListener('mousedown', handleInputStart);
+                    cell.addEventListener('touchstart', handleTouchStart, {passive: false});
+                    cell.addEventListener('touchend', handleTouchEnd, {passive: false});
+
+                    gridEl.appendChild(cell);
+                    row.push(randomCandy);
+                }
+                grid.push(row);
+            }
+        }
+
+        function startGame() {
+            audio.init();
+            audio.startBGM();
+            level = 1;
+            startLevel(level);
+        }
+
+        function startLevel(lvl) {
+            level = lvl;
+            gameRunning = true;
+            comboMultiplier = 1;
+            
+            // Level Configuration
+            targetScore = 1000 + (level - 1) * 750;
+            moves = 25; 
+            score = 0; 
+            
+            // Update UI
+            levelEl.innerText = level;
+            movesEl.innerText = moves;
+            scoreEl.innerText = score;
+            targetEl.innerText = targetScore;
+            updateProgressBar();
+            
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            levelCompleteScreen.classList.add('hidden');
+            gameBoard.classList.remove('hot');
+            document.body.classList.remove('glitch-active');
+            
+            createBoard();
+            
+            // Check if initial board has moves, otherwise shuffle or just let hint system find none later
+            // For simplicity, we start the hint timer which acts as a check
+            startHintTimer();
+        }
+
+        function nextLevel() {
+            startLevel(level + 1);
+        }
+
+        function updateProgressBar() {
+            const percentage = Math.min(100, (score / targetScore) * 100);
+            scoreProgressEl.style.width = percentage + '%';
+        }
+
+        function checkWinCondition() {
+            if (score >= targetScore) {
+                // Level Complete!
+                gameRunning = false;
+                stopHintTimer();
+                audio.playLevelUp();
+                nextLevelEl.innerText = level + 1;
+                levelCompleteScreen.classList.remove('hidden');
+                fireConfetti(true);
+            } else if (moves <= 0) {
+                // Out of Moves
+                endGame("OUT OF MOVES");
+            }
+        }
+
+        function endGame(reason) {
+            gameRunning = false;
+            stopHintTimer();
+            audio.stopBGM();
+            audio.playGameOver();
+            document.body.classList.remove('glitch-active');
+            
+            gameOverReasonEl.innerText = reason || "GAME OVER";
+            finalLevelEl.innerText = level;
+            gameOverScreen.classList.remove('hidden');
+        }
+
+        /**
+         * HINT SYSTEM & DEADLOCK DETECTION
+         */
+        
+        function startHintTimer() {
+            stopHintTimer(); // Clear existing
+            if (!gameRunning) return;
+            
+            // 5 seconds without action -> Show hint
+            hintTimeout = setTimeout(() => {
+                showHint();
+            }, 5000);
+        }
+
+        function stopHintTimer() {
+            if (hintTimeout) {
+                clearTimeout(hintTimeout);
+                hintTimeout = null;
+            }
+            // Clear existing hint visuals
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(c => c.classList.remove('hint-anim'));
+        }
+
+        function showHint() {
+            const move = findBestMove();
+            if (move) {
+                const cell1 = getCell(move.r1, move.c1);
+                const cell2 = getCell(move.r2, move.c2);
+                if(cell1) cell1.classList.add('hint-anim');
+                if(cell2) cell2.classList.add('hint-anim');
+            }
+        }
+
+        // Returns {r1, c1, r2, c2} of a valid move, or null if none
+        function findBestMove() {
+            // Helper to check match in a virtual grid
+            const checkVirtualMatch = (vGrid) => {
+                // Horizontal
+                for (let r = 0; r < width; r++) {
+                    for (let c = 0; c < width - 2; c++) {
+                        let c1 = vGrid[r][c], c2 = vGrid[r][c+1], c3 = vGrid[r][c+2];
+                        if (c1 && c1 === c2 && c2 === c3) return true;
+                    }
+                }
+                // Vertical
+                for (let c = 0; c < width; c++) {
+                    for (let r = 0; r < width - 2; r++) {
+                        let c1 = vGrid[r][c], c2 = vGrid[r+1][c], c3 = vGrid[r+2][c];
+                        if (c1 && c1 === c2 && c2 === c3) return true;
+                    }
+                }
+                return false;
+            };
+
+            // Try swapping every horizontal and vertical pair
+            for (let r = 0; r < width; r++) {
+                for (let c = 0; c < width; c++) {
+                    // Check Right Swap
+                    if (c < width - 1) {
+                        // Swap logic
+                        let temp = grid[r][c];
+                        grid[r][c] = grid[r][c+1];
+                        grid[r][c+1] = temp;
+                        
+                        const hasMatch = checkVirtualMatch(grid);
+                        
+                        // Swap Back
+                        grid[r][c+1] = grid[r][c];
+                        grid[r][c] = temp;
+                        
+                        if (hasMatch) return { r1: r, c1: c, r2: r, c2: c+1 };
+                    }
+                    // Check Down Swap
+                    if (r < width - 1) {
+                        // Swap logic
+                        let temp = grid[r][c];
+                        grid[r][c] = grid[r+1][c];
+                        grid[r+1][c] = temp;
+                        
+                        const hasMatch = checkVirtualMatch(grid);
+                        
+                        // Swap Back
+                        grid[r+1][c] = grid[r][c];
+                        grid[r][c] = temp;
+                        
+                        if (hasMatch) return { r1: r, c1: c, r2: r+1, c2: c };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function checkDeadlock() {
+            const move = findBestMove();
+            if (!move) {
+                // No moves possible -> Game Over (Deadlock)
+                endGame("NO MORE MOVES");
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * INPUT HANDLING
+         */
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartEl = null;
+
+        function handleInputStart(e) {
+            if (!gameRunning) return;
+            stopHintTimer(); // User interaction resets hint
+            const target = e.target.closest('.cell');
+            if (!target) return;
+            clickTile(target);
+        }
+
+        function handleTouchStart(e) {
+            if (!gameRunning) return;
+            stopHintTimer(); // User interaction resets hint
+            e.preventDefault(); 
+            const touch = e.changedTouches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchStartEl = e.target.closest('.cell');
+        }
+
+        function handleTouchEnd(e) {
+            if (!gameRunning || !touchStartEl) return;
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+            
+            const threshold = 30;
+            let targetR = parseInt(touchStartEl.dataset.r);
+            let targetC = parseInt(touchStartEl.dataset.c);
+            let validSwipe = false;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (Math.abs(deltaX) > threshold) {
+                    targetC += deltaX > 0 ? 1 : -1;
+                    validSwipe = true;
+                }
+            } else {
+                if (Math.abs(deltaY) > threshold) {
+                    targetR += deltaY > 0 ? 1 : -1;
+                    validSwipe = true;
+                }
+            }
+
+            if (validSwipe) {
+                if (targetR >= 0 && targetR < width && targetC >= 0 && targetC < width) {
+                    const targetEl = getCell(targetR, targetC);
+                    handleMove(touchStartEl, targetEl);
+                }
+            } else {
+                clickTile(touchStartEl);
+            }
+            touchStartEl = null;
+        }
+
+        function clickTile(tile) {
+            if (!selectedTile) {
+                selectedTile = tile;
+                tile.classList.add('selected');
+                audio.playSelect();
+                startHintTimer(); // Restart timer if just selecting
+            } else {
+                if (selectedTile === tile) {
+                    selectedTile.classList.remove('selected');
+                    selectedTile = null;
+                    startHintTimer(); // Deselected
+                } else {
+                    handleMove(selectedTile, tile);
+                }
+            }
+        }
+
+        function getCell(r, c) {
+            return gridEl.children[r * width + c];
+        }
+
+        function handleMove(tile1, tile2) {
+            if(selectedTile) selectedTile.classList.remove('selected');
+            selectedTile = null;
+            
+            comboMultiplier = 1;
+
+            const r1 = parseInt(tile1.dataset.r);
+            const c1 = parseInt(tile1.dataset.c);
+            const r2 = parseInt(tile2.dataset.r);
+            const c2 = parseInt(tile2.dataset.c);
+
+            const isAdjacent = Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
+            
+            if (isAdjacent) {
+                swapTiles(tile1, tile2, true);
+            } else {
+                audio.playSelect();
+                selectedTile = tile2;
+                tile2.classList.add('selected');
+                startHintTimer(); // Changed selection, restart timer
+            }
+        }
+
+        async function swapTiles(tile1, tile2, shouldCheck = true) {
+            const r1 = parseInt(tile1.dataset.r);
+            const c1 = parseInt(tile1.dataset.c);
+            const r2 = parseInt(tile2.dataset.r);
+            const c2 = parseInt(tile2.dataset.c);
+
+            // Visual Swap
+            const tempTxt = tile1.innerText;
+            tile1.innerText = tile2.innerText;
+            tile2.innerText = tempTxt;
+
+            // Logic Swap
+            const tempVal = grid[r1][c1];
+            grid[r1][c1] = grid[r2][c2];
+            grid[r2][c2] = tempVal;
+
+            audio.playSwap();
+
+            if (shouldCheck) {
+                await new Promise(r => setTimeout(r, 200));
+                
+                const isValid = checkMatches();
+                if (!isValid) {
+                    audio.playInvalid();
+                    tile1.classList.add('shake');
+                    tile2.classList.add('shake');
+                    setTimeout(() => {
+                        tile1.classList.remove('shake');
+                        tile2.classList.remove('shake');
+                        swapTiles(tile1, tile2, false);
+                    }, 400);
+                    startHintTimer(); // Move failed, restart timer
+                } else {
+                    // Valid Move -> Decrement Moves
+                    moves--;
+                    movesEl.innerText = moves;
+                    if(moves <= 5) movesEl.classList.add('text-red-500');
+                    else movesEl.classList.remove('text-red-500');
+
+                    processMatches();
+                }
+            }
+        }
+
+        function checkMatches() {
+            // Horizontal
+            for (let r = 0; r < width; r++) {
+                for (let c = 0; c < width - 2; c++) {
+                    let candy1 = grid[r][c];
+                    let candy2 = grid[r][c+1];
+                    let candy3 = grid[r][c+2];
+                    if (candy1 && candy1 === candy2 && candy2 === candy3) return true;
+                }
+            }
+            // Vertical
+            for (let c = 0; c < width; c++) {
+                for (let r = 0; r < width - 2; r++) {
+                    let candy1 = grid[r][c];
+                    let candy2 = grid[r+1][c];
+                    let candy3 = grid[r+2][c];
+                    if (candy1 && candy1 === candy2 && candy2 === candy3) return true;
+                }
+            }
+            return false;
+        }
+
+        async function processMatches() {
+            let matchedTiles = new Set();
+            
+            // Scan matches logic
+            for (let r = 0; r < width; r++) {
+                for (let c = 0; c < width - 2; c++) {
+                    let candy1 = grid[r][c];
+                    let candy2 = grid[r][c+1];
+                    let candy3 = grid[r][c+2];
+                    if (candy1 && candy1 === candy2 && candy2 === candy3) {
+                        matchedTiles.add(`${r},${c}`);
+                        matchedTiles.add(`${r},${c+1}`);
+                        matchedTiles.add(`${r},${c+2}`);
+                    }
+                }
+            }
+            for (let c = 0; c < width; c++) {
+                for (let r = 0; r < width - 2; r++) {
+                    let candy1 = grid[r][c];
+                    let candy2 = grid[r+1][c];
+                    let candy3 = grid[r+2][c];
+                    if (candy1 && candy1 === candy2 && candy2 === candy3) {
+                        matchedTiles.add(`${r},${c}`);
+                        matchedTiles.add(`${r+1},${c}`);
+                        matchedTiles.add(`${r+2},${c}`);
+                    }
+                }
+            }
+
+            if (matchedTiles.size > 0) {
+                // VISUAL EFFECTS FOR COMBO
+                if (comboMultiplier > 1) {
+                    showComboText(comboMultiplier);
+                }
+                
+                if(comboMultiplier >= 4) {
+                     document.body.classList.add('glitch-active');
+                     setTimeout(() => document.body.classList.remove('glitch-active'), 500);
+                }
+
+                audio.playMatch(comboMultiplier);
+                
+                let centerX = 0, centerY = 0;
+                let colorSet = [];
+
+                matchedTiles.forEach(coord => {
+                    const [r, c] = coord.split(',').map(Number);
+                    const cell = getCell(r, c);
+                    cell.classList.add('match-anim');
+                    
+                    score += 10 * comboMultiplier;
+                    
+                    const rect = cell.getBoundingClientRect();
+                    centerX += rect.left + rect.width / 2;
+                    centerY += rect.top + rect.height / 2;
+                    
+                    grid[r][c] = null;
+                    
+                    const char = cell.innerText;
+                    if(candyColors[char]) colorSet.push(candyColors[char]);
+                });
+
+                document.body.classList.remove('bg-pulse');
+                void document.body.offsetWidth; // trigger reflow
+                document.body.classList.add('bg-pulse');
+
+                // Special Bonus for >3 matches
+                if(matchedTiles.size > 3) {
+                    score += 50 * comboMultiplier;
+                    createFloatingText(`BONUS x${comboMultiplier}`, centerX/matchedTiles.size, centerY/matchedTiles.size, true);
+                }
+
+                // Update UI
+                scoreEl.innerText = score;
+                updateProgressBar();
+                
+                fireConfetti(comboMultiplier > 3, colorSet[0], comboMultiplier);
+
+                await new Promise(r => setTimeout(r, 300));
+
+                matchedTiles.forEach(coord => {
+                    const [r, c] = coord.split(',').map(Number);
+                    const cell = getCell(r, c);
+                    cell.innerText = '';
+                    cell.classList.remove('match-anim');
+                });
+                
+                comboMultiplier++;
+
+                applyGravity();
+            } else {
+                // No more matches in this cascade
+                // Check win FIRST, then Check Deadlock
+                if(score >= targetScore) {
+                     checkWinCondition(); // Will trigger win
+                } else if (!checkDeadlock()) {
+                     // If no deadlock and no win yet, game continues
+                     startHintTimer();
+                     checkWinCondition(); // Might trigger lose if moves <= 0
+                }
+            }
+        }
+
+        function showComboText(combo) {
+            const container = document.getElementById('comboContainer');
+            const el = document.createElement('div');
+            let text = `x${combo}`;
+            let color = 'white';
+            
+            if(combo === 2) { text = "DOUBLE!"; color="#00ffff"; }
+            if(combo === 3) { text = "TRIPLE!"; color="#ffff00"; }
+            if(combo >= 4) { text = "SUPER!!"; color="#ff00ff"; }
+            if(combo >= 5) { text = "HYPER!!!"; color="#ff0000"; }
+
+            el.innerText = text;
+            el.className = 'font-title text-4xl drop-shadow-md combo-text-anim absolute';
+            el.style.color = color;
+            el.style.textShadow = `0 0 20px ${color}`;
+            
+            container.innerHTML = ''; 
+            container.appendChild(el);
+            
+            if(combo >= 3) gameBoard.classList.add('hot');
+            else gameBoard.classList.remove('hot');
+        }
+
+        async function applyGravity() {
+            for (let c = 0; c < width; c++) {
+                let emptySpots = 0;
+                for (let r = width - 1; r >= 0; r--) {
+                    if (grid[r][c] === null) {
+                        emptySpots++;
+                    } else if (emptySpots > 0) {
+                        grid[r + emptySpots][c] = grid[r][c];
+                        grid[r][c] = null;
+                        const targetCell = getCell(r + emptySpots, c);
+                        const sourceCell = getCell(r, c);
+                        targetCell.innerText = grid[r + emptySpots][c];
+                        sourceCell.innerText = '';
+                    }
+                }
+                for (let r = 0; r < emptySpots; r++) {
+                    const randomCandy = candies[Math.floor(Math.random() * candies.length)];
+                    grid[r][c] = randomCandy;
+                    getCell(r, c).innerText = randomCandy;
+                    getCell(r, c).style.transform = 'translateY(-20px)';
+                    setTimeout(() => getCell(r, c).style.transform = 'translateY(0)', 50);
+                }
+            }
+
+            await new Promise(r => setTimeout(r, 250));
+            if (checkMatches()) {
+                processMatches();
+            } else {
+                if(comboMultiplier > 3) {
+                    audio.playTone(1000, 'sawtooth', 0.5, 0.05);
+                }
+                
+                // End of turn logic
+                if(score >= targetScore) {
+                     checkWinCondition();
+                } else if (!checkDeadlock()) {
+                     startHintTimer();
+                     checkWinCondition(); // Check if moves ran out
+                }
+            }
+        }
+
+        function fireConfetti(bigExplosion, colorHex, intensity = 1) {
+            const count = bigExplosion ? 150 * intensity : 15 * intensity;
+            
+            if (bigExplosion) {
+                confetti({
+                    particleCount: count,
+                    spread: 70 + (intensity * 10),
+                    origin: { y: 0.6 },
+                    colors: ['#ff00ff', '#00ffff', '#ffff00'],
+                    disableForReducedMotion: true
+                });
+            } else {
+                confetti({
+                    particleCount: count,
+                    spread: 40,
+                    startVelocity: 15 + (intensity * 5),
+                    origin: { y: 0.8 }, 
+                    colors: colorHex ? [colorHex] : ['#ffffff']
+                });
+            }
+        }
+
+        function createFloatingText(text, x, y, isBonus) {
+            const el = document.createElement('div');
+            el.innerText = text;
+            Object.assign(el.style, {
+                position: 'fixed', left: x + 'px', top: y + 'px',
+                color: isBonus ? '#ffff00' : '#ffffff', 
+                fontWeight: 'bold', 
+                fontSize: isBonus ? '30px' : '24px',
+                textShadow: '0 0 5px black, 0 0 10px #ff00ff',
+                pointerEvents: 'none', transition: 'all 0.8s ease-out', zIndex: 100
+            });
+            document.body.appendChild(el);
+            
+            setTimeout(() => {
+                el.style.transform = 'translateY(-80px) scale(1.5)';
+                el.style.opacity = 0;
+            }, 50);
+            
+            setTimeout(() => el.remove(), 800);
+        }
+
+        document.getElementById('muteBtn').addEventListener('click', () => audio.toggleMute());
+
+    </script>
+</body>
+</html>
