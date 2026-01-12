@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEON TURBO DRIFT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="[https://cdn.tailwindcss.com"></script]https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+   
+    <style>
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-yellow: #ffff00;
+            --bg-dark: #0f0014;
+        }
+
+        body {
+            background-color: #050505;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Effet CRT / Scanline */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Cadre Arcade */
+        .arcade-cabinet {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            max-height: 900px;
+            background: var(--bg-dark);
+            border: 4px solid var(--neon-pink);
+            box-shadow: 0 0 20px var(--neon-pink), inset 0 0 50px rgba(0,0,0,0.8);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .title-font { font-family: 'Fredoka One', cursive; }
+       
+        .neon-text-pink {
+            color: var(--neon-pink);
+            text-shadow: 2px 2px 0px #000, 0 0 10px var(--neon-pink);
+        }
+       
+        .neon-text-cyan {
+            color: var(--neon-cyan);
+            text-shadow: 2px 2px 0px #000, 0 0 10px var(--neon-cyan);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* UI Overlays */
+        .ui-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 20;
+            text-align: center;
+        }
+
+        .hidden { display: none !important; }
+
+        .btn-start {
+            background: var(--neon-cyan);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-cyan);
+            animation: pulse 1s infinite;
+            margin-top: 20px;
+        }
+       
+        .hud {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 100%;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+            font-size: 12px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 10px var(--neon-cyan); }
+            50% { transform: scale(1.05); box-shadow: 0 0 25px var(--neon-cyan); }
+            100% { transform: scale(1); box-shadow: 0 0 10px var(--neon-cyan); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="arcade-cabinet">
+        <div class="scanlines"></div>
+       
+        <div id="hud" class="hud hidden">
+            <div class="neon-text-cyan">SCORE: <span id="scoreVal">0</span></div>
+            <div class="neon-text-pink">HI: <span id="highVal">0</span></div>
+        </div>
+
+        <div id="startScreen" class="ui-layer">
+            <h1 class="title-font text-5xl mb-4 neon-text-pink">NEON<br>TURBO<br>DRIFT</h1>
+            <p class="text-xs text-gray-300 mb-8 max-w-xs leading-5">
+                TAP LEFT/RIGHT TO STEER<br>
+                AVOID TRAFFIC<br>
+                SURVIVE THE GRID
+            </p>
+            <button id="startBtn" class="btn-start">INSERT COIN</button>
+        </div>
+
+        <div id="gameOverScreen" class="ui-layer hidden">
+            <h2 class="title-font text-4xl mb-2 text-red-500" style="text-shadow: 0 0 15px red;">CRASHED!</h2>
+            <p class="mb-4">SCORE: <span id="finalScore" class="text-yellow-400">0</span></p>
+            <button id="restartBtn" class="btn-start" style="background: var(--neon-yellow);">TRY AGAIN</button>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+<script>
+/**
+ * AUDIO ENGINE (Procedural Synth)
+ */
+class SoundEngine {
+    constructor() {
+        this.ctx = null;
+        this.isMuted = false;
+        this.bgmOscillators = [];
+        this.tempo = 120;
+        this.noteIndex = 0;
+        this.isPlaying = false;
+        this.nextNoteTime = 0;
+    }
+
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    playTone(freq, type, duration, vol = 0.1) {
+        if (!this.ctx || this.isMuted) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+       
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    }
+
+    playCrash() {
+        this.playTone(100, 'sawtooth', 0.5, 0.3);
+        this.playTone(50, 'square', 0.6, 0.3);
+    }
+
+    playScore() {
+        this.playTone(880, 'sine', 0.1, 0.1); // A5
+        setTimeout(() => this.playTone(1760, 'sine', 0.2, 0.1), 50); // A6
+    }
+
+    startMusic() {
+        this.isPlaying = true;
+        this.nextNoteTime = this.ctx.currentTime;
+        this.scheduler();
+    }
+
+    stopMusic() {
+        this.isPlaying = false;
+    }
+
+    scheduler() {
+        if (!this.isPlaying) return;
+        while (this.nextNoteTime < this.ctx.currentTime + 0.1) {
+            this.playBGMNote(this.nextNoteTime);
+            // 16th notes at 120bpm -> 0.125s
+            this.nextNoteTime += 0.125;
+        }
+        requestAnimationFrame(this.scheduler.bind(this));
+    }
+
+    playBGMNote(time) {
+        // Bassline Synthwave: C2 - C2 - Eb2 - F2 loop
+        const bassLine = [65.41, 65.41, 0, 65.41, 77.78, 0, 87.31, 87.31];
+        const freq = bassLine[this.noteIndex % bassLine.length];
+       
+        if (freq > 0) {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.value = freq;
+           
+            // Lowpass filter for muffled synth sound
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 800;
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            gain.gain.setValueAtTime(0.15, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+
+            osc.start(time);
+            osc.stop(time + 0.12);
+        }
+        this.noteIndex++;
+    }
+}
+
+/**
+ * GAME ENGINE
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Game Constants
+let WIDTH, HEIGHT;
+let GAME_SPEED_BASE = 0.5; // Base speed factor
+let LANE_WIDTH = 0;
+
+// State
+let gameRunning = false;
+let score = 0;
+let highScore = localStorage.getItem('neon_racer_highscore') || 0;
+let speedMultiplier = 1;
+let frameCount = 0;
+
+// Entities
+let player = { x: 0, width: 0, height: 0, tilt: 0 }; // x is -1 to 1 (lane position)
+let enemies = []; // { x, z, type } -> z goes from 100 (far) to 0 (close)
+let particles = [];
+let roadLines = [];
+
+// Input
+let keys = { ArrowLeft: false, ArrowRight: false };
+let touchX = null;
+
+const sound = new SoundEngine();
+
+// UI Elements
+const hud = document.getElementById('hud');
+const scoreVal = document.getElementById('scoreVal');
+const highVal = document.getElementById('highVal');
+const startScreen = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const finalScore = document.getElementById('finalScore');
+
+// Resize Handling
+function resize() {
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
+    WIDTH = canvas.width;
+    HEIGHT = canvas.height;
+    LANE_WIDTH = WIDTH * 0.6;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Input Listeners
+window.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = true; });
+window.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = false; });
+
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    touchX = e.touches[0].clientX;
+}, {passive: false});
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    touchX = e.touches[0].clientX;
+}, {passive: false});
+
+canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    touchX = null;
+});
+
+// Helper: Project 3D coordinate to 2D screen
+// z: 100 (far horizon) -> 0 (camera)
+function project(x, z) {
+    // Perspective factor: smaller when far
+    const scale = 1 / (z * 0.05 + 1);
+   
+    // Y position: Horizon is at roughly 30% from top
+    const horizonY = HEIGHT * 0.35;
+    const roadHeight = HEIGHT * 0.65;
+   
+    const screenY = horizonY + roadHeight * (1 - (z / 100));
+   
+    // X position: 0 is center
+    const screenX = (WIDTH / 2) + (x * LANE_WIDTH * 0.5) * scale;
+   
+    return { x: screenX, y: screenY, scale: scale };
+}
+
+function initGame() {
+    score = 0;
+    speedMultiplier = 1;
+    player.x = 0;
+    player.tilt = 0;
+    enemies = [];
+    particles = [];
+    roadLines = [];
+    frameCount = 0;
+   
+    // Pre-fill some road lines
+    for(let i=0; i<20; i++) {
+        roadLines.push({ z: i * 5 });
+    }
+
+    updateUI();
+    sound.startMusic();
+    gameRunning = true;
+    requestAnimationFrame(gameLoop);
+}
+
+function spawnEnemy() {
+    // Random lane -0.8 to 0.8
+    const lane = (Math.random() * 1.6) - 0.8;
+    enemies.push({ x: lane, z: 100, color: Math.random() > 0.5 ? '#ff0000' : '#ffff00' });
+}
+
+function createExplosion(x, y, color) {
+    for (let i = 0; i < 20; i++) {
+        particles.push({
+            x: x, y: y,
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10,
+            life: 1.0,
+            color: color
+        });
+    }
+}
+
+function update() {
+    if (!gameRunning) return;
+
+    // Difficulty ramp
+    speedMultiplier += 0.0005;
+    score += Math.floor(speedMultiplier);
+
+    // Player Movement
+    const speed = 0.08;
+    if (keys.ArrowLeft) player.x -= speed;
+    if (keys.ArrowRight) player.x += speed;
+
+    // Touch control (simple steer towards touch)
+    if (touchX !== null) {
+        if (touchX < WIDTH / 2) player.x -= speed;
+        else player.x += speed;
+    }
+
+    // Clamp player
+    player.x = Math.max(-1.1, Math.min(1.1, player.x));
+    player.tilt = (keys.ArrowLeft || (touchX && touchX < WIDTH/2)) ? -1 :
+                  (keys.ArrowRight || (touchX && touchX > WIDTH/2)) ? 1 : 0;
+
+    // Move Road Lines
+    const roadSpeed = 2 * speedMultiplier; // Speed of lines moving towards camera
+    roadLines.forEach(l => l.z -= roadSpeed);
+    // Recycle lines
+    roadLines = roadLines.filter(l => l.z > 0);
+    if (frameCount % 10 === 0) roadLines.push({ z: 100 });
+
+    // Move Enemies
+    enemies.forEach(e => e.z -= (roadSpeed + 0.2)); // Enemies move faster than road (approaching)
+
+    // Collision Detection
+    // Player is roughly at z=5.
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        const e = enemies[i];
+       
+        // Passed the player
+        if (e.z < 0) {
+            enemies.splice(i, 1);
+            score += 100;
+            sound.playScore();
+            continue;
+        }
+
+        // Check collision zone (Z close to player and X overlapping)
+        // Player is effectively at Z ~ 5
+        if (e.z < 10 && e.z > 2) {
+            if (Math.abs(player.x - e.x) < 0.4) {
+                gameOver();
+            }
+        }
+    }
+
+    // Spawn Enemies
+    if (frameCount % Math.floor(60 / speedMultiplier) === 0) {
+        spawnEnemy();
+    }
+
+    // Particles
+    particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.05;
+    });
+    particles = particles.filter(p => p.life > 0);
+
+    frameCount++;
+    updateUI();
+}
+
+function draw() {
+    // 1. Clear & Background
+    ctx.fillStyle = '#0f0014'; // Deep purple
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    // 2. Draw Sun (Vaporwave style)
+    const sunY = HEIGHT * 0.35;
+    const grd = ctx.createLinearGradient(0, sunY - 100, 0, sunY);
+    grd.addColorStop(0, '#ffff00');
+    grd.addColorStop(1, '#ff00ff');
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(WIDTH / 2, sunY, WIDTH * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Sun stripes (Masking)
+    ctx.fillStyle = '#0f0014';
+    for(let i=0; i<10; i++) {
+        ctx.fillRect(WIDTH/2 - WIDTH*0.3, sunY - (i*6) + 20, WIDTH*0.6, 2 + i*0.5);
+    }
+
+    // 3. Draw Road Grid
+    ctx.strokeStyle = '#ff00ff';
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#ff00ff';
+   
+    // Vertical lines
+    for(let x = -1; x <= 1; x += 0.5) {
+        const p1 = project(x, 100);
+        const p2 = project(x, 0);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+    }
+
+    // Moving Horizontal lines
+    roadLines.forEach(l => {
+        const p1 = project(-2, l.z);
+        const p2 = project(2, l.z);
+        // Fade out in distance
+        ctx.globalAlpha = l.z / 100;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+    });
+
+    // 4. Draw Enemies
+    enemies.sort((a,b) => b.z - a.z); // Draw far ones first
+    enemies.forEach(e => {
+        const p = project(e.x, e.z);
+        const w = 80 * p.scale;
+        const h = 40 * p.scale;
+       
+        // Shadow
+        ctx.shadowColor = e.color;
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = e.color;
+       
+        // Simple Car Shape
+        ctx.fillRect(p.x - w/2, p.y - h, w, h);
+       
+        // Tail lights
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(p.x - w/3, p.y - h/2, w/5, h/4);
+        ctx.fillRect(p.x + w/6, p.y - h/2, w/5, h/4);
+    });
+
+    // 5. Draw Player
+    const playerZ = 5;
+    const pPos = project(player.x, playerZ);
+    const pW = 100 * pPos.scale;
+    const pH = 50 * pPos.scale;
+
+    ctx.save();
+    ctx.translate(pPos.x, pPos.y);
+    // Tilt effect
+    ctx.rotate(player.tilt * 0.1);
+
+    ctx.shadowColor = '#00ffff';
+    ctx.shadowBlur = 20;
+
+    // Car Body
+    ctx.fillStyle = '#000';
+    ctx.fillRect(-pW/2, -pH, pW, pH);
+    ctx.strokeStyle = '#00ffff';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(-pW/2, -pH, pW, pH);
+
+    // Engine glow
+    ctx.fillStyle = '#00ffff';
+    ctx.fillRect(-pW/4, -pH/1.5, pW/2, pH/3);
+
+    ctx.restore();
+
+    // 6. Particles
+    ctx.shadowBlur = 0;
+    particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.life;
+        ctx.fillRect(p.x, p.y, 4, 4);
+    });
+    ctx.globalAlpha = 1;
+}
+
+function updateUI() {
+    scoreVal.innerText = score;
+    highVal.innerText = highScore;
+}
+
+function gameLoop() {
+    if (!gameRunning) return;
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+function gameOver() {
+    gameRunning = false;
+    sound.stopMusic();
+    sound.playCrash();
+   
+    // Visual shake
+    canvas.style.transform = 'translate(5px, 5px)';
+    setTimeout(() => canvas.style.transform = 'translate(-5px, -5px)', 50);
+    setTimeout(() => canvas.style.transform = 'none', 100);
+
+    createExplosion(WIDTH/2, HEIGHT*0.8, 'red');
+    draw(); // Draw explosion
+
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('neon_racer_highscore', highScore);
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#ff00ff', '#00ffff', '#ffff00']
+        });
+    }
+
+    finalScore.innerText = score;
+    hud.classList.add('hidden');
+    gameOverScreen.classList.remove('hidden');
+}
+
+// Logic flow
+document.getElementById('startBtn').addEventListener('click', () => {
+    sound.init(); // Must be user triggered
+    startScreen.classList.add('hidden');
+    hud.classList.remove('hidden');
+    initGame();
+});
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+    gameOverScreen.classList.add('hidden');
+    hud.classList.remove('hidden');
+    initGame();
+});
+
+highVal.innerText = highScore;
+
+</script>
+</body>
+</html>

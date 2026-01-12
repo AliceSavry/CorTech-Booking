@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEON SYNAPSE - 80s Arcade Puzzle</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CORE STYLES & CRT EFFECTS --- */
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-yellow: #ffff00;
+            --neon-green: #00ff00;
+            --bg-dark: #050011;
+        }
+
+        body {
+            background-color: #000;
+            background-image: radial-gradient(circle at center, #1a0b2e 0%, #000 100%);
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+            touch-action: none; /* Mobile optimization */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Arcade Cabinet Frame */
+        #arcade-cabinet {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            max-height: 900px;
+            background: #111;
+            border: 4px solid #333;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 0, 255, 0.2), inset 0 0 20px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* CRT Screen Effect */
+        .crt-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 50;
+            border-radius: 16px;
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
+            animation: flicker 0.15s infinite;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 0.4;
+            position: absolute;
+            pointer-events: none;
+            z-index: 51;
+            animation: scanline 6s linear infinite;
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+            letter-spacing: 2px;
+        }
+
+        .neon-text-cyan {
+            text-shadow: 0 0 5px var(--neon-cyan), 0 0 10px var(--neon-cyan);
+        }
+
+        .neon-text-yellow {
+            text-shadow: 0 0 5px var(--neon-yellow), 0 0 10px var(--neon-yellow);
+        }
+
+        /* UI Elements */
+        .btn-retro {
+            background: transparent;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px var(--neon-cyan), inset 0 0 10px var(--neon-cyan);
+            transition: all 0.1s;
+            animation: pulse-border 2s infinite;
+        }
+
+        .btn-retro:active {
+            transform: scale(0.95);
+            background: var(--neon-cyan);
+            color: #000;
+        }
+
+        /* Animations */
+        @keyframes scanline {
+            0% { top: -5%; }
+            100% { top: 105%; }
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            5% { opacity: 0.9; }
+            10% { opacity: 0.95; }
+            100% { opacity: 0.95; }
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 10px var(--neon-cyan), inset 0 0 10px var(--neon-cyan); }
+            50% { box-shadow: 0 0 20px var(--neon-cyan), inset 0 0 20px var(--neon-cyan); }
+            100% { box-shadow: 0 0 10px var(--neon-cyan), inset 0 0 10px var(--neon-cyan); }
+        }
+
+        .shake {
+            animation: shake-anim 0.3s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake-anim {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="arcade-cabinet">
+        <!-- CRT Effects -->
+        <div class="crt-overlay"></div>
+        <div class="scanline"></div>
+
+        <!-- Header / HUD -->
+        <div class="absolute top-0 left-0 w-full p-4 z-20 flex flex-col items-center bg-black/50 backdrop-blur-sm border-b-2 border-purple-900">
+            <div class="flex justify-between w-full mb-2">
+                <div class="text-xs text-purple-300">SCORE</div>
+                <div class="text-xs text-yellow-300">HIGH SCORE</div>
+            </div>
+            <div class="flex justify-between w-full">
+                <div id="score-display" class="text-xl neon-text-cyan">000000</div>
+                <div id="highscore-display" class="text-xl neon-text-yellow">000000</div>
+            </div>
+            
+            <!-- Multiplier Bar -->
+            <div class="w-full mt-3 flex items-center gap-2">
+                <span id="multiplier-text" class="text-xs text-yellow-400">x1</span>
+                <div class="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden border border-gray-600">
+                    <div id="multiplier-bar" class="h-full bg-gradient-to-r from-yellow-400 to-red-500 w-0 transition-all duration-200"></div>
+                </div>
+            </div>
+             <!-- Timer Bar -->
+             <div class="w-full mt-1 flex items-center gap-2">
+                <span class="text-[10px] text-red-500">CPU</span>
+                <div class="flex-1 h-1 bg-gray-800 rounded-full overflow-hidden">
+                    <div id="timer-bar" class="h-full bg-red-600 w-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Screens -->
+        <!-- START SCREEN -->
+        <div id="start-screen" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-center p-6">
+            <h1 class="text-5xl mb-2 text-transparent bg-clip-text bg-gradient-to-b from-purple-400 to-purple-800" style="-webkit-text-stroke: 1px #ff00ff;">NEON<br>SYNAPSE</h1>
+            <p class="text-xs text-cyan-300 mb-8 mt-4 leading-6 max-w-xs">
+                CONNECTE LES NEURONES.<br>
+                GROUPE LES COULEURS.<br>
+                SURVIS AU FLUX DE DONNÉES.
+            </p>
+            <button id="start-btn" class="btn-retro mb-4">INSERT COIN</button>
+            <p class="text-[10px] text-gray-500 blink mt-8">TAP TO START AUDIO ENGINE</p>
+        </div>
+
+        <!-- GAME OVER SCREEN -->
+        <div id="gameover-screen" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/95 text-center p-6">
+            <h1 class="text-4xl text-red-500 mb-4" style="text-shadow: 0 0 20px red;">SYSTEM<br>CRASH</h1>
+            <div class="text-sm mb-2 text-gray-400">FINAL SCORE</div>
+            <div id="final-score" class="text-3xl text-white mb-6 neon-text-cyan">0</div>
+            <button id="restart-btn" class="btn-retro">REBOOT SYSTEM</button>
+        </div>
+
+        <!-- Notifications Overlay (Combo text) -->
+        <div id="notification-area" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 text-center"></div>
+    </div>
+
+<script>
+/**
+ * ------------------------------------------------------------------
+ * AUDIO ENGINE (Procedural Web Audio API)
+ * ------------------------------------------------------------------
+ */
+class SoundEngine {
+    constructor() {
+        this.ctx = null;
+        this.isMuted = false;
+        this.initialized = false;
+        
+        // Music Sequencer State
+        this.tempo = 110;
+        this.noteIndex = 0;
+        this.nextNoteTime = 0;
+        this.isPlayingMusic = false;
+        // Simple bassline/arpeggio scale (Dm pentatonic ish)
+        this.sequence = [
+            146.83, 146.83, 293.66, 146.83, 
+            174.61, 146.83, 220.00, 196.00,
+            146.83, 146.83, 293.66, 146.83, 
+            349.23, 329.63, 261.63, 220.00
+        ];
+    }
+
+    init() {
+        if (!this.initialized) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.initialized = true;
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    // Generic Oscillator Sound
+    playTone(freq, type, duration, vol = 0.1, slideTo = null) {
+        if (this.isMuted || !this.ctx) return;
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = type;
+        osc.frequency.value = freq;
+        
+        if (slideTo) {
+            osc.frequency.exponentialRampToValueAtTime(slideTo, this.ctx.currentTime + duration);
+        }
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        osc.stop(this.ctx.currentTime + duration);
+    }
+
+    // Music Loop
+    startMusic() {
+        if (this.isPlayingMusic) return;
+        this.isPlayingMusic = true;
+        this.nextNoteTime = this.ctx.currentTime;
+        this.scheduler();
+    }
+
+    stopMusic() {
+        this.isPlayingMusic = false;
+    }
+
+    scheduler() {
+        if (!this.isPlayingMusic) return;
+        while (this.nextNoteTime < this.ctx.currentTime + 0.1) {
+            this.playNote(this.sequence[this.noteIndex % this.sequence.length], this.nextNoteTime);
+            this.nextNoteTime += (60.0 / this.tempo) / 2; // Eighth notes
+            this.noteIndex++;
+        }
+        requestAnimationFrame(() => this.scheduler());
+    }
+
+    playNote(freq, time) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle'; // Retro bass feel
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(time);
+        gain.gain.setValueAtTime(0.08, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+        osc.stop(time + 0.2);
+    }
+
+    // SFX
+    sfxSelect() { this.playTone(880, 'sine', 0.05, 0.05); }
+    sfxClear(comboMultiplier) {
+        // Pitch goes up with combo
+        const base = 440 + (comboMultiplier * 100);
+        this.playTone(base, 'square', 0.1, 0.1, base + 400);
+        // Add a little sparkle noise
+        this.playTone(base * 2, 'sawtooth', 0.05, 0.05);
+    }
+    sfxError() { this.playTone(150, 'sawtooth', 0.3, 0.2, 50); }
+    sfxGameOver() { 
+        this.playTone(300, 'sawtooth', 1.5, 0.3, 50);
+        setTimeout(() => this.playTone(200, 'square', 1.0, 0.3, 20), 200);
+    }
+}
+
+/**
+ * ------------------------------------------------------------------
+ * GAME LOGIC
+ * ------------------------------------------------------------------
+ */
+const COLORS = [
+    { id: 1, val: '#ff00ff', glow: '#ff00ff' }, // Magenta
+    { id: 2, val: '#00ffff', glow: '#00ffff' }, // Cyan
+    { id: 3, val: '#ffff00', glow: '#ffff00' }, // Yellow
+    { id: 4, val: '#00ff00', glow: '#00ff00' }  // Green
+];
+
+class Game {
+    constructor() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.audio = new SoundEngine();
+        
+        // Grid Config
+        this.cols = 7;
+        this.rows = 9;
+        this.grid = [];
+        this.padding = 4;
+        this.topOffset = 0; // Calculated in resize
+        
+        // Game State
+        this.score = 0;
+        this.highScore = parseInt(localStorage.getItem('neonSynapseHS') || '0');
+        this.multiplier = 1;
+        this.multiplierTimer = 0;
+        this.maxMultiplierTime = 200; // Frames
+        
+        this.timeLeft = 100; // Percentage
+        this.decayRate = 0.03;
+        this.isRunning = false;
+
+        // Visuals
+        this.particles = [];
+        this.floaters = []; // Floating text
+        this.shake = 0;
+        
+        // Resize handling
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        // Input
+        this.canvas.addEventListener('mousedown', (e) => this.handleInput(e));
+        this.canvas.addEventListener('touchstart', (e) => this.handleTouch(e), {passive: false});
+
+        this.updateUI();
+    }
+
+    resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+        this.cellSize = Math.floor((this.canvas.width - (this.padding * 2)) / this.cols);
+        // Center vertically in canvas
+        const gridHeight = this.cellSize * this.rows;
+        this.topOffset = (this.canvas.height - gridHeight) / 2;
+    }
+
+    initGrid() {
+        this.grid = [];
+        for (let c = 0; c < this.cols; c++) {
+            this.grid[c] = [];
+            for (let r = 0; r < this.rows; r++) {
+                this.grid[c][r] = this.randomColor();
+            }
+        }
+    }
+
+    randomColor() {
+        return Math.floor(Math.random() * COLORS.length) + 1;
+    }
+
+    startGame() {
+        this.audio.init();
+        this.audio.startMusic();
+        this.score = 0;
+        this.multiplier = 1;
+        this.timeLeft = 100;
+        this.decayRate = 0.03; // Reset difficulty
+        this.isRunning = true;
+        this.initGrid();
+        
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('gameover-screen').classList.add('hidden');
+        
+        this.loop();
+    }
+
+    gameOver() {
+        this.isRunning = false;
+        this.audio.stopMusic();
+        this.audio.sfxGameOver();
+        
+        if (this.score > this.highScore) {
+            this.highScore = this.score;
+            localStorage.setItem('neonSynapseHS', this.highScore);
+        }
+        
+        document.getElementById('final-score').innerText = this.score;
+        document.getElementById('gameover-screen').classList.remove('hidden');
+    }
+
+    handleTouch(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = this.canvas.getBoundingClientRect();
+        this.processInput(touch.clientX - rect.left, touch.clientY - rect.top);
+    }
+
+    handleInput(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.processInput(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    processInput(x, y) {
+        if (!this.isRunning) return;
+
+        // Account for grid position
+        y -= this.topOffset;
+
+        if (x < 0 || x > this.cols * this.cellSize || y < 0 || y > this.rows * this.cellSize) return;
+
+        const c = Math.floor(x / this.cellSize);
+        const r = Math.floor(y / this.cellSize);
+
+        if (this.grid[c] && this.grid[c][r]) {
+            this.attemptClear(c, r);
+        }
+    }
+
+    // Flood Fill to find connected blocks
+    attemptClear(c, r) {
+        const targetId = this.grid[c][r];
+        if (targetId === 0) return; // Empty
+
+        const matches = [];
+        const visited = new Set();
+        const queue = [{c, r}];
+        visited.add(`${c},${r}`);
+
+        while (queue.length > 0) {
+            const current = queue.pop();
+            matches.push(current);
+
+            const neighbors = [
+                {c: current.c + 1, r: current.r},
+                {c: current.c - 1, r: current.r},
+                {c: current.c, r: current.r + 1},
+                {c: current.c, r: current.r - 1}
+            ];
+
+            for (let n of neighbors) {
+                if (n.c >= 0 && n.c < this.cols && n.r >= 0 && n.r < this.rows) {
+                    const key = `${n.c},${n.r}`;
+                    if (!visited.has(key) && this.grid[n.c][n.r] === targetId) {
+                        visited.add(key);
+                        queue.push(n);
+                    }
+                }
+            }
+        }
+
+        // Logic: Require at least 2 blocks to clear
+        if (matches.length >= 2) {
+            this.executeClear(matches, targetId);
+        } else {
+            this.audio.sfxError();
+            this.timeLeft -= 2; // Penalty for bad click
+            this.addFloater("MISS!", c * this.cellSize, r * this.cellSize + this.topOffset, '#ff0000');
+        }
+    }
+
+    executeClear(matches, colorId) {
+        // Calculate Score
+        const basePoints = matches.length * 10;
+        const bonus = Math.floor(Math.pow(matches.length, 1.5)); // Exponential reward
+        const points = (basePoints + bonus) * this.multiplier;
+        
+        this.score += points;
+        
+        // Time Bonus
+        this.timeLeft = Math.min(100, this.timeLeft + (matches.length * 1.5));
+
+        // Audio & Juice
+        this.audio.sfxClear(this.multiplier);
+        this.triggerShake(matches.length > 4 ? 10 : 3);
+        
+        // Multiplier Logic
+        if (matches.length >= 4) {
+            this.multiplier++;
+            this.multiplierTimer = this.maxMultiplierTime;
+            this.addFloater(`x${this.multiplier}`, matches[0].c * this.cellSize, matches[0].r * this.cellSize + this.topOffset, '#ffff00', 20);
+        } else {
+            // Keep multiplier alive but don't increase
+            this.multiplierTimer = this.maxMultiplierTime; 
+        }
+
+        // Confetti for big combos
+        if (matches.length >= 6) {
+            const rect = this.canvas.getBoundingClientRect();
+            // Normalized coordinates for confetti
+            const xNorm = (matches[0].c * this.cellSize + rect.left) / window.innerWidth;
+            const yNorm = (matches[0].r * this.cellSize + this.topOffset + rect.top) / window.innerHeight;
+            
+            confetti({
+                particleCount: matches.length * 5,
+                spread: 70,
+                origin: { x: xNorm, y: yNorm },
+                colors: [COLORS[colorId-1].val, '#ffffff']
+            });
+            this.addFloater("MEGA!", this.canvas.width/2, this.canvas.height/2, '#fff', 30);
+        }
+
+        // Particles
+        matches.forEach(m => {
+            this.grid[m.c][m.r] = 0; // Clear grid
+            // Spawn visual particles
+            const cx = m.c * this.cellSize + this.cellSize/2;
+            const cy = m.r * this.cellSize + this.cellSize/2 + this.topOffset;
+            for(let i=0; i<4; i++) {
+                this.particles.push({
+                    x: cx, y: cy,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 1.0,
+                    color: COLORS[colorId-1].val
+                });
+            }
+        });
+
+        this.applyGravity();
+    }
+
+    applyGravity() {
+        for (let c = 0; c < this.cols; c++) {
+            let writePos = this.rows - 1;
+            // Shift down
+            for (let r = this.rows - 1; r >= 0; r--) {
+                if (this.grid[c][r] !== 0) {
+                    this.grid[c][writePos] = this.grid[c][r];
+                    if (r !== writePos) this.grid[c][r] = 0;
+                    writePos--;
+                }
+            }
+            // Fill top
+            while (writePos >= 0) {
+                this.grid[c][writePos] = this.randomColor();
+                writePos--;
+            }
+        }
+    }
+
+    addFloater(text, x, y, color, size = 14) {
+        this.floaters.push({
+            text, x, y, color, size,
+            vy: -2, life: 1.0
+        });
+    }
+
+    triggerShake(amount) {
+        this.shake = amount;
+    }
+
+    update() {
+        if (!this.isRunning) return;
+
+        // Time Decay
+        this.timeLeft -= this.decayRate * (1 + (this.score / 50000)); // Gets harder
+        if (this.timeLeft <= 0) {
+            this.gameOver();
+        }
+
+        // Multiplier Decay
+        if (this.multiplier > 1) {
+            this.multiplierTimer--;
+            if (this.multiplierTimer <= 0) {
+                this.multiplier = 1;
+                this.audio.playTone(100, 'sawtooth', 0.2); // Power down sound
+            }
+        }
+
+        // Update Particles
+        this.particles = this.particles.filter(p => p.life > 0);
+        this.particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.2; // Gravity
+            p.life -= 0.05;
+        });
+
+        // Update Floaters
+        this.floaters = this.floaters.filter(f => f.life > 0);
+        this.floaters.forEach(f => {
+            f.y += f.vy;
+            f.life -= 0.02;
+        });
+
+        // Shake Decay
+        if (this.shake > 0) this.shake *= 0.9;
+        if (this.shake < 0.5) this.shake = 0;
+
+        this.updateUI();
+    }
+
+    updateUI() {
+        document.getElementById('score-display').innerText = this.score.toString().padStart(6, '0');
+        document.getElementById('highscore-display').innerText = this.highScore.toString().padStart(6, '0');
+        
+        // Timer Bar
+        const timerBar = document.getElementById('timer-bar');
+        timerBar.style.width = `${Math.max(0, this.timeLeft)}%`;
+        if (this.timeLeft < 20) timerBar.classList.add('animate-pulse');
+        else timerBar.classList.remove('animate-pulse');
+
+        // Multiplier
+        document.getElementById('multiplier-text').innerText = `x${this.multiplier}`;
+        const multPct = (this.multiplierTimer / this.maxMultiplierTime) * 100;
+        document.getElementById('multiplier-bar').style.width = this.multiplier > 1 ? `${multPct}%` : '0%';
+    }
+
+    draw() {
+        // Clear
+        this.ctx.fillStyle = '#050011';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.save();
+
+        // Screen Shake
+        if (this.shake > 0) {
+            const dx = (Math.random() - 0.5) * this.shake;
+            const dy = (Math.random() - 0.5) * this.shake;
+            this.ctx.translate(dx, dy);
+        }
+
+        // Draw Grid
+        for (let c = 0; c < this.cols; c++) {
+            for (let r = 0; r < this.rows; r++) {
+                const id = this.grid[c][r];
+                if (id !== 0) {
+                    const x = c * this.cellSize + 2;
+                    const y = r * this.cellSize + this.topOffset + 2;
+                    const w = this.cellSize - 4;
+                    const h = this.cellSize - 4;
+                    const colorData = COLORS[id-1];
+
+                    // Block Body
+                    this.ctx.fillStyle = colorData.val;
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.shadowColor = colorData.glow;
+                    this.ctx.fillRect(x, y, w, h);
+
+                    // Inner Highlight (Bevel effect)
+                    this.ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                    this.ctx.shadowBlur = 0;
+                    this.ctx.fillRect(x, y, w, h/4);
+                    
+                    // Core symbol (Optional, adds detail)
+                    this.ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(x + w/2, y + h/2, w/6, 0, Math.PI*2);
+                    this.ctx.fill();
+                }
+            }
+        }
+
+        // Draw Particles
+        this.particles.forEach(p => {
+            this.ctx.globalAlpha = p.life;
+            this.ctx.fillStyle = p.color;
+            this.ctx.fillRect(p.x, p.y, 4, 4);
+        });
+        this.ctx.globalAlpha = 1.0;
+
+        // Draw Floaters
+        this.floaters.forEach(f => {
+            this.ctx.globalAlpha = f.life;
+            this.ctx.font = `${f.size}px 'Press Start 2P'`;
+            this.ctx.fillStyle = f.color;
+            this.ctx.strokeStyle = '#000';
+            this.ctx.lineWidth = 3;
+            this.ctx.strokeText(f.text, f.x, f.y);
+            this.ctx.fillText(f.text, f.x, f.y);
+        });
+        this.ctx.globalAlpha = 1.0;
+
+        this.ctx.restore();
+    }
+
+    loop() {
+        if (!this.isRunning) return;
+        this.update();
+        this.draw();
+        requestAnimationFrame(() => this.loop());
+    }
+}
+
+// Start Up
+const game = new Game();
+
+document.getElementById('start-btn').addEventListener('click', () => {
+    game.startGame();
+});
+
+document.getElementById('restart-btn').addEventListener('click', () => {
+    game.startGame();
+});
+
+</script>
+</body>
+</html>
