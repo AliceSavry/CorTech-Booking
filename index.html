@@ -73,14 +73,11 @@
         }
         .preview-container:hover { border-color: var(--c-neon); }
 
-        /* Iframe Preview (non cliquable directement) */
         .preview-iframe {
             width: 100%; height: 100%; border: none;
-            opacity: 0.6; /* Un peu sombre pour montrer que c'est un aperçu */
-            pointer-events: none; /* Empêche de jouer ici */
+            opacity: 0.6; pointer-events: none;
         }
 
-        /* Overlay "CLIQUER POUR JOUER" */
         .play-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -108,46 +105,35 @@
         .game-btn:hover { border-color: var(--c-neon); color: var(--c-neon); padding-left: 1rem; }
         .game-btn.active { background: var(--c-neon); color: black; font-weight: bold; border-color: var(--c-neon); }
 
-        /* --- MODALE (FENETRE FLOTTANTE) --- */
+        /* --- MODALE --- */
         #game-modal {
-            display: none; /* Caché par défaut */
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 9999;
-            justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.9); z-index: 9999;
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
         }
         .modal-content {
-            width: 90%; height: 90%;
-            max-width: 1200px;
-            background: #000;
-            border: 2px solid var(--c-neon);
+            width: 90%; height: 90%; max-width: 1200px;
+            background: #000; border: 2px solid var(--c-neon);
             box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
-            border-radius: 12px;
-            position: relative;
+            border-radius: 12px; position: relative;
             display: flex; flex-direction: column;
         }
         .modal-iframe { width: 100%; height: 100%; border: none; border-radius: 0 0 10px 10px; }
         .modal-header {
-            background: var(--c-petrol);
-            padding: 10px 20px;
+            background: var(--c-petrol); padding: 10px 20px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--c-neon);
-            border-radius: 10px 10px 0 0;
+            border-bottom: 1px solid var(--c-neon); border-radius: 10px 10px 0 0;
         }
         .close-btn {
             background: transparent; border: 1px solid var(--c-neon); color: var(--c-neon);
             padding: 5px 15px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold;
-            transition: all 0.2s;
         }
         .close-btn:hover { background: var(--c-neon); color: black; }
 
-        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
 
-        /* MOBILE */
         @media (max-width: 1024px) {
             .main-container { flex-direction: column; overflow: auto; }
             .left-panel { width: 100%; height: auto; min-height: 80vh; border-right: none; border-bottom: 4px solid var(--c-neon); }
@@ -173,7 +159,11 @@
 
     <aside class="left-panel">
         <div class="header-section text-center mb-3 flex flex-col items-center">
-            <img src="images/logo.png" alt="Logo Cor-Tech" class="w-32 md:w-40 drop-shadow-[0_0_15px_rgba(0,255,255,0.3)]">
+            
+            <img src="images/Logo_Cor-Tech.png" 
+                 alt="Logo Cor-Tech" 
+                 class="w-32 md:w-40 drop-shadow-[0_0_15px_rgba(0,255,255,0.3)]">
+            
             <p class="text-[10px] text-[#00b6b6] font-tech uppercase tracking-widest mt-1">Arcade System V2.0</p>
         </div>
 
@@ -186,7 +176,7 @@
         </div>
 
         <div class="list-section pr-1 custom-scroll">
-            <h3 class="text-[#00b6b6] border-b border-[#003939] mb-2 text-xs sticky top-0 bg-black z-10 py-1">SÉLECTIONNER CARTOUCHE</h3>
+            <h3 class="text-[#00b6b6] border-b border-[#003939] mb-2 text-xs sticky top-0 bg-black z-10 py-1">CARTOUCHES</h3>
             <div class="grid grid-cols-2 gap-2 pb-2">
                 <button onclick="selectGame('Flappy.html', 'FLAPPY COR-TECH', this)" class="game-btn active p-2 rounded text-left flex items-center gap-2"><i class="fas fa-dove"></i> FLAPPY</button>
                 <button onclick="selectGame('tetris 8bit fx.html', 'TETRIS 8-BIT', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-cubes"></i> TETRIS</button>
@@ -294,6 +284,7 @@
                             <li class="flex items-center gap-3"><div class="w-2 h-2 bg-[#00FFFF] rounded-full"></div><div><strong class="text-white block font-sans">Alice SAVRY</strong> <span class="text-[#00b6b6]">Présidente</span></div></li>
                             <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Simon CANEVET</strong> <span class="text-gray-400">Vice-Président</span></div></li>
                             <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Sébastien SAVRY</strong> <span class="text-gray-400">Trésorier</span></div></li>
+                            <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Aurélien AUDOUIS</strong> <span class="text-gray-400">Secrétaire</span></div></li>
                         </ul>
                     </div>
                 </div>
@@ -308,48 +299,36 @@
 </div>
 
 <script>
-    // Variables globales
     let currentGame = 'Flappy.html';
     let currentTitle = 'FLAPPY COR-TECH';
 
-    // Sélectionner un jeu dans la liste (Affiche dans l'aperçu)
     function selectGame(filename, title, btnElement) {
         currentGame = filename;
         currentTitle = title;
-        
-        // Mettre à jour l'aperçu
         document.getElementById('preview-iframe').src = filename;
         
-        // Mettre à jour les boutons
         const buttons = document.querySelectorAll('.game-btn');
         buttons.forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
-        
-        // Ouvrir directement la modale (Optionnel, selon préférence, ici on attend le clic sur l'aperçu)
-        // openModal(); 
     }
 
-    // Ouvrir la modale (Fenêtre flottante)
     function openModal() {
         const modal = document.getElementById('game-modal');
         const modalFrame = document.getElementById('modal-iframe');
         const modalTitle = document.getElementById('modal-title');
         
         modalTitle.innerText = currentTitle;
-        modalFrame.src = currentGame; // Charge le jeu
+        modalFrame.src = currentGame; 
         modal.style.display = 'flex';
     }
 
-    // Fermer la modale
     function closeModal() {
         const modal = document.getElementById('game-modal');
         const modalFrame = document.getElementById('modal-iframe');
-        
         modal.style.display = 'none';
-        modalFrame.src = ''; // Arrête le jeu pour économiser les ressources
+        modalFrame.src = ''; 
     }
 
-    // Fermer avec Echap
     document.addEventListener('keydown', function(event) {
         if (event.key === "Escape") closeModal();
     });
