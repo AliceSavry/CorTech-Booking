@@ -2,16 +2,13 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NEON TETRA BLOCKS</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Press+Start+2P&display=swap" rel="stylesheet">
 
     <style>
@@ -23,7 +20,8 @@
             --bg-dark: #0f0f1a;
         }
 
-        body {
+        /* VERROUILLAGE TOTAL ECRAN */
+        html, body {
             background-color: #050505;
             background-image: 
                 linear-gradient(rgba(15, 15, 26, 0.9), rgba(15, 15, 26, 0.9)),
@@ -31,9 +29,18 @@
             background-size: 100% 100%, 100% 4px;
             color: white;
             font-family: 'Press Start 2P', cursive;
+            
+            /* FIGE LA FENETRE */
+            width: 100%;
+            height: 100%;
+            position: fixed; 
             overflow: hidden;
+            
+            /* DESACTIVE LES GESTES PAR DEFAUT */
             touch-action: none;
+            
             user-select: none;
+            -webkit-user-select: none;
         }
 
         /* CRT Scanline Effect */
@@ -41,10 +48,7 @@
             content: " ";
             display: block;
             position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
+            top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             z-index: 20;
             background-size: 100% 2px, 3px 100%;
@@ -80,6 +84,10 @@
             box-shadow: 0 0 10px var(--neon-cyan);
             border-radius: 50%;
             transition: transform 0.1s, background 0.1s;
+            /* Permet de cliquer instantanément */
+            touch-action: manipulation;
+            pointer-events: auto;
+            cursor: pointer;
         }
         .d-pad-btn:active {
             transform: scale(0.9);
@@ -99,6 +107,7 @@
             font-size: 12px;
             cursor: pointer;
             box-shadow: 0 0 5px var(--neon-yellow);
+            pointer-events: auto;
         }
         .mute-btn:hover {
             background: var(--neon-yellow);
@@ -143,29 +152,34 @@
             color: var(--neon-yellow);
             font-weight: bold;
         }
+
+        /* Input pour le score */
+        input[type="text"] {
+            pointer-events: auto; /* Important pour pouvoir cliquer dedans */
+            touch-action: manipulation;
+        }
+        
+        button {
+            pointer-events: auto;
+            touch-action: manipulation;
+        }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col items-center justify-center relative">
 
-    <!-- CRT Overlay -->
     <div class="absolute inset-0 crt pointer-events-none w-full h-full z-50"></div>
 
-    <!-- Mute Button -->
     <button id="muteBtn" class="mute-btn">SOUND: ON</button>
 
-    <!-- Main Arcade Container -->
     <div class="relative z-10 w-full max-w-4xl h-full max-h-[95vh] flex flex-col items-center justify-between p-4">
         
-        <!-- Header -->
         <header class="mb-4 text-center">
             <h1 class="text-4xl md:text-6xl neon-text-title tracking-wider text-white">NEON TETRA</h1>
             <div class="mt-2 text-xs text-cyan-300 neon-text-cyan">80s RETRO EDITION</div>
         </header>
 
-        <!-- Game Area (Flex Row on Desktop, Col on Mobile) -->
         <div class="flex flex-col md:flex-row gap-6 items-start justify-center w-full grow">
             
-            <!-- Left Panel: Stats -->
             <div class="hidden md:flex flex-col gap-4 w-32 order-2 md:order-1">
                 <div class="arcade-frame p-4 text-center">
                     <div class="text-[10px] text-yellow-300 mb-2">SCORE</div>
@@ -181,18 +195,14 @@
                 </div>
             </div>
 
-            <!-- Center: The Canvas -->
             <div class="relative arcade-frame p-1 order-1 md:order-2">
-                <!-- Floating Scores Container -->
                 <div id="floatingScores" class="absolute inset-0 pointer-events-none z-40 overflow-hidden"></div>
 
                 <canvas id="gameCanvas" width="300" height="600" class="block bg-black"></canvas>
                 
-                <!-- Start Screen Overlay -->
                 <div id="startScreen" class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-30">
                     <h2 class="text-2xl text-yellow-400 mb-6 animate-pulse text-center leading-loose">INSERT COIN<br><span class="text-xs text-white">(CLICK TO START)</span></h2>
                     
-                    <!-- Mini Leaderboard on Start -->
                     <div class="mb-6 w-4/5">
                         <h3 class="text-pink-500 text-xs text-center mb-2">TOP 5 PLAYERS</h3>
                         <table class="leaderboard-table text-cyan-300">
@@ -206,12 +216,10 @@
                     </div>
                 </div>
 
-                <!-- Game Over Overlay -->
                 <div id="gameOverScreen" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center z-30 hidden p-4">
                     <h2 class="text-3xl text-red-500 mb-2 neon-text-title">GAME OVER</h2>
                     <div class="text-white mb-4 text-sm">SCORE: <span id="finalScore" class="text-yellow-400">0</span></div>
                     
-                    <!-- High Score Input Form -->
                     <div id="highScoreForm" class="hidden flex flex-col items-center mb-4 w-full">
                         <div class="text-green-400 text-xs animate-bounce mb-2">NEW RECORD! ENTER INITIALS:</div>
                         <div class="flex gap-2">
@@ -220,7 +228,6 @@
                         </div>
                     </div>
 
-                    <!-- Final Leaderboard -->
                     <div class="w-full mb-4">
                          <h3 class="text-pink-500 text-xs text-center mb-2">LEADERBOARD</h3>
                          <table class="leaderboard-table text-cyan-300">
@@ -232,10 +239,8 @@
                 </div>
             </div>
 
-            <!-- Right Panel: Next Piece (and mobile stats) -->
             <div class="flex flex-col gap-4 w-full md:w-32 order-3">
                 <div class="flex justify-between md:flex-col gap-2">
-                    <!-- Mobile Stats -->
                     <div class="md:hidden flex justify-between w-full px-2">
                         <div class="text-xs text-yellow-300">SCR:<span id="score-mobile" class="text-white ml-1">0</span></div>
                         <div class="text-xs text-pink-500">HI:<span id="high-mobile" class="text-white ml-1">0</span></div>
@@ -249,9 +254,7 @@
             </div>
         </div>
 
-        <!-- Touch Controls (Mobile Only) -->
         <div class="md:hidden w-full h-32 mt-4 grid grid-cols-3 gap-2 pb-4 z-40">
-            <!-- Left/Down/Right -->
             <div class="flex flex-col justify-end gap-2 items-center">
                 <button id="btnLeft" class="d-pad-btn w-14 h-14 flex items-center justify-center text-2xl text-cyan-400">←</button>
             </div>
@@ -262,12 +265,26 @@
                  <button id="btnRight" class="d-pad-btn w-14 h-14 flex items-center justify-center text-2xl text-cyan-400">→</button>
             </div>
         </div>
-        <!-- Separate Rotate Button for better ergonomics -->
         <button id="btnRotate" class="md:hidden absolute bottom-20 right-4 d-pad-btn w-16 h-16 flex items-center justify-center text-xl text-pink-400 border-pink-400 shadow-[0_0_10px_#ff00ff] z-50">↻</button>
 
     </div>
 
     <script>
+        // --- SCRIPT ANTI-ZOOM RADICAL ---
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            // On laisse passer les clics sur les boutons et les inputs
+            if(event.target.tagName === 'BUTTON' || event.target.tagName === 'INPUT') return;
+            
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        // --------------------------------
+
         /**
          * SOUND ENGINE - 8-Bit Chiptune Procedural Audio
          */
@@ -279,29 +296,26 @@
                 this.isPlayingMusic = false;
                 this.tempo = 140; // BPM
                 this.noteTime = 0;
-                this.melodyQueue = [];
-                // Korobeiniki Theme (Tetris A) - Simplified notes
-                // 4 = quarter note, 8 = eighth note
+                this.melodyIndex = 0;
+                this.nextNoteTime = 0;
+                // Korobeiniki Theme
                 this.melody = [
                     {n:'E5',d:4}, {n:'B4',d:8}, {n:'C5',d:8}, {n:'D5',d:4}, {n:'C5',d:8}, {n:'B4',d:8},
                     {n:'A4',d:4}, {n:'A4',d:8}, {n:'C5',d:8}, {n:'E5',d:4}, {n:'D5',d:8}, {n:'C5',d:8},
                     {n:'B4',d:4}, {n:'B4',d:8}, {n:'C5',d:8}, {n:'D5',d:4}, {n:'E5',d:4},
                     {n:'C5',d:4}, {n:'A4',d:4}, {n:'A4',d:2},
-                    // Part B
                     {n:'D5',d:4}, {n:'F5',d:8}, {n:'A5',d:4}, {n:'G5',d:8}, {n:'F5',d:8},
                     {n:'E5',d:4}, {n:'C5',d:8}, {n:'E5',d:4}, {n:'D5',d:8}, {n:'C5',d:8},
                     {n:'B4',d:4}, {n:'B4',d:8}, {n:'C5',d:8}, {n:'D5',d:4}, {n:'E5',d:4},
                     {n:'C5',d:4}, {n:'A4',d:4}, {n:'A4',d:2}
                 ];
-                this.melodyIndex = 0;
-                this.nextNoteTime = 0;
             }
 
             init() {
                 if (!this.ctx) {
                     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                     this.gainNode = this.ctx.createGain();
-                    this.gainNode.gain.value = 0.1; // Master volume
+                    this.gainNode.gain.value = 0.1;
                     this.gainNode.connect(this.ctx.destination);
                 }
                 if (this.ctx.state === 'suspended') {
@@ -376,22 +390,18 @@
             scheduleMusic() {
                 if (!this.isPlayingMusic || !this.ctx || this.isMuted) return;
                 
-                // Lookahead to schedule notes
                 while (this.nextNoteTime < this.ctx.currentTime + 0.1) {
                     const noteData = this.melody[this.melodyIndex];
                     const freq = this.getFreq(noteData.n);
-                    const duration = (60 / this.tempo) * (4 / noteData.d); // duration in seconds
+                    const duration = (60 / this.tempo) * (4 / noteData.d);
                     
                     if (freq > 0) {
                         const osc = this.ctx.createOscillator();
                         const gain = this.ctx.createGain();
-                        osc.type = 'square'; // 8-bit sound
+                        osc.type = 'square';
                         osc.frequency.value = freq;
-                        
-                        // Enveloppe courte pour effet staccato
                         gain.gain.setValueAtTime(0.05, this.nextNoteTime);
                         gain.gain.exponentialRampToValueAtTime(0.001, this.nextNoteTime + duration * 0.9);
-                        
                         osc.connect(gain);
                         gain.connect(this.ctx.destination);
                         osc.start(this.nextNoteTime);
@@ -420,9 +430,8 @@
          */
         const COLS = 10;
         const ROWS = 20;
-        const BLOCK_SIZE = 30; // Base size, scaled by canvas CSS
+        const BLOCK_SIZE = 30;
 
-        // Tetromino definitions
         const SHAPES = [
             [[1, 1, 1, 1]],             // I
             [[1, 0, 0], [1, 1, 1]],     // J
@@ -434,13 +443,7 @@
         ];
 
         const COLORS = [
-            '#00ffff', // I - Cyan
-            '#3b82f6', // J - Blue
-            '#f97316', // L - Orange
-            '#ffff00', // O - Yellow
-            '#22c55e', // S - Green
-            '#d946ef', // T - Purple
-            '#ef4444'  // Z - Red
+            '#00ffff', '#3b82f6', '#f97316', '#ffff00', '#22c55e', '#d946ef', '#ef4444'
         ];
 
         class TetrisGame {
@@ -457,14 +460,11 @@
                 this.level = 1;
                 this.lines = 0;
                 
-                // Leaderboard system
                 this.leaderboard = this.loadLeaderboard();
                 this.highScore = this.leaderboard.length > 0 ? this.leaderboard[0].score : 0;
                 
                 this.gameOver = false;
-                this.isPaused = false;
                 
-                // Animation loop
                 this.lastTime = 0;
                 this.dropCounter = 0;
                 this.dropInterval = 1000;
@@ -486,7 +486,6 @@
             loadLeaderboard() {
                 const stored = localStorage.getItem('neonTetrisLB');
                 if (stored) return JSON.parse(stored);
-                // Default high scores
                 return [
                     { name: 'NEO', score: 2000 },
                     { name: 'ARC', score: 1500 },
@@ -499,7 +498,7 @@
             saveLeaderboard(name, score) {
                 this.leaderboard.push({ name, score });
                 this.leaderboard.sort((a, b) => b.score - a.score);
-                this.leaderboard = this.leaderboard.slice(0, 5); // Keep top 5
+                this.leaderboard = this.leaderboard.slice(0, 5);
                 localStorage.setItem('neonTetrisLB', JSON.stringify(this.leaderboard));
                 this.highScore = this.leaderboard[0].score;
             }
@@ -527,7 +526,7 @@
                 
                 document.getElementById('gameOverScreen').classList.add('hidden');
                 document.getElementById('startScreen').classList.add('hidden');
-                document.getElementById('floatingScores').innerHTML = ''; // Clear floaters
+                document.getElementById('floatingScores').innerHTML = '';
                 
                 this.loop();
             }
@@ -539,7 +538,7 @@
                     color: COLORS[typeId],
                     x: Math.floor(COLS / 2) - Math.floor(SHAPES[typeId][0].length / 2),
                     y: 0,
-                    typeId: typeId // Needed to store color in grid
+                    typeId: typeId
                 };
             }
 
@@ -693,9 +692,8 @@
                 const el = document.createElement('div');
                 el.classList.add('floating-score');
                 el.innerText = `+${points}`;
-                // Random position near center-top of game area
                 el.style.left = `${Math.random() * 100 + 100}px`;
-                el.style.top = `${this.piece.y * 30}px`; // Approximate Y pos
+                el.style.top = `${this.piece.y * 30}px`;
                 container.appendChild(el);
                 setTimeout(() => el.remove(), 1000);
             }
@@ -719,7 +717,6 @@
 
                 if (rowCount > 0) {
                     this.lines += rowCount;
-                    
                     const lineScores = [0, 40, 100, 300, 1200];
                     const points = lineScores[rowCount] * this.level;
                     this.score += points;
@@ -788,14 +785,12 @@
                 const restartBtn = document.getElementById('restartBtn');
                 
                 goScreen.classList.remove('hidden');
-                
-                // Update Leaderboard Table
                 this.renderLeaderboardTable('gameOverLeaderboardBody');
 
                 if (this.checkHighScore(this.score)) {
                     form.classList.remove('hidden');
                     form.classList.add('flex');
-                    restartBtn.classList.add('hidden'); // Hide restart until saved
+                    restartBtn.classList.add('hidden');
                     document.getElementById('playerName').value = '';
                     document.getElementById('playerName').focus();
                 } else {
@@ -863,6 +858,10 @@
             setupInputs() {
                 document.addEventListener('keydown', event => {
                     if (this.gameOver) return;
+                    // Bloque le scrolling clavier si le jeu a le focus
+                    if([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+                        event.preventDefault();
+                    }
                     if (document.getElementById('startScreen').classList.contains('hidden') === false) return;
 
                     switch(event.keyCode) {
@@ -878,13 +877,16 @@
                     if (!btn) return;
                     
                     const trigger = (e) => {
-                        e.preventDefault();
+                        // IMPORTANT : On n'appelle preventDefault QUE pour le bouton
+                        // Cela évite de bloquer les autres interactions ailleurs
+                        if (e.cancelable) e.preventDefault();
+                        
                         if (this.gameOver || !document.getElementById('startScreen').classList.contains('hidden')) return;
                         action();
                     };
 
                     btn.addEventListener('mousedown', trigger);
-                    btn.addEventListener('touchstart', trigger);
+                    btn.addEventListener('touchstart', trigger, {passive: false});
                 };
 
                 bindBtn('btnLeft', () => this.playerMove(-1));
@@ -899,13 +901,11 @@
                 
                 document.getElementById('startBtn').addEventListener('click', startGame);
                 
-                // Mute Button
                 document.getElementById('muteBtn').addEventListener('click', (e) => {
-                    e.preventDefault(); // Focus handling
+                    e.preventDefault();
                     this.audio.toggleMute();
                 });
 
-                // Save Score Button
                 document.getElementById('saveScoreBtn').addEventListener('click', () => {
                     const nameInput = document.getElementById('playerName');
                     let name = nameInput.value.toUpperCase() || 'UNK';
@@ -924,23 +924,5 @@
         const game = new TetrisGame();
 
     </script>
-    <script>
-    // Quand on touche l'écran du téléphone
-    document.addEventListener('touchstart', function(e) {
-        // On empêche le zoom ou le scroll
-        e.preventDefault();
-        
-        // On simule l'appui sur la barre ESPACE (code 32)
-        var event = new KeyboardEvent('keydown', {
-            'keyCode': 32,
-            'which': 32
-        });
-        document.dispatchEvent(event);
-        
-        // Pour certains jeux qui écoutent 'window' au lieu de 'document'
-        window.dispatchEvent(event);
-    }, {passive: false});
-</script>
 </body>
-
 </html>
