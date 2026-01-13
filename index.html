@@ -28,14 +28,13 @@
         h1, h2 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
         h3, h4, .font-tech { font-family: 'Share Tech Mono', monospace; }
         
-        /* NEON */
         .text-neon { color: var(--c-neon); text-shadow: 0 0 8px rgba(0, 255, 255, 0.6); }
         .border-neon { border: 1px solid var(--c-neon); box-shadow: 0 0 10px rgba(0, 255, 255, 0.15); }
 
-        /* LAYOUT STRICT */
+        /* LAYOUT PRINCIPAL */
         .main-container { display: flex; width: 100vw; height: 100vh; }
 
-        /* GAUCHE : ARCADE */
+        /* --- ZONE GAUCHE (ARCADE) --- */
         .left-panel {
             width: 33.33%; 
             height: 100%;
@@ -48,7 +47,7 @@
             z-index: 20;
         }
 
-        /* DROITE : INFOS */
+        /* --- ZONE DROITE (INFOS) --- */
         .right-panel {
             width: 66.66%; 
             height: 100%;
@@ -58,45 +57,90 @@
             box-sizing: border-box;
         }
 
-        /* CONFIGURATION FLEX POUR L'ECRAN DE JEU */
-        .header-section { flex: 0 0 auto; }
-        
-        .game-wrapper {
-            flex: 1 1 auto; /* Prend toute la place restante */
+        /* --- MINI ECRAN (PREVIEW) --- */
+        .preview-container {
+            flex: 1 1 auto;
             position: relative;
             width: 100%;
-            min-height: 0;
             margin-bottom: 1rem;
             background: #000;
             border: 4px solid #333;
             border-radius: 8px;
             box-shadow: inset 0 0 20px #000;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .preview-container:hover { border-color: var(--c-neon); }
+
+        /* Iframe Preview (non cliquable directement) */
+        .preview-iframe {
+            width: 100%; height: 100%; border: none;
+            opacity: 0.6; /* Un peu sombre pour montrer que c'est un aperçu */
+            pointer-events: none; /* Empêche de jouer ici */
         }
 
-        iframe {
+        /* Overlay "CLIQUER POUR JOUER" */
+        .play-overlay {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            border: none;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.2);
+            transition: background 0.3s;
         }
-
-        .list-section {
-            flex: 0 0 180px; /* Hauteur fixe pour la liste */
-            overflow-y: auto;
+        .play-overlay:hover { background: rgba(0,0,0,0.5); }
+        .play-icon {
+            font-size: 3rem; color: var(--c-neon);
+            text-shadow: 0 0 15px var(--c-neon);
+            animation: pulse 1.5s infinite;
         }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        /* BOUTONS */
+        /* LISTE JEUX */
+        .list-section { flex: 0 0 180px; overflow-y: auto; }
         .game-btn {
             background: rgba(0, 57, 57, 0.4);
             border: 1px solid var(--c-cyan-dark);
-            color: #aaa;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            transition: all 0.2s;
-            cursor: pointer;
+            color: #aaa; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;
+            transition: all 0.2s; cursor: pointer;
         }
         .game-btn:hover { border-color: var(--c-neon); color: var(--c-neon); padding-left: 1rem; }
         .game-btn.active { background: var(--c-neon); color: black; font-weight: bold; border-color: var(--c-neon); }
+
+        /* --- MODALE (FENETRE FLOTTANTE) --- */
+        #game-modal {
+            display: none; /* Caché par défaut */
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            width: 90%; height: 90%;
+            max-width: 1200px;
+            background: #000;
+            border: 2px solid var(--c-neon);
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
+            border-radius: 12px;
+            position: relative;
+            display: flex; flex-direction: column;
+        }
+        .modal-iframe { width: 100%; height: 100%; border: none; border-radius: 0 0 10px 10px; }
+        .modal-header {
+            background: var(--c-petrol);
+            padding: 10px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--c-neon);
+            border-radius: 10px 10px 0 0;
+        }
+        .close-btn {
+            background: transparent; border: 1px solid var(--c-neon); color: var(--c-neon);
+            padding: 5px 15px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold;
+            transition: all 0.2s;
+        }
+        .close-btn:hover { background: var(--c-neon); color: black; }
 
         /* SCROLLBAR */
         ::-webkit-scrollbar { width: 8px; }
@@ -106,40 +150,52 @@
         /* MOBILE */
         @media (max-width: 1024px) {
             .main-container { flex-direction: column; overflow: auto; }
-            .left-panel { width: 100%; height: auto; min-height: 90vh; border-right: none; border-bottom: 4px solid var(--c-neon); }
+            .left-panel { width: 100%; height: auto; min-height: 80vh; border-right: none; border-bottom: 4px solid var(--c-neon); }
             .right-panel { width: 100%; height: auto; overflow: visible; }
             html, body { overflow: auto; }
-            .game-wrapper { height: 500px; }
-            .list-section { height: auto; max-height: 200px; }
+            .modal-content { width: 100%; height: 100%; border-radius: 0; border: none; }
         }
     </style>
 </head>
 <body>
 
+<div id="game-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title" class="text-white text-lg font-tech text-neon">JEU EN COURS</h2>
+            <button onclick="closeModal()" class="close-btn">FERMER X</button>
+        </div>
+        <iframe id="modal-iframe" class="modal-iframe" src=""></iframe>
+    </div>
+</div>
+
 <div class="main-container">
 
     <aside class="left-panel">
-        
         <div class="header-section text-center mb-3 flex flex-col items-center">
             <img src="images/logo.png" alt="Logo Cor-Tech" class="w-32 md:w-40 drop-shadow-[0_0_15px_rgba(0,255,255,0.3)]">
             <p class="text-[10px] text-[#00b6b6] font-tech uppercase tracking-widest mt-1">Arcade System V2.0</p>
         </div>
 
-        <div class="game-wrapper">
-            <iframe id="game-frame" src="Flappy.html"></iframe>
+        <div class="preview-container" onclick="openModal()">
+            <iframe id="preview-iframe" class="preview-iframe" src="Flappy.html"></iframe>
+            <div class="play-overlay">
+                <i class="fas fa-play-circle play-icon"></i>
+                <span class="text-white font-tech mt-2 text-sm bg-black px-2 rounded border border-[#00FFFF]">CLIQUER POUR JOUER</span>
+            </div>
         </div>
 
         <div class="list-section pr-1 custom-scroll">
-            <h3 class="text-[#00b6b6] border-b border-[#003939] mb-2 text-xs sticky top-0 bg-black z-10 py-1">CARTOUCHES</h3>
+            <h3 class="text-[#00b6b6] border-b border-[#003939] mb-2 text-xs sticky top-0 bg-black z-10 py-1">SÉLECTIONNER CARTOUCHE</h3>
             <div class="grid grid-cols-2 gap-2 pb-2">
-                <button onclick="loadGame('Flappy.html', this)" class="game-btn active p-2 rounded text-left flex items-center gap-2"><i class="fas fa-dove"></i> FLAPPY</button>
-                <button onclick="loadGame('tetris 8bit fx.html', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-cubes"></i> TETRIS</button>
-                <button onclick="loadGame('candy crush .html', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-gem"></i> CANDY</button>
-                <button onclick="loadGame('air hockey.html', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-circle"></i> HOCKEY</button>
-                <button onclick="loadGame('casse brick .html', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-th"></i> BRIQUES</button>
-                <button onclick="loadGame('course.html', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-car"></i> RACING</button>
-                <button onclick="loadGame('sinapse.html', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-brain"></i> SINAPSE</button>
-                <button onclick="loadGame('reflexe kawaii .html', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-bolt"></i> REFLEXE</button>
+                <button onclick="selectGame('Flappy.html', 'FLAPPY COR-TECH', this)" class="game-btn active p-2 rounded text-left flex items-center gap-2"><i class="fas fa-dove"></i> FLAPPY</button>
+                <button onclick="selectGame('tetris 8bit fx.html', 'TETRIS 8-BIT', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-cubes"></i> TETRIS</button>
+                <button onclick="selectGame('candy crush .html', 'CANDY CRUSH', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-gem"></i> CANDY</button>
+                <button onclick="selectGame('air hockey.html', 'AIR HOCKEY', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-circle"></i> HOCKEY</button>
+                <button onclick="selectGame('casse brick .html', 'CASSE BRIQUES', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-th"></i> BRIQUES</button>
+                <button onclick="selectGame('course.html', 'COR-TECH RACING', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-car"></i> RACING</button>
+                <button onclick="selectGame('sinapse.html', 'SINAPSE', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-brain"></i> SINAPSE</button>
+                <button onclick="selectGame('reflexe kawaii .html', 'REFLEXE KAWAII', this)" class="game-btn p-2 rounded text-left flex items-center gap-2"><i class="fas fa-bolt"></i> REFLEXE</button>
             </div>
         </div>
     </aside>
@@ -252,14 +308,51 @@
 </div>
 
 <script>
-    function loadGame(filename, btnElement) {
-        const frame = document.getElementById('game-frame');
-        frame.src = filename;
+    // Variables globales
+    let currentGame = 'Flappy.html';
+    let currentTitle = 'FLAPPY COR-TECH';
+
+    // Sélectionner un jeu dans la liste (Affiche dans l'aperçu)
+    function selectGame(filename, title, btnElement) {
+        currentGame = filename;
+        currentTitle = title;
+        
+        // Mettre à jour l'aperçu
+        document.getElementById('preview-iframe').src = filename;
+        
+        // Mettre à jour les boutons
         const buttons = document.querySelectorAll('.game-btn');
         buttons.forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
-        if(window.innerWidth < 1024) document.querySelector('.left-panel').scrollIntoView({behavior: 'smooth'});
+        
+        // Ouvrir directement la modale (Optionnel, selon préférence, ici on attend le clic sur l'aperçu)
+        // openModal(); 
     }
+
+    // Ouvrir la modale (Fenêtre flottante)
+    function openModal() {
+        const modal = document.getElementById('game-modal');
+        const modalFrame = document.getElementById('modal-iframe');
+        const modalTitle = document.getElementById('modal-title');
+        
+        modalTitle.innerText = currentTitle;
+        modalFrame.src = currentGame; // Charge le jeu
+        modal.style.display = 'flex';
+    }
+
+    // Fermer la modale
+    function closeModal() {
+        const modal = document.getElementById('game-modal');
+        const modalFrame = document.getElementById('modal-iframe');
+        
+        modal.style.display = 'none';
+        modalFrame.src = ''; // Arrête le jeu pour économiser les ressources
+    }
+
+    // Fermer avec Echap
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") closeModal();
+    });
 </script>
 
 </body>
