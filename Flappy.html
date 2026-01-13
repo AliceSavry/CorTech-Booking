@@ -15,11 +15,13 @@
             width: 100vw;
             overflow: hidden;
             font-family: 'Press Start 2P', cursive;
-            touch-action: none;
+            
+            /* CORRECTION ZOOM 1 : Bloque le double-tap zoom sur tout le corps */
+            touch-action: manipulation;
+            
             -webkit-user-select: none;
             user-select: none;
             cursor: pointer;
-            /* Centrer le canvas */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -27,7 +29,6 @@
 
         #game-container {
             position: relative;
-            /* On force le ratio 9:16 via le canvas, le conteneur s'adapte */
             width: auto;
             height: 100%;
             aspect-ratio: 9/16;
@@ -40,8 +41,10 @@
             display: block;
             width: 100%;
             height: 100%;
-            /* Optimisation rendu */
             image-rendering: -webkit-optimize-contrast;
+            
+            /* CORRECTION ZOOM 2 : Bloque TOUS les gestes navigateurs sur le jeu */
+            touch-action: none;
         }
 
         /* UI Overlay */
@@ -64,7 +67,7 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            max-width: 800px; /* Plus large pour la HD */
+            max-width: 800px;
             padding: 20px;
         }
 
@@ -83,7 +86,7 @@
 
         h1 {
             font-family: 'Fredoka One', cursive;
-            font-size: 3.5rem; /* Taille fixe relative à la résolution 1080p */
+            font-size: 3.5rem;
             margin-bottom: 30px;
             color: #FFEB3B;
             -webkit-text-stroke: 3px #000;
@@ -146,6 +149,8 @@
             text-transform: uppercase;
             width: 80%;
             max-width: 500px;
+            /* Permet le clic sans délai */
+            touch-action: manipulation; 
         }
 
         .menu-btn:active { box-shadow: 0 4px 0 #F57F17; transform: translateY(4px); }
@@ -189,13 +194,13 @@
             text-align: center;
             border-radius: 15px;
             margin-bottom: 20px;
+            touch-action: manipulation;
         }
         
         @keyframes blinker { 50% { opacity: 0; } }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         .blink { animation: blinker 0.8s linear infinite; }
 
-        /* Media query pour les écrans très larges pour éviter que le jeu ne soit trop grand */
         @media (min-aspect-ratio: 9/16) {
             #game-container {
                 width: auto;
@@ -254,19 +259,13 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // Optimisation Canvas pour Safari
         ctx.imageSmoothingEnabled = false;
 
-        // --- CONSTANTES DE RÉSOLUTION FIXE ---
         const CANVAS_WIDTH = 1080;
         const CANVAS_HEIGHT = 1920;
-        
-        // Le monde logique est basé sur 480 de large, on scale pour atteindre 1080
         const LOGICAL_WIDTH = 480; 
-        // On calcule la hauteur logique en fonction du ratio fixe
-        const SCALE_RATIO = CANVAS_WIDTH / LOGICAL_WIDTH; // 1080 / 480 = 2.25
-        const LOGICAL_HEIGHT = CANVAS_HEIGHT / SCALE_RATIO; // 1920 / 2.25 = 853.33
+        const SCALE_RATIO = CANVAS_WIDTH / LOGICAL_WIDTH; 
+        const LOGICAL_HEIGHT = CANVAS_HEIGHT / SCALE_RATIO; 
         
         const scoreEl = document.getElementById('score-display');
         const startScreen = document.getElementById('start-screen');
@@ -286,11 +285,14 @@
         
         const resetInactivity = () => {
             lastActivityTime = Date.now();
-            unlockAudio(); // Important pour Safari
+            unlockAudio();
             if (gameState === 'DEMO') stopDemoMode();
         };
 
-        const stopPropagation = (e) => { e.stopPropagation(); };
+        // Fonction helper pour bloquer la propagation (utile pour les boutons)
+        const stopPropagation = (e) => { 
+            e.stopPropagation(); 
+        };
 
         btnShowScores.addEventListener('click', (e) => { stopPropagation(e); resetInactivity(); startScreen.style.display = 'none'; leaderboardScreen.style.display = 'flex'; });
         btnBackHome.addEventListener('click', (e) => { stopPropagation(e); resetInactivity(); leaderboardScreen.style.display = 'none'; startScreen.style.display = 'flex'; });
@@ -310,12 +312,18 @@
         
         btnReplay.addEventListener('click', (e) => { stopPropagation(e); resetInactivity(); gameOverScreen.style.display = 'none'; startGame(); });
 
+        // Empêche le focus du champ texte de faire n'importe quoi
+        playerNameInput.addEventListener('focus', (e) => {
+            isHighscoreInputActive = true;
+        });
+        playerNameInput.addEventListener('blur', (e) => {
+            isHighscoreInputActive = false;
+        });
+
         let frames = 0;
         let score = 0;
         let gameState = 'START';
-        // gameSpeed n'est plus utilisé directement, on utilise pipes.dx pour tout synchroniser
         let isHighscoreInputActive = false;
-        
         let shakeAmount = 0;
         let flashOpacity = 0;
         let particles = [];
@@ -326,23 +334,10 @@
             {name: "PRO", score: 20}, {name: "DUCK", score: 10}, {name: "COR", score: 5}, {name: "TECH", score: 3}, {name: "NOOB", score: 1}
         ];
 
-        // --- AUDIO OPTIMISÉ SAFARI ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
-        
-        function initAudio() { 
-            if (!audioCtx) {
-                audioCtx = new AudioContext(); 
-            }
-        }
-        
-        // Fonction critique pour Safari: débloquer l'audio au premier contact
-        function unlockAudio() {
-            if (!audioCtx) initAudio();
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
+        function initAudio() { if (!audioCtx) { audioCtx = new AudioContext(); } }
+        function unlockAudio() { if (!audioCtx) initAudio(); if (audioCtx.state === 'suspended') { audioCtx.resume(); } }
 
         const music = {
             isPlaying: false, scheduler: null, nextNoteTime: 0, noteIndex: 0, tempo: 0.12,
@@ -455,15 +450,12 @@
             }
         }
 
-        // --- ENTITIES ---
         const ground = {
             height: 80, x: 0,
             draw: function() {
-                // On dessine le sol pour couvrir toute la largeur logique + buffer
                 ctx.fillStyle = '#66BB6A'; ctx.fillRect(0, LOGICAL_HEIGHT - this.height, LOGICAL_WIDTH, this.height);
                 ctx.fillStyle = '#43A047'; ctx.fillRect(0, LOGICAL_HEIGHT - this.height, LOGICAL_WIDTH, 15);
                 ctx.fillStyle = '#fff';
-                // Synchronisé avec pipes.dx
                 this.x = (this.x - pipes.dx) % 60;
                 for(let i = 0; i < LOGICAL_WIDTH; i+=60) ctx.fillRect(i + (this.x % 60), LOGICAL_HEIGHT - 25, 30, 8);
             }
@@ -476,12 +468,9 @@
             draw: function() {
                 ctx.save();
                 ctx.translate(this.x, this.y);
-                
                 if (this.invulnerable > 0 && Math.floor(frames / 4) % 2 === 0) { ctx.globalAlpha = 0.5; }
-
                 let rot = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (this.velocity * 0.08)));
                 ctx.rotate(rot);
-
                 ctx.fillStyle = '#C62828'; ctx.beginPath(); ctx.moveTo(-18, 4); ctx.lineTo(-32, -8); ctx.lineTo(-32, 8); ctx.fill(); 
                 ctx.fillStyle = '#FF5252'; ctx.beginPath(); ctx.ellipse(0, 8, 32, 18, 0, 0, Math.PI * 2); ctx.fill(); 
                 ctx.lineWidth=3; ctx.strokeStyle='white'; ctx.stroke(); 
@@ -491,9 +480,7 @@
                 ctx.fillStyle = '#4FC3F7'; ctx.beginPath(); ctx.arc(6, -6, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke(); 
                 ctx.fillStyle = '#D32F2F'; ctx.beginPath(); ctx.ellipse(-4, 12, 20, 8, 0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); 
                 ctx.fillStyle = '#EEE'; if (frames % 4 === 0) ctx.fillRect(28, -12, 3, 36); else ctx.fillRect(28, 4, 3, 6); 
-
                 ctx.restore();
-                
                 if (this.hasShield) {
                     ctx.save();
                     ctx.translate(this.x, this.y);
@@ -503,7 +490,6 @@
                     ctx.strokeStyle = '#69F0AE'; ctx.lineWidth = 3; ctx.stroke();
                     ctx.restore();
                 }
-
                 ctx.globalAlpha = 1.0;
                 if(frames % 5 === 0 && (gameState === 'PLAYING' || gameState === 'DEMO')) particles.push(new Particle(this.x - 30, this.y + 8, 'smoke'));
             },
@@ -572,7 +558,6 @@
                             score += 5; playSound('bonus_score'); scoreEl.innerText = score;
                             scoreEl.classList.remove('score-pop'); void scoreEl.offsetWidth; scoreEl.classList.add('score-pop');
                             for(let k=0; k<10; k++) particles.push(new Particle(b.x, b.y, 'bonus'));
-                            // Les bonus de score augmentent aussi la difficulté !
                             if (score % 5 === 0) { pipes.dx = Math.min(pipes.dx + 0.3, 8); }
                         } else if (b.type === 'shield') {
                             player.hasShield = true; playSound('bonus_shield');
@@ -589,26 +574,19 @@
             items: [], width: 80, gap: 180, dx: 3.5, spawnRate: 90, 
             reset: function() { this.items = []; },
             draw: function() {
-                // OPTIMISATION SAFARI: Pas de ctx.clip(), calcul mathématique simple
                 for (let i = 0; i < this.items.length; i++) {
                     let p = this.items[i];
                     const stripeHeight = 30;
-                    
                     const drawPipe = (x, yStart, w, h, isTop) => {
                         ctx.save();
-                        // Fond blanc
                         ctx.fillStyle = '#FFF'; ctx.fillRect(x, yStart, w, h);
-                        
-                        // Rayures optimisées (Pas de clip)
                         ctx.fillStyle = '#FF1744';
                         for (let sy = yStart; sy < yStart + h; sy += stripeHeight) {
                             if (Math.floor((sy - yStart) / stripeHeight) % 2 === 0) {
-                                // Calcul pour ne pas dépasser le bas du tuyau
                                 let bandH = Math.min(stripeHeight, (yStart + h) - sy);
                                 ctx.fillRect(x, sy, w, bandH);
                             }
                         }
-                        
                         ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(x + 8, yStart, 12, h); 
                         ctx.lineWidth = 4; ctx.strokeStyle = '#000'; ctx.strokeRect(x, yStart, w, h);
                         ctx.fillStyle = '#263238';
@@ -616,7 +594,6 @@
                         ctx.fillRect(x-6, capY, w+12, 18); ctx.strokeRect(x-6, capY, w+12, 18);
                         ctx.restore();
                     };
-                    
                     drawPipe(p.x, 0, this.width, p.top, true);
                     let bottomY = LOGICAL_HEIGHT - ground.height - p.bottom;
                     drawPipe(p.x, bottomY, this.width, p.bottom, false);
@@ -646,20 +623,13 @@
                             else { gameOver(); }
                         }
                     }
-                    
                     if (p.x + this.width < player.x && !p.passed) { 
                         if (gameState !== 'DEMO') {
                             score++; scoreEl.innerText = score; 
                             scoreEl.classList.remove('score-pop'); void scoreEl.offsetWidth; scoreEl.classList.add('score-pop');
                             playSound('score'); flashOpacity = 0.5;
                             for(let k=0; k<15; k++) particles.push(new Particle(player.x, player.y - 50, 'score'));
-                            
-                            // DIFFICULTY PROGRESSION
-                            // Augmentation de la vitesse tous les 5 points
-                            if (score % 5 === 0) {
-                                // On cap la vitesse max à 8 pour que ce soit jouable
-                                this.dx = Math.min(this.dx + 0.2, 8);
-                            }
+                            if (score % 5 === 0) { this.dx = Math.min(this.dx + 0.2, 8); }
                         }
                         p.passed = true; 
                     }
@@ -673,13 +643,11 @@
             init: function() { this.clouds = [{x: 50, y: 100, s: 1.2}, {x: 300, y: 200, s: 0.8}, {x: 500, y: 80, s: 1}]; },
             draw: function() {
                 ctx.save();
-                // Fond sur TOUT l'écran, pas seulement la zone logique
                 ctx.setTransform(1, 0, 0, 1, 0, 0); 
                 let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
                 grad.addColorStop(0, '#4FC3F7'); grad.addColorStop(1, '#B3E5FC'); 
                 ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width, canvas.height);
                 ctx.restore(); 
-
                 ctx.fillStyle = 'rgba(255,255,255,0.9)';
                 this.clouds.forEach(c => {
                     ctx.beginPath();
@@ -691,7 +659,6 @@
             },
             update: function() {
                 this.clouds.forEach(c => {
-                    // Les nuages accélèrent aussi légèrement avec la difficulté
                     c.x -= pipes.dx * 0.15 * c.s;
                     if(c.x < -150) c.x = LOGICAL_WIDTH + 150; 
                 });
@@ -733,7 +700,7 @@
         function resetGameEnv() {
             player.y = 300; player.velocity = 0; player.hasShield = false; player.invulnerable = 0;
             pipes.reset(); 
-            pipes.dx = 3.5; // Reset vitesse normale au début
+            pipes.dx = 3.5; 
             bonuses.reset();
             score = 0; frames = 0; particles = [];
             scoreEl.innerText = score; gameState = 'START';
@@ -773,46 +740,30 @@
                 tx = (Math.random() - 0.5) * shakeAmount; ty = (Math.random() - 0.5) * shakeAmount;
                 shakeAmount *= 0.9; if(shakeAmount < 0.5) shakeAmount = 0;
             }
-
-            // On efface tout
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             ctx.save();
-            
-            // --- TRANSFORMATIONS ---
-            // 1. Shake
             ctx.translate(tx, ty);
-            // 2. Scale pour passer de monde logique (480px) à monde HD (1080px)
             ctx.scale(SCALE_RATIO, SCALE_RATIO); 
-
             background.draw();
             if (gameState === 'PLAYING' || gameState === 'DEMO') background.update();
-
             pipes.draw();
             if (gameState === 'PLAYING' || gameState === 'DEMO') pipes.update();
-            
             bonuses.draw();
             if (gameState === 'PLAYING' || gameState === 'DEMO') bonuses.update();
-
             ground.draw();
-            
             for(let i=particles.length-1; i>=0; i--) {
                 particles[i].update(); particles[i].draw(ctx);
                 if(particles[i].life <= 0) particles.splice(i, 1);
             }
-
             player.draw();
             if (gameState === 'PLAYING' || gameState === 'DEMO') { player.update(); frames++; }
             else if (gameState === 'START') { player.y = 300 + Math.sin(Date.now() / 300) * 12; }
-            
             ctx.restore(); 
-
             if (flashOpacity > 0) {
                 ctx.fillStyle = `rgba(255, 255, 255, ${flashOpacity})`;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 flashOpacity -= 0.05;
             }
-
             requestAnimationFrame(loop);
         }
 
@@ -820,25 +771,24 @@
         function inputAction(e) {
             resetInactivity();
             
-            // Si on est en train d'écrire un nom, on laisse faire (ne pas sauter)
-            if (isHighscoreInputActive) return;
-
-            // INTELLIGENCE : Si on clique sur un bouton, un input ou un lien -> ON LAISSE PASSER LE CLIC
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'A') {
+            // --- CORRECTION MOBILE : NE PAS BLOQUER LES BOUTONS ---
+            // Si on touche un bouton ou le champ texte, on laisse faire l'événement natif
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') {
                 return; 
             }
+            // -------------------------
 
-            // Sinon (clic dans le vide/jeu), on empêche le scroll et on saute
-            if(e.cancelable && e.type !== 'click') e.preventDefault();
+            // Pour le reste (le jeu), on empêche le comportement par défaut (scroll/zoom) et on saute
+            if(e.type !== 'click' && e.cancelable) e.preventDefault();
             
             if (gameState === 'START') startGame();
             else if (gameState === 'PLAYING') player.jump();
         }
 
         window.addEventListener('keydown', (e) => { resetInactivity(); if (!isHighscoreInputActive && e.code === 'Space') inputAction(e); });
-        window.addEventListener('mousedown', inputAction);
         
-        // Touchstart avec passive: false pour pouvoir bloquer le scroll du jeu sans bloquer les boutons
+        // C'est ici que la magie opère : passive: false permet d'utiliser preventDefault()
+        window.addEventListener('mousedown', inputAction);
         window.addEventListener('touchstart', inputAction, {passive: false});
         
         window.addEventListener('mousemove', resetInactivity);
