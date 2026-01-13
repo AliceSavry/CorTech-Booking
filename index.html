@@ -5,7 +5,6 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title>COR-TECH | Arcade & Infos</title>
@@ -30,8 +29,8 @@
             font-family: 'Rajdhani', sans-serif;
             color: #e5e7eb;
             overflow: hidden; 
-            /* On bloque le scroll élastique du site principal, mais pas celui des iframes */
-            touch-action: none; 
+            /* CORRECTION : On autorise le tactile pour que les boutons marchent ! */
+            touch-action: manipulation; 
         }
 
         h1, h2 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
@@ -63,10 +62,8 @@
             padding: 20px;
             position: relative;
             overflow-y: auto; overflow-x: hidden;
-            /* Permet le scroll tactile dans la liste des jeux */
-            touch-action: pan-y; 
+            touch-action: pan-y; /* Permet de scroller la liste des jeux */
         }
-        
         /* Scanlines */
         .crt-monitor::before {
             content: " "; display: block; position: absolute;
@@ -116,13 +113,8 @@
             background: red; color: white; border: none; padding: 5px 15px;
             font-weight: bold; cursor: pointer; font-family: 'Orbitron';
         }
-        
-        /* IFRAME : AUCUNE RESTRICTION TACTILE */
-        .game-iframe { 
-            width: 100%; height: 100%; border: none; background: #000; 
-            /* On laisse le jeu gérer le tactile comme il veut */
-            touch-action: auto; 
-        }
+        /* Iframe sans restrictions */
+        .game-iframe { width: 100%; height: 100%; border: none; background: #000; touch-action: manipulation; }
 
         .blink { animation: blinker 1.5s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
@@ -148,7 +140,6 @@
             .crt-monitor { height: 400px; margin-bottom: 10px; }
             .right-panel { width: 100%; height: auto; overflow: visible; }
 
-            /* Modale Mobile */
             .modal-container { width: 100%; height: 100%; border: none; border-radius: 0; }
             .modal-header { padding: 5px 10px; }
         }
@@ -192,8 +183,11 @@
 
             <div class="space-y-1 relative z-20">
                 <div class="game-item" onclick="openGame('Flappy.html', 'FLAPPY COR-TECH')"><i class="fas fa-dove"></i> <span>FLAPPY COR-TECH</span></div>
+                
                 <div class="game-item" onclick="openGame('tetris 8bit fx.html', 'TETRIS')"><i class="fas fa-cubes"></i> <span>TETRIS 8-BIT</span></div>
+                
                 <div class="game-item" onclick="openGame('https://folgoas.github.io/candydeche/', 'DELICES SUCRES')"><i class="fas fa-gem"></i> <span>DÉLICES SUCRÉS</span></div>
+                
                 <div class="game-item" onclick="openGame('air hockey.html', 'HOCKEY')"><i class="fas fa-circle"></i> <span>AIR HOCKEY</span></div>
                 <div class="game-item" onclick="openGame('casse brick.html', 'BRIQUES')"><i class="fas fa-th"></i> <span>CASSE BRIQUES</span></div>
                 <div class="game-item" onclick="openGame('course.html', 'RACING')"><i class="fas fa-car"></i> <span>RACING</span></div>
@@ -202,7 +196,7 @@
             </div>
 
             <div class="mt-8 text-center opacity-50 relative z-20">
-                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V5.0</p>
+                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V5.1</p>
             </div>
         </div>
     </aside>
@@ -310,7 +304,6 @@
 </div>
 
 <script>
-    // --- FONCTION SIMPLE : AUCUN SCRIPT D'INJECTION ---
     function openGame(filename, title) {
         const modal = document.getElementById('game-modal');
         const iframe = document.getElementById('game-frame');
@@ -319,10 +312,29 @@
         iframe.src = filename;
         titleEl.innerText = "JEU : " + title;
         modal.style.display = 'flex';
-        
-        // On donne juste le focus au chargement, sans rien injecter de bizarre
+
+        // INJECTION TACTILE PERMISSIVE
+        // Fait sauter l'oiseau mais laisse les clics passer !
         iframe.onload = function() {
-            try { iframe.contentWindow.focus(); } catch(e) {}
+            try {
+                iframe.contentWindow.focus();
+                const gameDoc = iframe.contentWindow.document;
+                
+                // On empêche le zoom (double tap) mais pas le clic
+                gameDoc.body.style.touchAction = "manipulation"; 
+
+                gameDoc.addEventListener('touchstart', function(e) {
+                    // On ne met PAS e.preventDefault() -> Le clic passe !
+                    
+                    // On envoie quand même la touche Espace pour le jeu
+                    const k = new KeyboardEvent('keydown', {keyCode: 32, which: 32, bubbles:true});
+                    gameDoc.dispatchEvent(k);
+                    iframe.contentWindow.dispatchEvent(k);
+                }, {passive: true});
+
+            } catch(e) {
+                console.log("Jeu externe ou erreur");
+            }
         };
     }
 
