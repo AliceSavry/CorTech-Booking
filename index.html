@@ -3,248 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cor-Tech | L'asso Numérique</title>
+    <title>Cor-Tech | Arcade & Infos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CHARTE GRAPHIQUE COR-TECH --- */
+        /* CHARTE */
         :root { 
             --primary-color: #00FFFF;
             --bg-dark: #111827;
-            --panel-bg: #1f2937;
         }
-        body { font-family: 'Rajdhani', sans-serif; background-color: var(--bg-dark); color: #e5e7eb; }
+        body { font-family: 'Rajdhani', sans-serif; background-color: var(--bg-dark); color: #e5e7eb; overflow: hidden; /* Empêche le scroll global */ }
         h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
         
         .text-primary { color: var(--primary-color); }
         .bg-primary { background-color: var(--primary-color); color: #000; }
         .border-primary { border-color: var(--primary-color); }
         
-        .neon-shadow { box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); }
         .neon-text { text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
-        .neon-box { border: 1px solid var(--primary-color); box-shadow: 0 0 5px var(--primary-color); }
+        .neon-box { box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); border: 1px solid var(--primary-color); }
 
-        /* --- STYLES ARCADE (GAUCHE) --- */
-        #arcade-container {
-            border: 2px solid var(--primary-color);
-            border-radius: 12px;
-            overflow: hidden;
-            background: #000;
-            position: relative;
-            aspect-ratio: 4/3; 
-            width: 100%;
-        }
+        /* SCROLLBAR CUSTOM (Zone de droite) */
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #1f2937; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
 
-        iframe { width: 100%; height: 100%; border: none; display: block; }
-
-        /* Boutons Arcade Compacts */
+        /* BOUTONS JEUX */
         .game-btn {
-            background-color: var(--panel-bg);
+            text-align: left;
+            padding: 8px 12px;
             border: 1px solid #374151;
-            color: white;
-            font-size: 0.8rem;
+            background: #1f2937;
+            color: #9ca3af;
             transition: all 0.2s;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            padding: 0.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            gap: 10px;
+            gap: 8px;
         }
-        .game-btn:hover { border-color: var(--primary-color); color: var(--primary-color); transform: translateX(5px); }
-        .game-btn.active { background-color: var(--primary-color); color: black; font-weight: bold; }
-
-        /* Scrollbar personnalisée */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
+        .game-btn:hover { border-color: var(--primary-color); color: var(--primary-color); padding-left: 15px; }
+        .game-btn.active { background: var(--primary-color); color: black; font-weight: bold; border-color: var(--primary-color); }
     </style>
 </head>
-<body class="flex flex-col lg:flex-row min-h-screen">
+<body class="flex h-screen w-full">
 
-    <aside class="w-full lg:w-1/3 bg-gray-900 border-r border-gray-800 lg:h-screen lg:sticky lg:top-0 flex flex-col p-4 overflow-y-auto z-50">
+    <aside class="w-1/3 bg-black border-r-2 border-primary flex flex-col p-4 relative z-50 shadow-2xl">
         
-        <div class="mb-6 text-center">
-            <h1 class="text-4xl font-bold text-white tracking-wider neon-text mb-2">COR-TECH</h1>
-            <p class="text-xs text-gray-400 uppercase tracking-widest">Zone Arcade & Détente</p>
+        <div class="mb-4 text-center">
+            <h1 class="text-3xl font-bold text-white neon-text tracking-widest">COR-TECH</h1>
+            <p class="text-xs text-gray-500 uppercase">System Ready...</p>
         </div>
 
-        <div id="arcade-container" class="neon-shadow bg-black mb-6 shadow-lg">
-            <iframe id="game-frame" src="Flappy.html" title="Ecran de Jeu" allow="autoplay; fullscreen"></iframe>
+        <div class="flex-grow neon-box rounded-lg overflow-hidden bg-gray-900 mb-4 relative">
+            <iframe id="game-frame" src="Flappy.html" class="w-full h-full border-none"></iframe>
+            <div id="game-overlay" class="absolute bottom-2 left-0 w-full text-center pointer-events-none opacity-50">
+                <p class="text-[10px] text-white bg-black/50 inline-block px-2 rounded">Cliquez pour jouer</p>
+            </div>
         </div>
 
-        <h3 class="text-white mb-3 text-sm border-b border-gray-700 pb-1"><i class="fas fa-gamepad text-primary"></i> SÉLECTIONNER UNE CARTOUCHE</h3>
-        
-        <div class="grid grid-cols-2 gap-2">
-            <button onclick="loadGame('Flappy.html', this)" class="game-btn active"><i class="fas fa-dove"></i> Flappy</button>
-            <button onclick="loadGame('tetris 8bit fx.html', this)" class="game-btn"><i class="fas fa-cubes"></i> Tetris</button>
-            <button onclick="loadGame('candy crush .html', this)" class="game-btn"><i class="fas fa-gem"></i> Candy</button>
-            <button onclick="loadGame('air hockey.html', this)" class="game-btn"><i class="fas fa-circle"></i> Hockey</button>
-            <button onclick="loadGame('casse brick .html', this)" class="game-btn"><i class="fas fa-th"></i> Casse-Brique</button>
-            <button onclick="loadGame('course.html', this)" class="game-btn"><i class="fas fa-car"></i> Racing</button>
-            <button onclick="loadGame('sinapse.html', this)" class="game-btn"><i class="fas fa-brain"></i> Sinapse</button>
-            <button onclick="loadGame('reflexe kawaii .html', this)" class="game-btn"><i class="fas fa-bolt"></i> Réflexe</button>
-        </div>
-
-        <div class="mt-auto pt-6 text-center hidden lg:block">
-            <p class="text-xs text-gray-600">Jouez en attendant votre atelier !</p>
+        <div class="h-1/3 overflow-y-auto pr-1">
+            <h3 class="text-xs text-primary mb-2 border-b border-gray-800 pb-1">INSERER CARTOUCHE</h3>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="loadGame('Flappy.html', this)" class="game-btn active"><i class="fas fa-dove"></i> Flappy</button>
+                <button onclick="loadGame('tetris 8bit fx.html', this)" class="game-btn"><i class="fas fa-cubes"></i> Tetris</button>
+                <button onclick="loadGame('candy crush .html', this)" class="game-btn"><i class="fas fa-gem"></i> Candy</button>
+                <button onclick="loadGame('air hockey.html', this)" class="game-btn"><i class="fas fa-circle"></i> Hockey</button>
+                <button onclick="loadGame('casse brick .html', this)" class="game-btn"><i class="fas fa-th"></i> Briques</button>
+                <button onclick="loadGame('course.html', this)" class="game-btn"><i class="fas fa-car"></i> Racing</button>
+                <button onclick="loadGame('sinapse.html', this)" class="game-btn"><i class="fas fa-brain"></i> Sinapse</button>
+                <button onclick="loadGame('reflexe kawaii .html', this)" class="game-btn"><i class="fas fa-bolt"></i> Réflexe</button>
+            </div>
         </div>
     </aside>
 
 
-    <main class="w-full lg:w-2/3 bg-gray-800 text-gray-200">
+    <main class="w-2/3 bg-gray-900 h-full overflow-y-auto custom-scroll relative">
         
-        <section class="relative bg-gray-900 p-8 md:p-12 border-b border-gray-700">
-            <div class="absolute top-0 right-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
-                 <div class="absolute -right-20 -top-20 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
+        <header class="bg-gray-800 p-8 border-b border-gray-700 sticky top-0 z-40 shadow-lg bg-opacity-95 backdrop-blur">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-4xl font-bold text-white mb-2">L'ASSOCIATION <span class="text-primary">NUMÉRIQUE</span></h2>
+                    <p class="text-gray-400 text-sm max-w-lg">La petite sœur rebelle et créative de Micromédia. Un lieu d'apprentissage, de partage et de création ouvert à tous à Cordemais.</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <a href="https://notion.so/ton-lien-ici" target="_blank" class="bg-primary hover:bg-white text-black font-bold py-2 px-4 rounded text-sm transition text-center">
+                        <i class="fas fa-external-link-alt"></i> ESPACE MEMBRE
+                    </a>
+                    <a href="mailto:accueil@cor-tech.fr" class="border border-gray-600 hover:border-primary text-gray-300 hover:text-white py-2 px-4 rounded text-sm transition text-center">
+                        <i class="fas fa-envelope"></i> CONTACT
+                    </a>
+                </div>
             </div>
-            <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">CONNECTER CORDEMAIS <br><span class="text-primary neon-text">AU NUMÉRIQUE DU FUTUR</span></h2>
-            <p class="text-lg text-gray-400 max-w-2xl">La petite sœur rebelle et créative de Micromédia. Un lieu d'apprentissage, de partage et de création ouvert à tous.</p>
-            
-            <div class="mt-8 flex flex-wrap gap-4">
-                <a href="https://notion.so/ton-lien-ici" target="_blank" class="bg-primary text-black font-bold py-3 px-6 rounded hover:opacity-90 transition flex items-center gap-2">
-                    <i class="fas fa-calendar-alt"></i> PLANNING & INSCRIPTIONS
-                </a>
-                <a href="mailto:accueil@cor-tech.fr" class="border border-gray-500 hover:border-white text-white py-3 px-6 rounded transition flex items-center gap-2">
-                    <i class="fas fa-envelope"></i> NOUS CONTACTER
-                </a>
-            </div>
-        </section>
+        </header>
 
-        <div class="p-8 md:p-12 space-y-16">
+        <div class="p-8 space-y-12">
 
             <section>
-                <h3 class="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">NOS PRESTATIONS & ATELIERS</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
-                        <i class="fas fa-robot text-3xl text-primary mb-4 group-hover:scale-110 transition duration-300"></i>
-                        <h4 class="text-xl font-bold text-white mb-2">Intelligence Artificielle</h4>
-                        <p class="text-sm text-gray-400">Initiation, détournement créatif et éthique. Comprendre et maîtriser les outils qui changent le monde.</p>
-                    </div>
-
-                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
-                        <i class="fas fa-cube text-3xl text-orange-400 mb-4 group-hover:scale-110 transition duration-300"></i>
-                        <h4 class="text-xl font-bold text-white mb-2">Impression 3D</h4>
-                        <p class="text-sm text-gray-400">De la modélisation à l'impression. Concevez vos objets, figurines et pièces mécaniques.</p>
-                    </div>
-
-                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
-                        <i class="fas fa-gamepad text-3xl text-purple-400 mb-4 group-hover:scale-110 transition duration-300"></i>
-                        <h4 class="text-xl font-bold text-white mb-2">Jeu Vidéo & E-Sport</h4>
-                        <p class="text-sm text-gray-400">Tournois, analyses, streaming et création de jeux. Avec bienveillance et stratégie.</p>
-                    </div>
-
-                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
-                        <i class="fas fa-scissors text-3xl text-pink-400 mb-4 group-hover:scale-110 transition duration-300"></i>
-                        <h4 class="text-xl font-bold text-white mb-2">Découpe Numérique</h4>
-                        <p class="text-sm text-gray-400">Plotters de découpe pour stickers, flocages textiles et objets déco.</p>
-                    </div>
-
-                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
-                        <i class="fas fa-video text-3xl text-red-500 mb-4 group-hover:scale-110 transition duration-300"></i>
-                        <h4 class="text-xl font-bold text-white mb-2">Création de Contenu</h4>
-                        <p class="text-sm text-gray-400">Podcasts, vidéos YouTube, shorts, tutos. Exprimez-vous avec des formats pros.</p>
-                    </div>
-                     <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
-                        <i class="fas fa-pen-nib text-3xl text-yellow-400 mb-4 group-hover:scale-110 transition duration-300"></i>
-                        <h4 class="text-xl font-bold text-white mb-2">Création Graphique</h4>
-                        <p class="text-sm text-gray-400">Design pour réseaux sociaux, affiches, avatars et montages.</p>
-                    </div>
-
+                <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                    <span class="w-2 h-8 bg-primary block"></span> QUI SOMMES NOUS ?
+                </h3>
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 text-gray-300 leading-relaxed">
+                    <p class="mb-4">
+                        Bienvenue dans l’univers de <strong>Cor-Tech</strong>. Née de l'expérience de Micromédia, Cor-Tech est une entité indépendante dédiée aux passionnés de technologie.
+                    </p>
+                    <p class="mb-4">
+                        <i class="fas fa-quote-left text-primary opacity-50 mr-2"></i>
+                        <em>Notre ambition ? Faire tomber les barrières du numérique, reconnecter les générations autour de projets créatifs et faire de la tech un levier d’émancipation.</em>
+                    </p>
+                    <p>
+                        Que tu sois ado, étudiant, parent ou retraité, Cor-Tech n'est pas juste un club de geeks, c'est un lieu de vie et de création.
+                    </p>
                 </div>
             </section>
 
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <section>
+                <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                    <span class="w-2 h-8 bg-purple-500 block"></span> NOS ATELIERS & PRESTATIONS
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-800 p-4 rounded border border-gray-700 hover:border-purple-500 transition">
+                        <div class="text-purple-400 text-2xl mb-2"><i class="fas fa-robot"></i></div>
+                        <h4 class="font-bold text-white">I.A.</h4>
+                        <p class="text-xs text-gray-400">Initiation, éthique & créativité.</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded border border-gray-700 hover:border-orange-500 transition">
+                        <div class="text-orange-400 text-2xl mb-2"><i class="fas fa-cube"></i></div>
+                        <h4 class="font-bold text-white">Impression 3D</h4>
+                        <p class="text-xs text-gray-400">Modélisation & conception.</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded border border-gray-700 hover:border-green-500 transition">
+                        <div class="text-green-400 text-2xl mb-2"><i class="fas fa-gamepad"></i></div>
+                        <h4 class="font-bold text-white">Jeu Vidéo</h4>
+                        <p class="text-xs text-gray-400">E-sport, stream & analyse.</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded border border-gray-700 hover:border-pink-500 transition">
+                        <div class="text-pink-400 text-2xl mb-2"><i class="fas fa-cut"></i></div>
+                        <h4 class="font-bold text-white">Découpe Numérique</h4>
+                        <p class="text-xs text-gray-400">Stickers, flocage & déco.</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded border border-gray-700 hover:border-red-500 transition">
+                        <div class="text-red-400 text-2xl mb-2"><i class="fas fa-video"></i></div>
+                        <h4 class="font-bold text-white">Création Contenu</h4>
+                        <p class="text-xs text-gray-400">Youtube, Podcast, Montage.</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded border border-gray-700 hover:border-yellow-500 transition">
+                        <div class="text-yellow-400 text-2xl mb-2"><i class="fas fa-pen-nib"></i></div>
+                        <h4 class="font-bold text-white">Graphisme</h4>
+                        <p class="text-xs text-gray-400">Design & Communication.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-2 gap-8">
                 
                 <div>
-                    <h3 class="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">INFOS PRATIQUES</h3>
+                    <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                        <span class="w-2 h-8 bg-blue-500 block"></span> PRATIQUE
+                    </h3>
                     
-                    <div class="bg-gray-900 p-6 rounded border border-gray-700 mb-6">
-                        <h4 class="text-lg font-bold text-white mb-4"><i class="fas fa-map-marker-alt text-primary mr-2"></i> Localisation</h4>
-                        <p class="text-gray-300">
-                            <strong>Médiathèque Jacques Fairand</strong><br>
+                    <div class="bg-gray-800 p-5 rounded border border-gray-700 mb-4">
+                        <h4 class="font-bold text-white mb-2"><i class="fas fa-map-marker-alt text-primary"></i> Adresse</h4>
+                        <p class="text-gray-400 text-sm">
+                            Médiathèque Jacques Fairand<br>
                             Avenue des 4 vents<br>
                             44360 CORDEMAIS
                         </p>
                     </div>
 
-                    <div class="bg-gray-900 p-6 rounded border border-gray-700">
-                        <h4 class="text-lg font-bold text-white mb-4"><i class="fas fa-clock text-primary mr-2"></i> Horaires d'ouverture</h4>
-                        <ul class="space-y-2 text-gray-300">
-                            <li class="flex justify-between border-b border-gray-800 pb-2"><span>Mardi</span> <span>9h-12h / 13h30-18h</span></li>
-                            <li class="flex justify-between border-b border-gray-800 pb-2"><span>Mercredi</span> <span>10h-12h / 13h30-18h</span></li>
-                            <li class="flex justify-between border-b border-gray-800 pb-2"><span>Jeudi</span> <span>9h-12h / 13h30-18h</span></li>
+                    <div class="bg-gray-800 p-5 rounded border border-gray-700">
+                        <h4 class="font-bold text-white mb-2"><i class="fas fa-clock text-primary"></i> Horaires</h4>
+                        <ul class="text-sm text-gray-400 space-y-1">
+                            <li class="flex justify-between"><span>Mardi :</span> <span>9h-12h / 13h30-18h</span></li>
+                            <li class="flex justify-between"><span>Mercredi :</span> <span>10h-12h / 13h30-18h</span></li>
+                            <li class="flex justify-between"><span>Jeudi :</span> <span>9h-12h / 13h30-18h</span></li>
                         </ul>
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                        <span class="w-2 h-8 bg-green-500 block"></span> ADHÉSION 2025
+                    </h3>
                     
-                    <div>
-                        <h3 class="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">TARIFS 2025</h3>
-                        <div class="bg-gray-900 p-4 rounded border border-gray-700 space-y-3">
-                            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-                                <span class="text-gray-300">Adulte</span>
-                                <span class="text-xl font-bold text-primary">25 € <span class="text-xs text-gray-500">/an</span></span>
-                            </div>
-                            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-                                <span class="text-gray-300">Enfant (-18 ans)</span>
-                                <span class="text-xl font-bold text-primary">10 € <span class="text-xs text-gray-500">/an</span></span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-300">Association Partenaire</span>
-                                <span class="text-xl font-bold text-primary">160 € <span class="text-xs text-gray-500">/an</span></span>
-                            </div>
+                    <div class="bg-gray-800 p-5 rounded border border-gray-700 mb-4">
+                        <div class="flex justify-between border-b border-gray-700 pb-2 mb-2">
+                            <span class="text-gray-300">Adulte</span>
+                            <span class="font-bold text-primary">25 € <span class="text-xs text-gray-500">/an</span></span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-700 pb-2 mb-2">
+                            <span class="text-gray-300">Enfant (-18)</span>
+                            <span class="font-bold text-primary">10 € <span class="text-xs text-gray-500">/an</span></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Asso Partenaire</span>
+                            <span class="font-bold text-primary">160 € <span class="text-xs text-gray-500">/an</span></span>
                         </div>
                     </div>
 
-                    <div>
-                        <h3 class="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">LE BUREAU</h3>
-                        <div class="bg-gray-900 p-6 rounded border border-gray-700">
-                            <ul class="space-y-4">
-                                <li class="flex items-center gap-4">
-                                    <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-primary"><i class="fas fa-user-astronaut"></i></div>
-                                    <div>
-                                        <p class="font-bold text-white">Alice SAVRY</p>
-                                        <p class="text-xs text-primary uppercase">Présidente</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-center gap-4">
-                                    <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400"><i class="fas fa-user"></i></div>
-                                    <div>
-                                        <p class="font-bold text-white">Simon CANEVET</p>
-                                        <p class="text-xs text-gray-500 uppercase">Vice-Président</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-center gap-4">
-                                    <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400"><i class="fas fa-user"></i></div>
-                                    <div>
-                                        <p class="font-bold text-white">Sébastien SAVRY</p>
-                                        <p class="text-xs text-gray-500 uppercase">Trésorier</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-center gap-4">
-                                    <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400"><i class="fas fa-user"></i></div>
-                                    <div>
-                                        <p class="font-bold text-white">Aurélien AUDOUIS</p>
-                                        <p class="text-xs text-gray-500 uppercase">Secrétaire</p>
-                                    </div>
-                                </li>
-                            </ul>
+                    <h3 class="text-xl font-bold text-white mb-3">Le Bureau</h3>
+                    <div class="bg-gray-800 p-4 rounded border border-gray-700 text-sm space-y-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-user-circle text-gray-500"></i>
+                            <span class="font-bold text-white">Alice SAVRY</span> <span class="text-xs text-primary bg-gray-900 px-2 rounded">Présidente</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-user-circle text-gray-500"></i>
+                            <span class="font-bold text-white">Simon CANEVET</span> <span class="text-xs text-gray-400">Vice-Président</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-user-circle text-gray-500"></i>
+                            <span class="font-bold text-white">Sébastien SAVRY</span> <span class="text-xs text-gray-400">Trésorier</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-user-circle text-gray-500"></i>
+                            <span class="font-bold text-white">Aurélien AUDOUIS</span> <span class="text-xs text-gray-400">Secrétaire</span>
                         </div>
                     </div>
 
                 </div>
             </section>
 
-            <footer class="text-center text-gray-500 text-sm pt-12 border-t border-gray-800">
-                <p>&copy; 2025 Cor-Tech (Ass. Micromédia). Tous droits réservés.</p>
-                <p class="mt-2"><a href="mentions.html" class="hover:text-primary">Mentions Légales</a> | <a href="mailto:accueil@cor-tech.fr" class="hover:text-primary">Contact</a></p>
+            <footer class="text-center text-gray-600 text-xs border-t border-gray-800 pt-8 pb-4">
+                <p>&copy; 2025 Association Cor-Tech.</p>
+                <a href="mentions.html" class="hover:text-primary">Mentions Légales</a>
             </footer>
 
         </div>
@@ -254,16 +237,9 @@
         function loadGame(filename, btnElement) {
             const frame = document.getElementById('game-frame');
             frame.src = filename;
-
-            // Animation bouton
             const buttons = document.querySelectorAll('.game-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
-            
-            // Scroll doux vers le jeu sur mobile uniquement
-            if(window.innerWidth < 1024) {
-                document.getElementById('arcade-container').scrollIntoView({behavior: 'smooth'});
-            }
         }
     </script>
 </body>
