@@ -180,11 +180,8 @@
 
             <div class="space-y-1 relative z-20">
                 <div class="game-item" onclick="openGame('Flappy.html', 'FLAPPY COR-TECH')"><i class="fas fa-dove"></i> <span>FLAPPY COR-TECH</span></div>
-                
                 <div class="game-item" onclick="openGame('tetris 8bit fx.html', 'TETRIS')"><i class="fas fa-cubes"></i> <span>TETRIS 8-BIT</span></div>
-                
                 <div class="game-item" onclick="openGame('https://folgoas.github.io/candydeche/', 'DELICES SUCRES')"><i class="fas fa-gem"></i> <span>DÉLICES SUCRÉS</span></div>
-                
                 <div class="game-item" onclick="openGame('air hockey.html', 'HOCKEY')"><i class="fas fa-circle"></i> <span>AIR HOCKEY</span></div>
                 <div class="game-item" onclick="openGame('casse brick.html', 'BRIQUES')"><i class="fas fa-th"></i> <span>CASSE BRIQUES</span></div>
                 <div class="game-item" onclick="openGame('course.html', 'RACING')"><i class="fas fa-car"></i> <span>RACING</span></div>
@@ -193,7 +190,7 @@
             </div>
 
             <div class="mt-8 text-center opacity-50 relative z-20">
-                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V4.2</p>
+                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V4.3</p>
             </div>
         </div>
     </aside>
@@ -311,32 +308,31 @@
         modal.style.display = 'flex';
 
         // INJECTION MAGIQUE POUR FLAPPY (Tap = Saut)
-        // Ne marche que pour les jeux LOCAUX (sur le même site)
+        // Mais Laisse taper le texte (Input)
         iframe.onload = function() {
             try {
                 // Focus clavier pour PC
                 iframe.contentWindow.focus();
 
-                // Création d'une zone tactile invisible pour Mobile
                 const gameDoc = iframe.contentWindow.document;
                 
-                // On crée une 'vitre' transparente par dessus le jeu
-                const touchZone = gameDoc.createElement('div');
-                touchZone.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; cursor:pointer;";
-                gameDoc.body.appendChild(touchZone);
-
-                // Quand on touche cette vitre, ça envoie 'Espace' au jeu
-                touchZone.addEventListener('touchstart', function(e) {
-                    e.preventDefault(); // Stop le scroll
+                // On écoute le toucher sur tout le document du jeu
+                gameDoc.addEventListener('touchstart', function(e) {
                     
+                    // INTELLIGENCE : Si on touche un champ Texte ou Bouton, on ne fait rien
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'A') {
+                        return; // On laisse l'utilisateur écrire
+                    }
+
+                    // Sinon, c'est pour jouer (Sauter)
+                    e.preventDefault(); 
                     const k = new KeyboardEvent('keydown', {keyCode: 32, which: 32, bubbles:true});
                     gameDoc.dispatchEvent(k);
                     iframe.contentWindow.dispatchEvent(k);
                 }, {passive: false});
 
             } catch(e) {
-                // Si c'est un jeu externe (Candy Crush), on ne fait rien (il gère déjà le tactile)
-                console.log("Jeu externe chargé");
+                // Si jeu externe (Candy), on laisse faire
             }
         };
     }
