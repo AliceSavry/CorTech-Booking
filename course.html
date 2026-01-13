@@ -617,5 +617,24 @@ document.getElementById('restartBtn').addEventListener('click', () => {
 highVal.innerText = highScore;
 
 </script>
+
+    <script>
+    // Quand on touche l'écran du téléphone
+    document.addEventListener('touchstart', function(e) {
+        // On empêche le zoom ou le scroll
+        e.preventDefault();
+        
+        // On simule l'appui sur la barre ESPACE (code 32)
+        var event = new KeyboardEvent('keydown', {
+            'keyCode': 32,
+            'which': 32
+        });
+        document.dispatchEvent(event);
+        
+        // Pour certains jeux qui écoutent 'window' au lieu de 'document'
+        window.dispatchEvent(event);
+    }, {passive: false});
+</script>
 </body>
+
 </html>
