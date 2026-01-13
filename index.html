@@ -52,7 +52,7 @@
             background-color: var(--c-black);
             border-right: 4px solid var(--c-petrol);
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Empilement vertical */
             padding: 1rem;
             box-sizing: border-box;
             z-index: 20;
@@ -101,9 +101,11 @@
         /* RESPONSIVE (Mobile passe en colonne) */
         @media (max-width: 1024px) {
             .main-container { flex-direction: column; overflow: auto; }
-            .left-panel { width: 100%; height: auto; min-height: 600px; border-right: none; border-bottom: 4px solid var(--c-neon); flex-shrink: 0; }
+            .left-panel { width: 100%; height: auto; min-height: 80vh; border-right: none; border-bottom: 4px solid var(--c-neon); flex-shrink: 0; }
             .right-panel { width: 100%; height: auto; overflow: visible; }
             html, body { overflow: auto; }
+            /* Sur mobile, on force une hauteur pour le jeu */
+            #game-container-wrapper { height: 400px !important; }
         }
     </style>
 </head>
@@ -113,18 +115,18 @@
 
     <aside class="left-panel">
         
-        <div class="text-center mb-4 flex flex-col items-center">
-            <img src="images/Logo Cor-Tech détouré.png" alt="Logo Cor-Tech" class="w-32 md:w-48 mb-2 drop-shadow-[0_0_15px_rgba(0,255,255,0.3)]">
-            <p class="text-xs text-[#00b6b6] font-tech uppercase tracking-widest mt-2">Zone Arcade V2.0</p>
+        <div class="text-center mb-2 flex flex-col items-center flex-shrink-0">
+            <img src="images/Logo Cor-Tech détouré.png" alt="Logo Cor-Tech" class="w-28 md:w-36 drop-shadow-[0_0_15px_rgba(0,255,255,0.3)]">
+            <p class="text-[10px] text-[#00b6b6] font-tech uppercase tracking-widest mt-1">Zone Arcade V2.0</p>
         </div>
 
-        <div class="flex-grow mb-4 bg-black rounded-lg border-4 border-[#333] shadow-inner relative overflow-hidden">
-            <iframe id="game-frame" src="Flappy.html" class="w-full h-full border-none"></iframe>
+        <div id="game-container-wrapper" class="flex-grow w-full bg-black rounded-lg border-4 border-[#333] shadow-[inset_0_0_20px_#000] relative overflow-hidden mb-3">
+            <iframe id="game-frame" src="Flappy.html" class="w-full h-full border-none object-contain"></iframe>
         </div>
 
-        <div class="h-48 overflow-y-auto pr-1">
-            <h3 class="text-[#00b6b6] border-b border-[#003939] mb-2 text-xs">CARTOUCHES DISPONIBLES</h3>
-            <div class="grid grid-cols-2 gap-2">
+        <div class="h-40 overflow-y-auto pr-1 flex-shrink-0 custom-scroll">
+            <h3 class="text-[#00b6b6] border-b border-[#003939] mb-2 text-xs sticky top-0 bg-black z-10">SÉLECTIONNER CARTOUCHE</h3>
+            <div class="grid grid-cols-2 gap-2 pb-2">
                 <button onclick="loadGame('Flappy.html', this)" class="game-btn active p-2 rounded text-left flex items-center gap-2">
                     <i class="fas fa-dove"></i> FLAPPY
                 </button>
