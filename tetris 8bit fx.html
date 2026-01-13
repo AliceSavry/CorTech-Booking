@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NEON TETRA BLOCKS</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,6 +17,9 @@
             --bg-dark: #0f0f1a;
         }
 
+        /* RESET TOTAL */
+        * { box-sizing: border-box; }
+
         html, body {
             background-color: #050505;
             background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, #00ffff 2px, #00ffff 4px);
@@ -24,49 +27,52 @@
             color: white;
             font-family: 'Press Start 2P', cursive;
             width: 100%;
-            height: 100dvh; /* Utilise toute la hauteur dispo */
-            overflow: hidden;
-            touch-action: none;
+            height: 100%;
+            overflow: hidden; /* Zéro scroll */
+            touch-action: none; /* Bloque le zoom */
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Empilement vertical strict */
         }
 
-        /* HEADER */
-        #game-header {
-            flex: 0 0 auto; /* Taille fixe */
-            padding: 10px;
+        /* 1. HEADER (Fixe) */
+        header {
+            flex: 0 0 auto; /* Ne grandit pas, ne rétrécit pas */
+            padding: 5px;
             text-align: center;
             z-index: 20;
+            background: rgba(0,0,0,0.5);
         }
 
-        /* ZONE DE JEU (Flexible) */
-        #game-wrapper {
-            flex: 1 1 auto;
+        /* 2. ZONE DE JEU (Flexible) */
+        #main-container {
+            flex: 1 1 auto; /* Prend toute la place dispo */
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            min-height: 0; 
-            padding: 5px;
             width: 100%;
+            min-height: 0; /* Important pour Firefox/Flexbox */
+            padding: 5px;
         }
 
-        /* CADRE DU JEU */
+        /* CADRE DU JEU (S'adapte sans dépasser) */
         #arcade-frame {
             border: 4px solid var(--neon-pink);
             box-shadow: 0 0 20px var(--neon-pink), inset 0 0 20px var(--neon-cyan);
             background: rgba(0, 0, 0, 0.9);
             position: relative;
             
-            /* C'EST ICI QUE LA MAGIE OPERE : */
-            /* On limite la hauteur pour qu'elle ne dépasse JAMAIS l'écran */
-            height: 100%; 
-            max-height: 80vh; /* Laisse de la place au header/footer */
+            /* LA CLE DU SUCCES : */
+            /* Le jeu garde ses proportions mais ne dépasse jamais le conteneur */
+            max-width: 100%;
+            max-height: 100%;
+            aspect-ratio: 300 / 600; /* Ratio du canvas */
             width: auto;
-            aspect-ratio: 1 / 2; /* Force le ratio Tetris */
+            height: auto;
         }
 
+        /* Le canvas remplit le cadre parfaitement */
         canvas {
             display: block;
             width: 100%;
@@ -74,47 +80,62 @@
             image-rendering: pixelated;
         }
 
-        /* CONTROLES MOBILE (Fixe en bas) */
+        /* 3. CONTROLES MOBILE (Fixe en bas) */
         #mobile-controls {
-            flex: 0 0 auto;
-            height: 120px; /* Assez grand pour les doigts */
+            flex: 0 0 auto; /* Taille fixe */
+            height: 140px; /* Assez haut pour les gros doigts */
             width: 100%;
             background: #111;
             border-top: 2px solid var(--neon-cyan);
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 5px;
-            padding: 5px;
-            z-index: 50;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 4px;
+            padding: 4px;
+            z-index: 100; /* Au dessus de tout */
         }
 
-        /* BOUTONS */
+        /* Disposition ergonomique des boutons */
+        /* Grille 3x2 */
+        /* [ Gauche ] [ Bas ] [ Droite ] */
+        /* [ Rotate ] [ Bas ] [ Rotate ] */
+        
+        .btn-l { grid-column: 1; grid-row: 1 / span 2; background: #222; }
+        .btn-d { grid-column: 2; grid-row: 1 / span 2; background: #222; }
+        .btn-r { grid-column: 3; grid-row: 1 / span 2; background: #222; }
+        
+        /* Bouton Rotate Flottant par dessus */
+        #btnRotateFloat {
+            position: absolute;
+            bottom: 160px; /* Au dessus du pad */
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(255, 0, 255, 0.3);
+            border: 3px solid var(--neon-pink);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 30px;
+            z-index: 101;
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
         .ctrl-btn {
-            background: #222;
-            border: 2px solid #444;
-            border-radius: 10px;
+            border: 1px solid #444;
+            border-radius: 8px;
             color: white;
-            font-size: 24px;
+            font-size: 20px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             touch-action: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-        .ctrl-btn:active, .ctrl-btn.pressed {
+        .ctrl-btn:active, .ctrl-btn.active {
             background: var(--neon-cyan);
             color: black;
-            box-shadow: 0 0 15px var(--neon-cyan);
-        }
-        .ctrl-btn.rotate {
-            background: #300;
-            border-color: var(--neon-pink);
-            color: var(--neon-pink);
-        }
-        .ctrl-btn.rotate:active {
-            background: var(--neon-pink);
-            color: white;
         }
 
         /* OVERLAYS */
@@ -123,19 +144,15 @@
             background: rgba(0,0,0,0.95);
             display: flex; flex-direction: column; 
             justify-content: center; align-items: center;
-            z-index: 30;
+            z-index: 50;
         }
         
-        .neon-title {
-            font-family: 'Fredoka One', cursive;
-            text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
-        }
-
+        .neon-title { font-family: 'Fredoka One', cursive; text-shadow: 0 0 10px var(--neon-pink); }
         .hidden { display: none !important; }
 
         #muteBtn {
             position: absolute; top: 10px; right: 10px;
-            font-size: 10px; padding: 5px 10px;
+            font-size: 9px; padding: 4px 8px;
             border: 1px solid var(--neon-yellow);
             color: var(--neon-yellow);
             background: black;
@@ -146,28 +163,25 @@
         /* Desktop: Cache les contrôles tactiles */
         @media (min-width: 768px) {
             #mobile-controls { display: none; }
-            /* Sur PC, on laisse le cadre grandir un peu plus */
-            #arcade-frame { max-height: 85vh; }
+            #btnRotateFloat { display: none; }
+            #arcade-frame { height: 90%; }
         }
     </style>
 </head>
 <body>
 
-    <header id="game-header">
+    <header>
         <h1 class="text-2xl md:text-4xl text-white neon-title">NEON TETRA</h1>
         <button id="muteBtn">SON: ON</button>
     </header>
 
-    <div id="game-wrapper">
+    <div id="main-container">
         <div id="arcade-frame">
             <canvas id="gameCanvas" width="300" height="600"></canvas>
             
             <div id="startScreen" class="overlay">
                 <h2 class="text-yellow-400 text-xl mb-4 text-center animate-pulse">INSERT COIN</h2>
                 <button id="startBtn" class="px-6 py-3 border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-bold text-sm pointer-events-auto">JOUER</button>
-                <p class="text-[10px] text-gray-400 mt-4 text-center">
-                    PC: FLÈCHES<br>MOBILE: TOUCH
-                </p>
             </div>
 
             <div id="gameOverScreen" class="overlay hidden">
@@ -192,11 +206,12 @@
     </div>
 
     <div id="mobile-controls" class="md:hidden">
-        <div id="btnLeft" class="ctrl-btn">←</div>
-        <div id="btnDown" class="ctrl-btn">↓</div>
-        <div id="btnRight" class="ctrl-btn">→</div>
-        <div id="btnRotate" class="ctrl-btn rotate">↻</div>
+        <div id="btnLeft" class="ctrl-btn btn-l">GAUCHE</div>
+        <div id="btnDown" class="ctrl-btn btn-d">BAS</div>
+        <div id="btnRight" class="ctrl-btn btn-r">DROITE</div>
     </div>
+    
+    <div id="btnRotateFloat" class="md:hidden">↻</div>
 
     <script>
         // --- PREVENTION ZOOM ---
@@ -473,34 +488,40 @@
                     }
                 });
 
-                // FONCTION MAGIQUE POUR LE TACTILE (Répétition)
-                const bindTouch = (id, action) => {
+                // --- GESTION TACTILE SIMPLIFIEE ---
+                const bindTouch = (id, action, repeat = true) => {
                     const btn = document.getElementById(id);
                     let interval;
                     
                     const trigger = (e) => {
-                        if(e.cancelable) e.preventDefault(); // Stop tout scroll
+                        // Important: Stop la propagation pour éviter les double clicks fantômes
+                        if(e.cancelable) e.preventDefault(); 
                         if (this.gameOver) return;
                         
-                        btn.classList.add('pressed');
+                        btn.classList.add('active');
                         action(); // Action immédiate
                         
                         // Répétition si maintenu
-                        clearInterval(interval);
-                        interval = setInterval(() => {
-                            if(!this.gameOver) action();
-                        }, 100); 
+                        if(repeat) {
+                            clearInterval(interval);
+                            interval = setInterval(() => {
+                                if(!this.gameOver) action();
+                            }, 100); 
+                        }
                     };
 
                     const release = (e) => {
                         if(e.cancelable) e.preventDefault();
                         clearInterval(interval);
-                        btn.classList.remove('pressed');
+                        btn.classList.remove('active');
                     };
 
+                    // On écoute uniquement touchstart/touchend pour le mobile
                     btn.addEventListener('touchstart', trigger, {passive: false});
                     btn.addEventListener('touchend', release);
                     btn.addEventListener('touchcancel', release);
+                    
+                    // Souris pour le test desktop
                     btn.addEventListener('mousedown', trigger);
                     btn.addEventListener('mouseup', release);
                     btn.addEventListener('mouseleave', release);
@@ -509,21 +530,15 @@
                 bindTouch('btnLeft', () => this.playerMove(-1));
                 bindTouch('btnRight', () => this.playerMove(1));
                 bindTouch('btnDown', () => this.playerDrop());
-                
-                // Rotation : Pas de répétition automatique
-                const btnRotate = document.getElementById('btnRotate');
-                btnRotate.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    if(!this.gameOver) { this.rotate(); btnRotate.classList.add('pressed'); }
-                }, {passive: false});
-                btnRotate.addEventListener('touchend', () => btnRotate.classList.remove('pressed'));
-                btnRotate.addEventListener('mousedown', () => { if(!this.gameOver) this.rotate(); });
+                bindTouch('btnRotateFloat', () => this.rotate(), false); 
 
-                // Boutons UI
-                document.getElementById('startBtn').addEventListener('click', () => this.reset());
-                document.getElementById('restartBtn').addEventListener('click', () => this.reset());
-                document.getElementById('muteBtn').addEventListener('click', () => this.audio.toggleMute());
+                const startGame = () => { this.audio.init(); this.reset(); };
+                document.getElementById('startBtn').addEventListener('click', startGame);
                 
+                document.getElementById('muteBtn').addEventListener('click', (e) => {
+                    e.preventDefault(); this.audio.toggleMute();
+                });
+
                 document.getElementById('saveScoreBtn').addEventListener('click', () => {
                     const name = document.getElementById('playerName').value.toUpperCase() || 'UNK';
                     let scores = JSON.parse(localStorage.getItem('neonTetrisLB')) || [];
