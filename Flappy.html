@@ -7,17 +7,20 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka+One&display=swap');
 
-        body {
+        /* --- VERROUILLAGE TOTAL DE L'ÉCRAN --- */
+        html, body {
             margin: 0;
             padding: 0;
             background-color: #222;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Pas d'ascenseurs */
+            position: fixed; /* Empêche le rebond élastique sur iOS */
+            
             font-family: 'Press Start 2P', cursive;
             
-            /* CORRECTION ZOOM 1 : Bloque le double-tap zoom sur tout le corps */
-            touch-action: manipulation;
+            /* INTERDICTION TOTALE DU ZOOM ET DES GESTES NAVIGATEUR */
+            touch-action: none; 
             
             -webkit-user-select: none;
             user-select: none;
@@ -42,9 +45,6 @@
             width: 100%;
             height: 100%;
             image-rendering: -webkit-optimize-contrast;
-            
-            /* CORRECTION ZOOM 2 : Bloque TOUS les gestes navigateurs sur le jeu */
-            touch-action: none;
         }
 
         /* UI Overlay */
@@ -75,7 +75,7 @@
             color: white;
             text-shadow: 4px 4px 0 #000;
             display: none;
-            pointer-events: auto;
+            pointer-events: auto; /* Permet de cliquer sur les boutons */
             width: 100%;
             flex-direction: column;
             align-items: center;
@@ -149,8 +149,8 @@
             text-transform: uppercase;
             width: 80%;
             max-width: 500px;
-            /* Permet le clic sans délai */
-            touch-action: manipulation; 
+            /* Permet le clic même avec touch-action: none sur body */
+            pointer-events: auto; 
         }
 
         .menu-btn:active { box-shadow: 0 4px 0 #F57F17; transform: translateY(4px); }
@@ -190,11 +190,11 @@
             padding: 20px;
             width: 90%;
             text-transform: uppercase;
-            font-size: 1.2rem;
+            font-size: 1.2rem; /* Taille > 16px pour éviter le zoom auto sur iPhone */
             text-align: center;
             border-radius: 15px;
             margin-bottom: 20px;
-            touch-action: manipulation;
+            pointer-events: auto;
         }
         
         @keyframes blinker { 50% { opacity: 0; } }
@@ -257,6 +257,22 @@
     </div>
 
     <script>
+        // --- SCRIPT ANTI-ZOOM & ANTI-SCROLL RADICAL ---
+        // Empêche le pincement pour zoomer (iOS Safari)
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+        
+        // Empêche le double-tap zoom, mais laisse passer les clics rapides
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // ----------------------------------------------
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = false;
@@ -289,10 +305,7 @@
             if (gameState === 'DEMO') stopDemoMode();
         };
 
-        // Fonction helper pour bloquer la propagation (utile pour les boutons)
-        const stopPropagation = (e) => { 
-            e.stopPropagation(); 
-        };
+        const stopPropagation = (e) => { e.stopPropagation(); };
 
         btnShowScores.addEventListener('click', (e) => { stopPropagation(e); resetInactivity(); startScreen.style.display = 'none'; leaderboardScreen.style.display = 'flex'; });
         btnBackHome.addEventListener('click', (e) => { stopPropagation(e); resetInactivity(); leaderboardScreen.style.display = 'none'; startScreen.style.display = 'flex'; });
@@ -312,13 +325,9 @@
         
         btnReplay.addEventListener('click', (e) => { stopPropagation(e); resetInactivity(); gameOverScreen.style.display = 'none'; startGame(); });
 
-        // Empêche le focus du champ texte de faire n'importe quoi
-        playerNameInput.addEventListener('focus', (e) => {
-            isHighscoreInputActive = true;
-        });
-        playerNameInput.addEventListener('blur', (e) => {
-            isHighscoreInputActive = false;
-        });
+        // Gestion du focus input pour ne pas bloquer le clavier
+        playerNameInput.addEventListener('focus', () => { isHighscoreInputActive = true; });
+        playerNameInput.addEventListener('blur', () => { isHighscoreInputActive = false; });
 
         let frames = 0;
         let score = 0;
@@ -464,7 +473,6 @@
         const player = {
             x: 100, y: 300, radius: 22, velocity: 0, gravity: 0.35, jumpStrength: 7.5, 
             hasShield: false, invulnerable: 0,
-            
             draw: function() {
                 ctx.save();
                 ctx.translate(this.x, this.y);
@@ -502,7 +510,6 @@
                 }
                 this.velocity += this.gravity;
                 this.y += this.velocity;
-                
                 if (this.y + this.radius >= LOGICAL_HEIGHT - ground.height) { 
                     this.y = LOGICAL_HEIGHT - ground.height - this.radius; 
                     if (gameState === 'DEMO') { resetGameEnv(); gameState = 'DEMO'; } else { gameOver(); }
@@ -611,11 +618,9 @@
                     p.x -= this.dx;
                     const padding = 5;
                     const bh = { x: player.x - player.radius + padding, y: player.y - player.radius + padding, w: (player.radius*2) - padding*2, h: (player.radius*2) - padding*2 };
-                    
                     let hit = false;
                     if (bh.x < p.x + this.width && bh.x + bh.w > p.x && bh.y < p.top) hit = true;
                     if (bh.x < p.x + this.width && bh.x + bh.w > p.x && bh.y + bh.h > LOGICAL_HEIGHT - ground.height - p.bottom) hit = true;
-                    
                     if (hit) {
                         if (gameState === 'DEMO') { resetGameEnv(); gameState = 'DEMO'; } else {
                             if (player.invulnerable > 0) {} 
@@ -767,19 +772,20 @@
             requestAnimationFrame(loop);
         }
 
-        // --- GESTION DES ENTRÉES UTILISATEUR CORRIGÉE ---
+        // --- GESTION DES ENTRÉES CORRIGÉE ---
         function inputAction(e) {
             resetInactivity();
             
-            // --- CORRECTION MOBILE : NE PAS BLOQUER LES BOUTONS ---
-            // Si on touche un bouton ou le champ texte, on laisse faire l'événement natif
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') {
+            // Si on écrit un nom, ne pas sauter
+            if (isHighscoreInputActive) return;
+
+            // Si on clique sur un bouton ou un input, on laisse faire (ne pas empêcher le clic)
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'A') {
                 return; 
             }
-            // -------------------------
 
-            // Pour le reste (le jeu), on empêche le comportement par défaut (scroll/zoom) et on saute
-            if(e.type !== 'click' && e.cancelable) e.preventDefault();
+            // Sinon (clic dans le jeu), on saute et on empêche le scroll
+            if(e.cancelable && e.type !== 'click') e.preventDefault();
             
             if (gameState === 'START') startGame();
             else if (gameState === 'PLAYING') player.jump();
@@ -787,8 +793,10 @@
 
         window.addEventListener('keydown', (e) => { resetInactivity(); if (!isHighscoreInputActive && e.code === 'Space') inputAction(e); });
         
-        // C'est ici que la magie opère : passive: false permet d'utiliser preventDefault()
+        // Souris
         window.addEventListener('mousedown', inputAction);
+        
+        // Tactile : passive: false est CRUCIAL pour pouvoir bloquer le scroll
         window.addEventListener('touchstart', inputAction, {passive: false});
         
         window.addEventListener('mousemove', resetInactivity);
