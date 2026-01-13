@@ -18,7 +18,6 @@
             --bg-dark: #0f0f1a;
         }
 
-        /* --- MODE BUNKER : ON FIGE TOUT --- */
         html, body {
             background-color: #050505;
             background-image: 
@@ -27,14 +26,11 @@
             background-size: 100% 100%, 100% 4px;
             color: white;
             font-family: 'Press Start 2P', cursive;
-            
-            /* Bloque le scroll et le zoom */
             width: 100%;
             height: 100%;
             position: fixed; 
             overflow: hidden;
-            touch-action: none;
-            
+            touch-action: none; /* Bloque tout geste navigateur */
             user-select: none;
             -webkit-user-select: none;
         }
@@ -54,6 +50,19 @@
             box-shadow: 0 0 20px var(--neon-pink), inset 0 0 20px var(--neon-cyan);
             border: 4px solid var(--neon-pink);
             background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 0; 
+        }
+
+        #gameCanvas {
+            max-height: 70vh; /* Ajusté pour mobile */
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            image-rendering: pixelated;
         }
 
         .neon-text-title {
@@ -61,18 +70,19 @@
             text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--neon-pink), 0 0 30px var(--neon-pink);
         }
 
-        /* --- CONTROLES TACTILES --- */
+        /* --- CONTROLES TACTILES ROBUSTES --- */
         .d-pad-btn {
             background: rgba(255, 255, 255, 0.15);
             border: 2px solid var(--neon-cyan);
             box-shadow: 0 0 15px var(--neon-cyan);
             border-radius: 50%;
             transition: transform 0.05s, background 0.05s;
-            /* Priorité tactile maximale */
-            touch-action: none; 
+            touch-action: none; /* CRUCIAL */
             pointer-events: auto;
-            z-index: 50; /* Au dessus de tout */
+            z-index: 60;
             cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent; /* Enlève le flash gris sur Android */
         }
         .d-pad-btn:active, .d-pad-btn.active {
             transform: scale(0.9);
@@ -86,7 +96,7 @@
             background: rgba(0, 0, 0, 0.5);
             border: 2px solid var(--neon-yellow);
             color: var(--neon-yellow);
-            padding: 8px; font-size: 12px; cursor: pointer;
+            padding: 8px; font-size: 10px; cursor: pointer;
             pointer-events: auto;
         }
 
@@ -102,7 +112,6 @@
             100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
         }
 
-        canvas { image-rendering: pixelated; }
         .hidden { display: none !important; }
         
         .leaderboard-table { width: 100%; font-size: 10px; margin-top: 10px; border-collapse: separate; border-spacing: 0 4px; }
@@ -112,90 +121,91 @@
         input[type="text"], button { pointer-events: auto; touch-action: manipulation; }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-center relative">
+<body class="h-screen w-screen flex flex-col items-center justify-center relative overflow-hidden">
 
     <div class="absolute inset-0 crt pointer-events-none w-full h-full z-50"></div>
     <button id="muteBtn" class="mute-btn">SOUND: ON</button>
 
-    <div class="relative z-10 w-full max-w-4xl h-full max-h-[95vh] flex flex-col items-center justify-between p-4">
+    <div class="relative z-10 w-full max-w-5xl h-full flex flex-col items-center justify-start p-2">
         
-        <header class="mb-2 text-center shrink-0">
-            <h1 class="text-4xl md:text-6xl neon-text-title tracking-wider text-white">NEON TETRA</h1>
-            <div class="mt-1 text-xs text-cyan-300">80s RETRO EDITION</div>
+        <header class="text-center shrink-0 mb-2">
+            <h1 class="text-3xl md:text-5xl neon-text-title tracking-wider text-white">NEON TETRA</h1>
+            <div class="text-[10px] text-cyan-300">80s RETRO EDITION</div>
         </header>
 
         <div class="flex flex-col md:flex-row gap-4 items-start justify-center w-full grow min-h-0">
             
-            <div class="hidden md:flex flex-col gap-4 w-32 order-2 md:order-1">
-                <div class="arcade-frame p-4 text-center"><div class="text-[10px] text-yellow-300 mb-2">SCORE</div><div id="score-desktop" class="text-white text-sm">0</div></div>
-                <div class="arcade-frame p-4 text-center"><div class="text-[10px] text-pink-500 mb-2">TOP</div><div id="high-desktop" class="text-white text-sm">0</div></div>
-                <div class="arcade-frame p-4 text-center"><div class="text-[10px] text-green-400 mb-2">LEVEL</div><div id="level-desktop" class="text-white text-sm">1</div></div>
+            <div class="hidden md:flex flex-col gap-2 w-28 order-2 md:order-1 shrink-0">
+                <div class="arcade-frame p-2 text-center"><div class="text-[8px] text-yellow-300 mb-1">SCORE</div><div id="score-desktop" class="text-white text-xs">0</div></div>
+                <div class="arcade-frame p-2 text-center"><div class="text-[8px] text-pink-500 mb-1">TOP</div><div id="high-desktop" class="text-white text-xs">0</div></div>
+                <div class="arcade-frame p-2 text-center"><div class="text-[8px] text-green-400 mb-1">LEVEL</div><div id="level-desktop" class="text-white text-xs">1</div></div>
             </div>
 
-            <div class="relative arcade-frame p-1 order-1 md:order-2 h-full w-full max-w-[300px] flex justify-center items-center">
+            <div class="relative arcade-frame p-1 order-1 md:order-2 h-full w-full max-w-[fit-content] flex flex-col justify-center">
                 <div id="floatingScores" class="absolute inset-0 pointer-events-none z-40 overflow-hidden"></div>
-                <canvas id="gameCanvas" width="300" height="600" class="block bg-black w-full h-full object-contain"></canvas>
+                <canvas id="gameCanvas" width="300" height="600"></canvas>
                 
                 <div id="startScreen" class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-30">
-                    <h2 class="text-2xl text-yellow-400 mb-6 animate-pulse text-center leading-loose">INSERT COIN<br><span class="text-xs text-white">(CLICK TO START)</span></h2>
-                    <div class="mb-6 w-4/5">
-                        <h3 class="text-pink-500 text-xs text-center mb-2">TOP 5 PLAYERS</h3>
+                    <h2 class="text-xl md:text-2xl text-yellow-400 mb-4 animate-pulse text-center leading-loose">INSERT COIN<br><span class="text-xs text-white">(CLICK TO START)</span></h2>
+                    <div class="mb-4 w-4/5">
+                        <h3 class="text-pink-500 text-[10px] text-center mb-1">TOP 5 PLAYERS</h3>
                         <table class="leaderboard-table text-cyan-300"><tbody id="startLeaderboardBody"></tbody></table>
                     </div>
-                    <button id="startBtn" class="px-6 py-3 border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition-all font-bold text-sm shadow-[0_0_15px_rgba(0,255,255,0.5)]">PLAY NOW</button>
+                    <button id="startBtn" class="px-6 py-2 border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition-all font-bold text-xs shadow-[0_0_15px_rgba(0,255,255,0.5)]">PLAY NOW</button>
                 </div>
 
                 <div id="gameOverScreen" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center z-30 hidden p-4">
-                    <h2 class="text-3xl text-red-500 mb-2 neon-text-title">GAME OVER</h2>
-                    <div class="text-white mb-4 text-sm">SCORE: <span id="finalScore" class="text-yellow-400">0</span></div>
+                    <h2 class="text-2xl text-red-500 mb-2 neon-text-title">GAME OVER</h2>
+                    <div class="text-white mb-4 text-xs">SCORE: <span id="finalScore" class="text-yellow-400">0</span></div>
                     <div id="highScoreForm" class="hidden flex flex-col items-center mb-4 w-full">
-                        <div class="text-green-400 text-xs animate-bounce mb-2">NEW RECORD! ENTER INITIALS:</div>
+                        <div class="text-green-400 text-[10px] animate-bounce mb-2">NEW RECORD!</div>
                         <div class="flex gap-2">
-                            <input type="text" id="playerName" maxlength="3" class="bg-black border-2 border-green-400 text-green-400 w-20 text-center uppercase p-1 font-bold outline-none" placeholder="AAA">
-                            <button id="saveScoreBtn" class="bg-green-600 text-white px-3 py-1 text-xs hover:bg-green-500">SAVE</button>
+                            <input type="text" id="playerName" maxlength="3" class="bg-black border-2 border-green-400 text-green-400 w-16 text-center uppercase p-1 font-bold outline-none text-xs" placeholder="AAA">
+                            <button id="saveScoreBtn" class="bg-green-600 text-white px-2 py-1 text-xs hover:bg-green-500">SAVE</button>
                         </div>
                     </div>
                     <div class="w-full mb-4">
-                         <h3 class="text-pink-500 text-xs text-center mb-2">LEADERBOARD</h3>
+                         <h3 class="text-pink-500 text-[10px] text-center mb-1">LEADERBOARD</h3>
                          <table class="leaderboard-table text-cyan-300"><tbody id="gameOverLeaderboardBody"></tbody></table>
                     </div>
-                    <button id="restartBtn" class="mt-2 px-6 py-3 border-2 border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white transition-all font-bold text-sm shadow-[0_0_15px_rgba(255,0,255,0.5)]">TRY AGAIN</button>
+                    <button id="restartBtn" class="mt-2 px-6 py-2 border-2 border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white transition-all font-bold text-xs shadow-[0_0_15px_rgba(255,0,255,0.5)]">TRY AGAIN</button>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-4 w-full md:w-32 order-3 shrink-0">
+            <div class="flex flex-col gap-2 w-full md:w-28 order-3 shrink-0">
                 <div class="flex justify-between md:flex-col gap-2">
                     <div class="md:hidden flex justify-between w-full px-2 items-center">
-                        <div class="text-xs text-yellow-300">SCR:<span id="score-mobile" class="text-white ml-1">0</span></div>
-                        <div class="text-xs text-pink-500">HI:<span id="high-mobile" class="text-white ml-1">0</span></div>
+                        <div class="text-[10px] text-yellow-300">SCR:<span id="score-mobile" class="text-white ml-1">0</span></div>
+                        <div class="text-[10px] text-pink-500">HI:<span id="high-mobile" class="text-white ml-1">0</span></div>
                     </div>
-                    <div class="arcade-frame p-2 text-center w-24 md:w-full flex flex-col items-center justify-center h-20 md:h-32">
-                        <div class="text-[8px] md:text-[10px] text-cyan-300 mb-1">NEXT</div>
-                        <canvas id="nextCanvas" width="80" height="80" class="bg-black w-12 h-12 md:w-16 md:h-16"></canvas>
+                    <div class="arcade-frame p-2 text-center w-20 md:w-full flex flex-col items-center justify-center h-16 md:h-24">
+                        <div class="text-[8px] text-cyan-300 mb-1">NEXT</div>
+                        <canvas id="nextCanvas" width="80" height="80" class="bg-black w-10 h-10 md:w-14 md:h-14 object-contain"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="md:hidden w-full mt-2 grid grid-cols-3 gap-4 pb-6 z-50">
+        <div class="md:hidden w-full mt-1 grid grid-cols-3 gap-4 pb-2 z-50 shrink-0 h-24 select-none pointer-events-auto">
             <div class="flex justify-center items-center">
-                <button id="btnLeft" class="d-pad-btn w-16 h-16 flex items-center justify-center text-3xl text-cyan-400 font-bold">←</button>
+                <button id="btnLeft" class="d-pad-btn w-16 h-16 flex items-center justify-center text-2xl text-cyan-400 font-bold">←</button>
             </div>
             <div class="flex justify-center items-center">
-                <button id="btnDown" class="d-pad-btn w-16 h-16 flex items-center justify-center text-3xl text-cyan-400 font-bold">↓</button>
+                <button id="btnDown" class="d-pad-btn w-16 h-16 flex items-center justify-center text-2xl text-cyan-400 font-bold">↓</button>
             </div>
             <div class="flex justify-center items-center">
-                 <button id="btnRight" class="d-pad-btn w-16 h-16 flex items-center justify-center text-3xl text-cyan-400 font-bold">→</button>
+                 <button id="btnRight" class="d-pad-btn w-16 h-16 flex items-center justify-center text-2xl text-cyan-400 font-bold">→</button>
             </div>
         </div>
         
-        <button id="btnRotate" class="md:hidden absolute bottom-8 right-4 d-pad-btn w-20 h-20 flex items-center justify-center text-2xl text-pink-400 border-pink-400 shadow-[0_0_15px_#ff00ff] font-bold z-50">↻</button>
+        <button id="btnRotate" class="md:hidden absolute bottom-4 right-4 d-pad-btn w-20 h-20 flex items-center justify-center text-xl text-pink-400 border-pink-400 shadow-[0_0_15px_#ff00ff] font-bold z-50">↻</button>
 
     </div>
 
     <script>
         // --- SCRIPT ANTI-ZOOM RADICAL ---
         document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+        document.addEventListener('touchmove', function(e) { if(e.scale !== 1) { e.preventDefault(); } }, { passive: false });
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function(event) {
             if(event.target.tagName === 'BUTTON' || event.target.tagName === 'INPUT') return;
@@ -218,6 +228,10 @@
                 this.melody = [
                     {n:'E5',d:4}, {n:'B4',d:8}, {n:'C5',d:8}, {n:'D5',d:4}, {n:'C5',d:8}, {n:'B4',d:8},
                     {n:'A4',d:4}, {n:'A4',d:8}, {n:'C5',d:8}, {n:'E5',d:4}, {n:'D5',d:8}, {n:'C5',d:8},
+                    {n:'B4',d:4}, {n:'B4',d:8}, {n:'C5',d:8}, {n:'D5',d:4}, {n:'E5',d:4},
+                    {n:'C5',d:4}, {n:'A4',d:4}, {n:'A4',d:2},
+                    {n:'D5',d:4}, {n:'F5',d:8}, {n:'A5',d:4}, {n:'G5',d:8}, {n:'F5',d:8},
+                    {n:'E5',d:4}, {n:'C5',d:8}, {n:'E5',d:4}, {n:'D5',d:8}, {n:'C5',d:8},
                     {n:'B4',d:4}, {n:'B4',d:8}, {n:'C5',d:8}, {n:'D5',d:4}, {n:'E5',d:4},
                     {n:'C5',d:4}, {n:'A4',d:4}, {n:'A4',d:2}
                 ];
@@ -375,6 +389,15 @@
                 this.ctx.fillStyle = '#000'; this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
                 this.grid.forEach((row, y) => { row.forEach((value, x) => { if (value !== 0) this.drawBlock(this.ctx, x, y, value, BLOCK_SIZE); }); });
                 
+                this.ctx.strokeStyle = '#1a1a2e';
+                this.ctx.lineWidth = 1;
+                for(let i=0; i<=COLS; i++) {
+                    this.ctx.beginPath(); this.ctx.moveTo(i*BLOCK_SIZE,0); this.ctx.lineTo(i*BLOCK_SIZE, this.canvas.height); this.ctx.stroke();
+                }
+                for(let i=0; i<=ROWS; i++) {
+                    this.ctx.beginPath(); this.ctx.moveTo(0, i*BLOCK_SIZE); this.ctx.lineTo(this.canvas.width, i*BLOCK_SIZE); this.ctx.stroke();
+                }
+
                 if (this.piece) {
                     const ghost = { ...this.piece };
                     while (!this.collide(ghost)) { ghost.y++; } ghost.y--;
@@ -538,47 +561,48 @@
                     }
                 });
 
-                // --- GESTION DES BOUTONS TACTILES (MODE RESTE APPUYÉ) ---
+                // --- CONTROLES TACTILES CORRIGÉS : POINTER EVENTS ---
                 const bindBtn = (id, action, repeat = true) => {
                     const btn = document.getElementById(id);
                     if (!btn) return;
                     let interval;
 
                     const start = (e) => {
-                        if(e.cancelable) e.preventDefault();
+                        e.preventDefault(); 
                         e.stopPropagation();
+                        // Capture le pointeur pour continuer à tracker même si le doigt bouge
+                        btn.setPointerCapture(e.pointerId);
+                        
                         if (this.gameOver || !document.getElementById('startScreen').classList.contains('hidden')) return;
                         
-                        action(); // Première action immédiate
+                        action(); 
                         
                         if(repeat) {
                             clearInterval(interval);
-                            interval = setInterval(() => {
-                                if(!this.gameOver) action();
-                            }, 100); // Répète toutes les 100ms
+                            interval = setInterval(() => { if(!this.gameOver) action(); }, 100); 
                         }
-                        btn.classList.add('active'); // Feedback visuel
+                        btn.classList.add('active');
                     };
 
                     const end = (e) => {
-                        if(e.cancelable) e.preventDefault();
+                        e.preventDefault();
                         clearInterval(interval);
                         btn.classList.remove('active');
+                        // Libère le pointeur
+                        if(btn.hasPointerCapture(e.pointerId)) btn.releasePointerCapture(e.pointerId);
                     };
 
-                    btn.addEventListener('mousedown', start);
-                    btn.addEventListener('touchstart', start, {passive: false});
-                    
-                    btn.addEventListener('mouseup', end);
-                    btn.addEventListener('mouseleave', end);
-                    btn.addEventListener('touchend', end);
-                    btn.addEventListener('touchcancel', end);
+                    // On utilise pointerdown/up au lieu de touchstart/touchend
+                    btn.addEventListener('pointerdown', start);
+                    btn.addEventListener('pointerup', end);
+                    btn.addEventListener('pointercancel', end);
+                    btn.addEventListener('pointerleave', end);
                 };
 
                 bindBtn('btnLeft', () => this.playerMove(-1));
                 bindBtn('btnRight', () => this.playerMove(1));
                 bindBtn('btnDown', () => this.playerDrop());
-                bindBtn('btnRotate', () => this.rotate(), false); // Pas de répétition pour la rotation
+                bindBtn('btnRotate', () => this.rotate(), false); 
 
                 const startGame = () => { this.audio.init(); this.reset(); };
                 document.getElementById('startBtn').addEventListener('click', startGame);
