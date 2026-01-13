@@ -3,178 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cor-Tech | Cordemais branchée sur le futur</title>
+    <title>COR-TECH | Arcade & Infos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CHARTE GRAPHIC COR-TECH --- */
+        /* --- VARIABLES CHARTE GRAPHIQUE --- */
         :root { 
-            --primary-neon: #00FFFF;  /* Bleu Néon */
-            --bg-deep-black: #000000; /* Noir Profond */
-            --bg-petrol: #003939;     /* Bleu Pétrole */
-            --bg-cyan-dark: #007879;  /* Bleu-vert foncé */
-            --text-cyan: #00b6b6;     /* Cyan pour texte */
+            --c-neon: #00FFFF;       /* Bleu Néon */
+            --c-black: #000000;      /* Noir Profond */
+            --c-petrol: #003939;     /* Bleu Pétrole */
+            --c-cyan-dark: #007879;  /* Bleu-vert foncé */
+            --c-text-cyan: #00b6b6;  /* Cyan Texte */
         }
 
         body { 
-            background-color: var(--bg-deep-black); 
+            background-color: var(--c-black); 
             color: #e5e7eb; 
-            font-family: 'Rajdhani', sans-serif; /* Texte standard */
-            overflow: hidden; /* Pas de scroll sur le body, géré par zones */
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Important pour le layout 1/3 - 2/3 */
         }
 
-        /* TYPOGRAPHIE CHARTE */
-        h1, h2 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; }
-        h3, h4, .subtitle { font-family: 'Share Tech Mono', monospace; }
-        p, li, span, a { font-family: 'Rajdhani', sans-serif; }
-
-        /* EFFETS NÉON */
-        .text-neon { color: var(--primary-neon); text-shadow: 0 0 10px rgba(0, 255, 255, 0.6); }
-        .border-neon { border: 1px solid var(--primary-neon); box-shadow: 0 0 8px rgba(0, 255, 255, 0.2); }
-        .bg-petrol { background-color: var(--bg-petrol); }
+        /* TYPOGRAPHIE */
+        h1, h2 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        h3, h4, .font-tech { font-family: 'Share Tech Mono', monospace; }
         
-        /* SCROLLBAR CUSTOM */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--bg-cyan-dark); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary-neon); }
+        /* EFFETS NEON */
+        .text-neon { color: var(--c-neon); text-shadow: 0 0 8px rgba(0, 255, 255, 0.6); }
+        .border-neon { border: 1px solid var(--c-neon); box-shadow: 0 0 10px rgba(0, 255, 255, 0.15); }
+        .bg-petrol { background-color: var(--c-petrol); }
+        
+        /* LAYOUT SPECIFIQUE */
+        #arcade-panel {
+            width: 33.333%;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: var(--c-black);
+            border-right: 2px solid var(--c-cyan-dark);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        #info-panel {
+            width: 66.666%;
+            height: 100vh;
+            margin-left: 33.333%;
+            background-color: #050505; /* Presque noir pour le contraste */
+            overflow-y: auto;
+            position: relative;
+        }
 
         /* BOUTONS JEUX */
         .game-btn {
-            background: rgba(0, 57, 57, 0.5); /* Bleu pétrole transparent */
-            border: 1px solid var(--bg-cyan-dark);
-            color: #fff;
-            transition: all 0.2s;
+            background: rgba(0, 57, 57, 0.4);
+            border: 1px solid var(--c-cyan-dark);
+            color: #aaa;
             font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            transition: all 0.2s;
         }
         .game-btn:hover {
-            border-color: var(--primary-neon);
-            color: var(--primary-neon);
-            transform: translateX(5px);
+            border-color: var(--c-neon);
+            color: var(--c-neon);
+            padding-left: 1rem;
             box-shadow: -5px 0 10px rgba(0, 255, 255, 0.1);
         }
         .game-btn.active {
-            background: var(--primary-neon);
+            background: var(--c-neon);
             color: black;
             font-weight: bold;
-            box-shadow: 0 0 15px var(--primary-neon);
+            border-color: var(--c-neon);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
         }
 
-        /* Iframe Container */
-        #arcade-screen {
-            background-image: radial-gradient(circle, #1a202c 0%, #000 100%);
-            border: 2px solid var(--primary-neon);
-            box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.2), 0 0 15px rgba(0, 255, 255, 0.4);
+        /* CADRE ECRAN */
+        .screen-frame {
+            border: 4px solid #333;
+            border-radius: 10px;
+            box-shadow: inset 0 0 20px #000;
+            background: #000;
+        }
+
+        /* SCROLLBAR CUSTOM */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--c-neon); }
+
+        /* RESPONSIVE MOBILE (Passe en colonne) */
+        @media (max-width: 1024px) {
+            body { overflow: auto; }
+            #arcade-panel { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 2px solid var(--c-neon); }
+            #info-panel { width: 100%; margin-left: 0; height: auto; overflow: visible; }
+            #game-frame { height: 400px; }
         }
     </style>
 </head>
-<body class="flex flex-col lg:flex-row h-screen w-full">
+<body>
 
-    <aside class="w-full lg:w-1/3 bg-black flex flex-col p-4 border-r-2 border-[#007879] relative z-20 h-full">
-        
-        <div class="mb-4 text-center">
-            <h1 class="text-4xl font-bold text-white tracking-widest text-neon">COR-TECH</h1>
-            <p class="text-xs text-[#00b6b6] font-mono mt-1">SYSTEME DE DIVERTISSEMENT V2.0</p>
+    <aside id="arcade-panel">
+        <div class="text-center mb-4 flex flex-col items-center">
+            <img src="images/Logo Cor-Tech détouré.png" alt="Logo Cor-Tech" class="w-32 md:w-40 mb-2 drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">
+            
+            <p class="text-xs text-[#00b6b6] font-tech mt-1 uppercase tracking-widest">System Ready...</p>
         </div>
 
-        <div id="arcade-screen" class="flex-grow w-full rounded-lg overflow-hidden relative mb-4">
+        <div class="flex-grow mb-4 screen-frame relative flex flex-col overflow-hidden">
             <iframe id="game-frame" src="Flappy.html" class="w-full h-full border-none"></iframe>
         </div>
 
         <div class="h-1/3 overflow-y-auto pr-1">
-            <h3 class="text-[#00b6b6] border-b border-[#003939] mb-3 text-sm">SÉLECTIONNER PROGRAMME</h3>
+            <h3 class="text-[#00b6b6] border-b border-[#003939] mb-3 text-sm">CARTOUCHES DISPONIBLES</h3>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="loadGame('Flappy.html', this)" class="game-btn active p-2 rounded text-xs text-left flex items-center gap-2">
+                <button onclick="loadGame('Flappy.html', this)" class="game-btn active p-3 rounded text-left flex items-center gap-2">
                     <i class="fas fa-dove"></i> FLAPPY
                 </button>
-                <button onclick="loadGame('tetris 8bit fx.html', this)" class="game-btn p-2 rounded text-xs text-left flex items-center gap-2">
+                <button onclick="loadGame('tetris 8bit fx.html', this)" class="game-btn p-3 rounded text-left flex items-center gap-2">
                     <i class="fas fa-cubes"></i> TETRIS
                 </button>
-                <button onclick="loadGame('candy crush .html', this)" class="game-btn p-2 rounded text-xs text-left flex items-center gap-2">
+                <button onclick="loadGame('candy crush .html', this)" class="game-btn p-3 rounded text-left flex items-center gap-2">
                     <i class="fas fa-gem"></i> CANDY
                 </button>
-                <button onclick="loadGame('air hockey.html', this)" class="game-btn p-2 rounded text-xs text-left flex items-center gap-2">
+                <button onclick="loadGame('air hockey.html', this)" class="game-btn p-3 rounded text-left flex items-center gap-2">
                     <i class="fas fa-circle"></i> HOCKEY
                 </button>
-                <button onclick="loadGame('casse brick .html', this)" class="game-btn p-2 rounded text-xs text-left flex items-center gap-2">
+                <button onclick="loadGame('casse brick .html', this)" class="game-btn p-3 rounded text-left flex items-center gap-2">
                     <i class="fas fa-th"></i> BRIQUES
                 </button>
-                <button onclick="loadGame('course.html', this)" class="game-btn p-2 rounded text-xs text-left flex items-center gap-2">
+                <button onclick="loadGame('course.html', this)" class="game-btn p-3 rounded text-left flex items-center gap-2">
                     <i class="fas fa-car"></i> RACING
                 </button>
-                <button onclick="loadGame('sinapse.html', this)" class="game-btn p-2 rounded text-xs text-left flex items-center gap-2">
+                <button onclick="loadGame('sinapse.html', this)" class="game-btn p-3 rounded text-left flex items-center gap-2">
                     <i class="fas fa-brain"></i> SINAPSE
                 </button>
-                <button onclick="loadGame('reflexe kawaii .html', this)" class="game-btn p-2 rounded text-xs text-left flex items-center gap-2">
+                <button onclick="loadGame('reflexe kawaii .html', this)" class="game-btn p-3 rounded text-left flex items-center gap-2">
                     <i class="fas fa-bolt"></i> REFLEXE
                 </button>
             </div>
         </div>
     </aside>
 
-
-    <main class="w-full lg:w-2/3 h-full overflow-y-auto relative bg-[#001010]">
+    <main id="info-panel">
         
-        <header class="bg-petrol p-8 border-b border-[#007879] sticky top-0 z-10 shadow-lg bg-opacity-95 backdrop-blur-sm">
-            <div class="flex justify-between items-start">
+        <header class="bg-[#003939] p-8 border-b border-[#007879] sticky top-0 z-40 bg-opacity-95 backdrop-blur">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 class="text-3xl lg:text-5xl font-bold text-white mb-2">L'ASSOCIATION <span class="text-neon">NUMÉRIQUE</span></h2>
-                    <p class="text-[#00b6b6] text-lg font-mono">« Cordemais, branchée sur la tech du futur. »</p>
+                    <h2 class="text-3xl font-bold text-white mb-1">L'ASSOCIATION <span class="text-neon">NUMÉRIQUE</span></h2>
+                    <p class="text-[#00b6b6] font-tech text-sm">« Cordemais, branchée sur la tech du futur. »</p>
                 </div>
-                <div class="hidden md:flex flex-col gap-2">
-                    <a href="https://notion.so/ton-lien-ici" target="_blank" class="bg-[var(--primary-neon)] hover:bg-white text-black font-bold py-2 px-4 rounded font-mono text-sm transition text-center shadow-[0_0_10px_#00FFFF]">
+                <div class="flex gap-3">
+                    <a href="https://notion.so/ton-lien-ici" target="_blank" class="bg-[#00FFFF] hover:bg-white text-black font-bold py-2 px-5 rounded font-tech shadow-[0_0_10px_rgba(0,255,255,0.4)] transition">
                         <i class="fas fa-rocket"></i> ESPACE NOTION
                     </a>
                 </div>
             </div>
         </header>
 
-        <div class="p-8 lg:p-12 space-y-16">
+        <div class="p-8 lg:p-12 space-y-16 pb-20">
 
             <section>
-                <h3 class="text-2xl text-white mb-6 border-l-4 border-[var(--primary-neon)] pl-4 flex items-center">
+                <h3 class="text-2xl text-white mb-6 border-l-4 border-[#00FFFF] pl-4 flex items-center">
                     <i class="fas fa-microchip mr-3 text-[#007879]"></i> QUI SOMMES-NOUS ?
                 </h3>
-                <div class="bg-petrol p-6 rounded border border-[#007879] text-gray-300 text-lg leading-relaxed shadow-lg">
+                <div class="bg-[#003939] p-6 rounded border border-[#007879] text-gray-300 text-lg leading-relaxed shadow-lg">
                     <p class="mb-4">
                         Bienvenue chez <strong>Cor-Tech</strong>, la petite sœur rebelle et créative de Micromédia. 
                         Née à Cordemais, notre association est le point de rencontre entre l'intelligence humaine et la technologie.
                     </p>
-                    <p class="mb-4">
-                        Nous ne sommes pas un simple club informatique : nous sommes un <strong>lieu d'apprentissage, de partage et de création</strong> ouvert à tous.
-                        De l'ado passionné au sénior curieux, nous connectons les générations autour du numérique.
+                    <p>
+                        <strong class="text-[#00FFFF]">Notre mission :</strong> Faire tomber les barrières du numérique, reconnecter les générations autour de projets créatifs et faire de la tech un levier d’émancipation.
                     </p>
                 </div>
             </section>
 
             <section>
-                <h3 class="text-2xl text-white mb-6 border-l-4 border-[var(--primary-neon)] pl-4">
+                <h3 class="text-2xl text-white mb-6 border-l-4 border-[#00FFFF] pl-4">
                     NOS ACTIVITÉS
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-black p-5 rounded border border-[#007879] hover:border-[var(--primary-neon)] transition group">
-                        <i class="fas fa-robot text-3xl text-[var(--primary-neon)] mb-3 group-hover:scale-110 transition duration-300"></i>
+                    <div class="bg-black p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                        <i class="fas fa-robot text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition duration-300"></i>
                         <h4 class="text-xl text-white font-bold mb-2">I.A. & Éthique</h4>
                         <p class="text-[#00b6b6] text-sm">Comprendre et maîtriser les outils qui changent le monde.</p>
                     </div>
                     
-                    <div class="bg-black p-5 rounded border border-[#007879] hover:border-[var(--primary-neon)] transition group">
-                        <i class="fas fa-cube text-3xl text-[var(--primary-neon)] mb-3 group-hover:scale-110 transition duration-300"></i>
+                    <div class="bg-black p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                        <i class="fas fa-cube text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition duration-300"></i>
                         <h4 class="text-xl text-white font-bold mb-2">Impression 3D</h4>
                         <p class="text-[#00b6b6] text-sm">De la modélisation à l'objet physique.</p>
                     </div>
 
-                    <div class="bg-black p-5 rounded border border-[#007879] hover:border-[var(--primary-neon)] transition group">
-                        <i class="fas fa-gamepad text-3xl text-[var(--primary-neon)] mb-3 group-hover:scale-110 transition duration-300"></i>
+                    <div class="bg-black p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                        <i class="fas fa-gamepad text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition duration-300"></i>
                         <h4 class="text-xl text-white font-bold mb-2">Jeu Vidéo & E-Sport</h4>
                         <p class="text-[#00b6b6] text-sm">Tournois, streaming et analyse stratégique.</p>
                     </div>
 
-                    <div class="bg-black p-5 rounded border border-[#007879] hover:border-[var(--primary-neon)] transition group">
-                        <i class="fas fa-pen-nib text-3xl text-[var(--primary-neon)] mb-3 group-hover:scale-110 transition duration-300"></i>
+                    <div class="bg-black p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                        <i class="fas fa-pen-nib text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition duration-300"></i>
                         <h4 class="text-xl text-white font-bold mb-2">Création Graphique</h4>
                         <p class="text-[#00b6b6] text-sm">Design, affiches et identité numérique.</p>
                     </div>
@@ -184,10 +217,10 @@
             <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 
                 <div>
-                    <h3 class="text-2xl text-white mb-6 border-l-4 border-[var(--primary-neon)] pl-4">INFOS PRATIQUES</h3>
+                    <h3 class="text-2xl text-white mb-6 border-l-4 border-[#00FFFF] pl-4">INFOS PRATIQUES</h3>
                     
-                    <div class="bg-petrol p-6 rounded border border-[#007879] mb-6">
-                        <h4 class="text-lg text-white font-bold mb-4 flex items-center"><i class="fas fa-map-marker-alt mr-2 text-[var(--primary-neon)]"></i> LOCALISATION</h4>
+                    <div class="bg-[#003939] p-6 rounded border border-[#007879] mb-6">
+                        <h4 class="text-lg text-white font-bold mb-4 flex items-center"><i class="fas fa-map-marker-alt mr-2 text-[#00FFFF]"></i> LOCALISATION</h4>
                         <p class="text-gray-300">
                             <strong>Médiathèque Jacques Fairand</strong><br>
                             Avenue des 4 vents<br>
@@ -195,8 +228,8 @@
                         </p>
                     </div>
 
-                    <div class="bg-petrol p-6 rounded border border-[#007879]">
-                        <h4 class="text-lg text-white font-bold mb-4 flex items-center"><i class="fas fa-clock mr-2 text-[var(--primary-neon)]"></i> HORAIRES</h4>
+                    <div class="bg-[#003939] p-6 rounded border border-[#007879]">
+                        <h4 class="text-lg text-white font-bold mb-4 flex items-center"><i class="fas fa-clock mr-2 text-[#00FFFF]"></i> HORAIRES</h4>
                         <ul class="text-gray-300 space-y-2 text-sm">
                             <li class="flex justify-between border-b border-[#007879] pb-1"><span>Mardi</span> <span>9h-12h / 13h30-18h</span></li>
                             <li class="flex justify-between border-b border-[#007879] pb-1"><span>Mercredi</span> <span>10h-12h / 13h30-18h</span></li>
@@ -208,8 +241,8 @@
                 <div class="flex flex-col gap-6">
                     
                     <div class="border-neon rounded bg-black p-6 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-[var(--primary-neon)] blur-[50px] opacity-20"></div>
-                        <h3 class="text-xl font-bold text-white mb-4 font-mono">TARIFS 2025</h3>
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-[#00FFFF] blur-[50px] opacity-20"></div>
+                        <h3 class="text-xl font-bold text-white mb-4 font-tech">TARIFS 2025</h3>
                         
                         <div class="space-y-3">
                             <div class="flex justify-between items-end border-b border-gray-800 pb-2">
@@ -227,11 +260,11 @@
                         </div>
                     </div>
 
-                    <div class="bg-petrol p-6 rounded border border-[#007879]">
-                        <h3 class="text-xl font-bold text-white mb-4 font-mono">LE BUREAU</h3>
+                    <div class="bg-[#003939] p-6 rounded border border-[#007879]">
+                        <h3 class="text-xl font-bold text-white mb-4 font-tech">LE BUREAU</h3>
                         <ul class="space-y-3 text-sm">
                             <li class="flex items-center gap-3">
-                                <div class="w-2 h-2 bg-[var(--primary-neon)] rounded-full"></div>
+                                <div class="w-2 h-2 bg-[#00FFFF] rounded-full"></div>
                                 <div><strong class="text-white block font-sans">Alice SAVRY</strong> <span class="text-[#00b6b6]">Présidente</span></div>
                             </li>
                             <li class="flex items-center gap-3">
@@ -254,7 +287,7 @@
 
             <footer class="text-center text-[#007879] text-sm pt-12 border-t border-[#003939]">
                 <p>&copy; 2025 Association Cor-Tech.</p>
-                <p class="mt-2"><a href="mentions.html" class="hover:text-[var(--primary-neon)]">Mentions Légales</a> | <a href="mailto:accueil@cor-tech.fr" class="hover:text-[var(--primary-neon)]">Contact</a></p>
+                <p class="mt-2"><a href="mentions.html" class="hover:text-[#00FFFF]">Mentions Légales</a> | <a href="mailto:accueil@cor-tech.fr" class="hover:text-[#00FFFF]">Contact</a></p>
             </footer>
 
         </div>
@@ -264,15 +297,15 @@
         function loadGame(filename, btnElement) {
             const frame = document.getElementById('game-frame');
             frame.src = filename;
-
-            // Gestion des boutons actifs (style néon)
+            
+            // Animation Bouton
             const buttons = document.querySelectorAll('.game-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
             
-            // Scroll doux sur mobile uniquement
+            // Scroll doux sur mobile
             if(window.innerWidth < 1024) {
-                document.querySelector('aside').scrollIntoView({behavior: 'smooth'});
+                document.getElementById('arcade-panel').scrollIntoView({behavior: 'smooth'});
             }
         }
     </script>
