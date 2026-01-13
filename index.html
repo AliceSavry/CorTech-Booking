@@ -5,7 +5,6 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title>COR-TECH | Arcade & Infos</title>
@@ -29,8 +28,8 @@
             background-color: var(--c-black);
             font-family: 'Rajdhani', sans-serif;
             color: #e5e7eb;
-            overflow: hidden; /* Desktop : pas de scroll global */
-            touch-action: pan-y; /* Permet le scroll vertical normal */
+            overflow: hidden; /* Desktop : pas de scroll */
+            touch-action: none; /* Bloque le zoom/scroll tactile */
         }
 
         h1, h2 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
@@ -111,16 +110,36 @@
             background: red; color: white; border: none; padding: 5px 15px;
             font-weight: bold; cursor: pointer; font-family: 'Orbitron';
         }
-        
-        /* IFRAME JEU : CORRECTION TACTILE */
-        .game-iframe { 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-            background: #000;
-            /* CRUCIAL : Dit au navigateur "C'est le jeu qui gère le tactile, pas toi" */
-            touch-action: none; 
+        .game-iframe { width: 100%; height: 100%; border: none; background: #000; }
+
+        /* --- MANETTE VIRTUELLE (MOBILE ONLY) --- */
+        #virtual-controls {
+            display: none; /* Caché sur PC */
+            width: 100%; height: 160px;
+            background: #111;
+            border-top: 2px solid var(--c-neon);
+            padding: 10px;
+            justify-content: space-between;
+            align-items: center;
         }
+        .d-pad {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 5px;
+            width: 120px;
+        }
+        .ctrl-btn {
+            width: 40px; height: 40px; background: #333; border: 1px solid #555; border-radius: 5px;
+            display: flex; justify-content: center; align-items: center; color: white;
+            font-size: 1.2rem; user-select: none;
+        }
+        .ctrl-btn:active { background: var(--c-neon); color: black; }
+        
+        .action-btn {
+            width: 70px; height: 70px; background: #ff0055; border-radius: 50%;
+            border: 3px solid #ff5588; color: white; font-weight: bold; font-family: 'Press Start 2P';
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 10px #ff0055; user-select: none;
+        }
+        .action-btn:active { transform: scale(0.95); background: #aa0033; }
 
         .blink { animation: blinker 1.5s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
@@ -130,15 +149,12 @@
         ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
 
         /* =========================================
-           VERSION MOBILE (Moins de 1024px)
+           VERSION MOBILE
         ========================================= */
         @media (max-width: 1024px) {
-            html, body { overflow: auto; height: auto; } 
+            html, body { overflow: auto; height: auto; touch-action: auto; } 
             
-            .main-container { 
-                flex-direction: column; 
-                width: 100%; height: auto; 
-            }
+            .main-container { flex-direction: column; width: 100%; height: auto; }
 
             .left-panel { 
                 width: 100%; height: auto; min-height: auto;
@@ -147,15 +163,15 @@
             }
 
             .crt-monitor { height: 400px; margin-bottom: 10px; }
-
             .right-panel { width: 100%; height: auto; overflow: visible; }
 
-            /* Modale Mobile : Plein écran TOTAL */
-            .modal-container {
-                width: 100%; height: 100%;
-                border: none; border-radius: 0;
-            }
+            /* Modale Mobile */
+            .modal-container { width: 100%; height: 100%; border: none; border-radius: 0; }
             .modal-header { padding: 5px 10px; }
+            
+            /* Afficher les contrôles sur mobile */
+            #virtual-controls { display: flex; }
+            .game-iframe { height: calc(100% - 210px); } /* Réduit la taille du jeu pour laisser place aux boutons */
         }
     </style>
 </head>
@@ -167,7 +183,21 @@
             <h2 id="modal-title" class="text-white font-pixel text-xs">JEU EN COURS...</h2>
             <button onclick="closeGame()" class="close-btn">FERMER X</button>
         </div>
+        
         <iframe id="game-frame" class="game-iframe" src=""></iframe>
+
+        <div id="virtual-controls">
+            <div class="d-pad">
+                <div></div>
+                <div class="ctrl-btn" ontouchstart="simulateKey(38)" onmousedown="simulateKey(38)"><i class="fas fa-arrow-up"></i></div>
+                <div></div>
+                <div class="ctrl-btn" ontouchstart="simulateKey(37)" onmousedown="simulateKey(37)"><i class="fas fa-arrow-left"></i></div>
+                <div class="ctrl-btn" ontouchstart="simulateKey(40)" onmousedown="simulateKey(40)"><i class="fas fa-arrow-down"></i></div>
+                <div class="ctrl-btn" ontouchstart="simulateKey(39)" onmousedown="simulateKey(39)"><i class="fas fa-arrow-right"></i></div>
+            </div>
+            
+            <div class="action-btn" ontouchstart="simulateKey(32)" onmousedown="simulateKey(32)">A</div>
+        </div>
     </div>
 </div>
 
@@ -207,7 +237,7 @@
             </div>
 
             <div class="mt-8 text-center opacity-50 relative z-20">
-                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V3.2 MOBILE</p>
+                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V3.3 MOBILE</p>
             </div>
         </div>
     </aside>
@@ -324,9 +354,8 @@
         titleEl.innerText = "JEU : " + title;
         modal.style.display = 'flex';
 
-        // IMPORTANT : Force le navigateur à donner le contrôle au jeu
+        // Force le focus pour clavier si sur PC
         iframe.onload = function() {
-            // Force le focus (clavier/contrôles)
             iframe.contentWindow.focus();
         };
     }
@@ -337,6 +366,30 @@
         
         modal.style.display = 'none';
         iframe.src = '';
+    }
+
+    // FONCTION MAGIQUE : Envoie des touches clavier au jeu quand on touche l'écran
+    function simulateKey(keyCode) {
+        const iframe = document.getElementById('game-frame');
+        if (iframe && iframe.contentWindow) {
+            // Crée un événement "Appui touche"
+            const eventDown = new KeyboardEvent('keydown', {
+                keyCode: keyCode,
+                which: keyCode,
+                bubbles: true
+            });
+            iframe.contentWindow.dispatchEvent(eventDown);
+
+            // Relâche la touche après 100ms
+            setTimeout(() => {
+                const eventUp = new KeyboardEvent('keyup', {
+                    keyCode: keyCode,
+                    which: keyCode,
+                    bubbles: true
+                });
+                iframe.contentWindow.dispatchEvent(eventUp);
+            }, 100);
+        }
     }
 </script>
 
