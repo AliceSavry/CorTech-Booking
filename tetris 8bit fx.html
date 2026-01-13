@@ -24,46 +24,47 @@
             color: white;
             font-family: 'Press Start 2P', cursive;
             width: 100%;
-            height: 100%;
-            height: 100dvh; /* Dynamic Viewport Height pour mobile */
-            overflow: hidden; /* Zéro scroll */
-            touch-action: none; /* Bloque tout geste navigateur */
+            height: 100dvh; /* Utilise toute la hauteur dispo */
+            overflow: hidden;
+            touch-action: none;
             display: flex;
             flex-direction: column;
         }
 
-        /* --- LAYOUT PRINCIPAL --- */
-        /* 1. Header (Fixe) */
+        /* HEADER */
         #game-header {
-            flex: 0 0 auto;
+            flex: 0 0 auto; /* Taille fixe */
             padding: 10px;
             text-align: center;
             z-index: 20;
         }
 
-        /* 2. Zone de Jeu (Flexible) */
+        /* ZONE DE JEU (Flexible) */
         #game-wrapper {
-            flex: 1 1 auto; /* Prend toute la place disponible */
+            flex: 1 1 auto;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            min-height: 0; /* Crucial pour que le flex shrink fonctionne */
+            min-height: 0; 
             padding: 5px;
+            width: 100%;
         }
 
-        /* Cadre du jeu qui maintient le ratio mais ne dépasse jamais */
+        /* CADRE DU JEU */
         #arcade-frame {
             border: 4px solid var(--neon-pink);
             box-shadow: 0 0 20px var(--neon-pink), inset 0 0 20px var(--neon-cyan);
             background: rgba(0, 0, 0, 0.9);
             position: relative;
-            /* La magie responsive : */
+            
+            /* C'EST ICI QUE LA MAGIE OPERE : */
+            /* On limite la hauteur pour qu'elle ne dépasse JAMAIS l'écran */
             height: 100%; 
+            max-height: 80vh; /* Laisse de la place au header/footer */
             width: auto;
-            aspect-ratio: 1 / 2; /* Ratio du Tetris */
-            max-width: 100%;
+            aspect-ratio: 1 / 2; /* Force le ratio Tetris */
         }
 
         canvas {
@@ -73,21 +74,21 @@
             image-rendering: pixelated;
         }
 
-        /* 3. Contrôles (Fixe en bas) */
+        /* CONTROLES MOBILE (Fixe en bas) */
         #mobile-controls {
-            flex: 0 0 auto; /* Ne rétrécit pas */
-            height: 100px; /* Hauteur fixe garantie pour les doigts */
+            flex: 0 0 auto;
+            height: 120px; /* Assez grand pour les doigts */
             width: 100%;
             background: #111;
             border-top: 2px solid var(--neon-cyan);
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr; /* Gauche, Bas, Droite, Rotation */
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 5px;
             padding: 5px;
             z-index: 50;
         }
 
-        /* BOUTONS TACTILES GROS ET ROBUSTES */
+        /* BOUTONS */
         .ctrl-btn {
             background: #222;
             border: 2px solid #444;
@@ -116,7 +117,7 @@
             color: white;
         }
 
-        /* OVERLAYS (Start / Game Over) */
+        /* OVERLAYS */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
@@ -132,7 +133,6 @@
 
         .hidden { display: none !important; }
 
-        /* Mute Button */
         #muteBtn {
             position: absolute; top: 10px; right: 10px;
             font-size: 10px; padding: 5px 10px;
@@ -140,12 +140,14 @@
             color: var(--neon-yellow);
             background: black;
             z-index: 60;
+            cursor: pointer;
         }
 
-        /* Desktop Layout Fixes */
+        /* Desktop: Cache les contrôles tactiles */
         @media (min-width: 768px) {
-            #mobile-controls { display: none; } /* Cache les gros boutons sur PC */
-            #arcade-frame { aspect-ratio: auto; width: 300px; height: 600px; }
+            #mobile-controls { display: none; }
+            /* Sur PC, on laisse le cadre grandir un peu plus */
+            #arcade-frame { max-height: 85vh; }
         }
     </style>
 </head>
@@ -162,7 +164,10 @@
             
             <div id="startScreen" class="overlay">
                 <h2 class="text-yellow-400 text-xl mb-4 text-center animate-pulse">INSERT COIN</h2>
-                <button id="startBtn" class="px-6 py-3 border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-bold text-sm">JOUER</button>
+                <button id="startBtn" class="px-6 py-3 border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-bold text-sm pointer-events-auto">JOUER</button>
+                <p class="text-[10px] text-gray-400 mt-4 text-center">
+                    PC: FLÈCHES<br>MOBILE: TOUCH
+                </p>
             </div>
 
             <div id="gameOverScreen" class="overlay hidden">
@@ -172,12 +177,12 @@
                 <div id="highScoreForm" class="hidden flex flex-col items-center gap-2 mb-4">
                     <div class="text-green-400 text-[10px]">NOUVEAU RECORD !</div>
                     <div class="flex gap-2">
-                        <input type="text" id="playerName" maxlength="3" class="bg-black border border-white text-white p-2 w-20 text-center uppercase" placeholder="NOM">
-                        <button id="saveScoreBtn" class="bg-green-600 text-white px-2 text-xs">OK</button>
+                        <input type="text" id="playerName" maxlength="3" class="bg-black border border-white text-white p-2 w-20 text-center uppercase pointer-events-auto" placeholder="NOM">
+                        <button id="saveScoreBtn" class="bg-green-600 text-white px-2 text-xs pointer-events-auto">OK</button>
                     </div>
                 </div>
 
-                <button id="restartBtn" class="px-6 py-3 border-2 border-pink-500 text-pink-500 font-bold text-sm">REJOUER</button>
+                <button id="restartBtn" class="px-6 py-3 border-2 border-pink-500 text-pink-500 font-bold text-sm pointer-events-auto">REJOUER</button>
             </div>
 
             <div class="absolute top-2 left-2 text-[10px] text-white opacity-70 pointer-events-none">
@@ -187,10 +192,10 @@
     </div>
 
     <div id="mobile-controls" class="md:hidden">
-        <div id="btnLeft" class="ctrl-btn"><i class="fas fa-arrow-left"></i>←</div>
-        <div id="btnDown" class="ctrl-btn"><i class="fas fa-arrow-down"></i>↓</div>
-        <div id="btnRight" class="ctrl-btn"><i class="fas fa-arrow-right"></i>→</div>
-        <div id="btnRotate" class="ctrl-btn rotate"><i class="fas fa-sync"></i>↻</div>
+        <div id="btnLeft" class="ctrl-btn">←</div>
+        <div id="btnDown" class="ctrl-btn">↓</div>
+        <div id="btnRight" class="ctrl-btn">→</div>
+        <div id="btnRotate" class="ctrl-btn rotate">↻</div>
     </div>
 
     <script>
@@ -531,6 +536,7 @@
                     document.getElementById('highScoreForm').classList.remove('flex');
                     document.getElementById('restartBtn').classList.remove('hidden');
                 });
+                document.getElementById('restartBtn').addEventListener('click', startGame);
             }
         }
 
