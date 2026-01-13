@@ -5,7 +5,6 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title>COR-TECH | Arcade & Infos</title>
@@ -29,8 +28,8 @@
             background-color: var(--c-black);
             font-family: 'Rajdhani', sans-serif;
             color: #e5e7eb;
-            overflow: hidden; /* Desktop : pas de scroll global */
-            touch-action: none; /* Bloque le zoom/scroll tactile accidentel */
+            overflow: hidden; 
+            touch-action: none;
         }
 
         h1, h2 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
@@ -229,7 +228,9 @@
             <div class="space-y-1 relative z-20">
                 <div class="game-item" onclick="openGame('Flappy.html', 'FLAPPY')"><i class="fas fa-dove"></i> <span>FLAPPY COR-TECH</span></div>
                 <div class="game-item" onclick="openGame('tetris 8bit fx.html', 'TETRIS')"><i class="fas fa-cubes"></i> <span>TETRIS 8-BIT</span></div>
-                <div class="game-item" onclick="openGame('candy crush.html', 'CANDY')"><i class="fas fa-gem"></i> <span>CANDY CRUSH</span></div>
+                
+                <div class="game-item" onclick="openGame('https://folgoas.github.io/candydeche/', 'CANDY DECHE')"><i class="fas fa-gem"></i> <span>DELICES SURCRES</span></div>
+                
                 <div class="game-item" onclick="openGame('air hockey.html', 'HOCKEY')"><i class="fas fa-circle"></i> <span>AIR HOCKEY</span></div>
                 <div class="game-item" onclick="openGame('casse brick.html', 'BRIQUES')"><i class="fas fa-th"></i> <span>CASSE BRIQUES</span></div>
                 <div class="game-item" onclick="openGame('course.html', 'RACING')"><i class="fas fa-car"></i> <span>RACING</span></div>
@@ -238,7 +239,7 @@
             </div>
 
             <div class="mt-8 text-center opacity-50 relative z-20">
-                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V3.4</p>
+                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V3.5</p>
             </div>
         </div>
     </aside>
@@ -357,7 +358,12 @@
 
         // Force le focus pour clavier si sur PC
         iframe.onload = function() {
-            iframe.contentWindow.focus();
+            try {
+                iframe.contentWindow.focus();
+            } catch(e) {
+                // Ignore l'erreur si c'est un lien externe (comme Candy Deche)
+                console.log("Jeu externe chargé");
+            }
         };
     }
 
@@ -369,27 +375,22 @@
         iframe.src = '';
     }
 
-    // FONCTION MAGIQUE : Envoie des touches clavier au jeu quand on touche l'écran
+    // FONCTION MAGIQUE : Envoie des touches clavier au jeu
     function simulateKey(keyCode) {
         const iframe = document.getElementById('game-frame');
-        if (iframe && iframe.contentWindow) {
-            // Crée un événement "Appui touche"
-            const eventDown = new KeyboardEvent('keydown', {
-                keyCode: keyCode,
-                which: keyCode,
-                bubbles: true
-            });
-            iframe.contentWindow.dispatchEvent(eventDown);
+        // Protection pour ne pas planter si le jeu est externe
+        try {
+            if (iframe && iframe.contentWindow) {
+                const eventDown = new KeyboardEvent('keydown', { keyCode: keyCode, which: keyCode, bubbles: true });
+                iframe.contentWindow.dispatchEvent(eventDown);
 
-            // Relâche la touche après 100ms
-            setTimeout(() => {
-                const eventUp = new KeyboardEvent('keyup', {
-                    keyCode: keyCode,
-                    which: keyCode,
-                    bubbles: true
-                });
-                iframe.contentWindow.dispatchEvent(eventUp);
-            }, 100);
+                setTimeout(() => {
+                    const eventUp = new KeyboardEvent('keyup', { keyCode: keyCode, which: keyCode, bubbles: true });
+                    iframe.contentWindow.dispatchEvent(eventUp);
+                }, 100);
+            }
+        } catch (e) {
+            console.log("Impossible d'utiliser la manette sur ce jeu externe (Sécurité Navigateur)");
         }
     }
 </script>
