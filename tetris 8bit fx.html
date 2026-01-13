@@ -28,15 +28,15 @@
             font-family: 'Press Start 2P', cursive;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Zéro scroll */
-            touch-action: none; /* Bloque le zoom */
+            overflow: hidden; 
+            touch-action: none; 
             display: flex;
-            flex-direction: column; /* Empilement vertical strict */
+            flex-direction: column;
         }
 
         /* 1. HEADER (Fixe) */
         header {
-            flex: 0 0 auto; /* Ne grandit pas, ne rétrécit pas */
+            flex: 0 0 auto;
             padding: 5px;
             text-align: center;
             z-index: 20;
@@ -45,34 +45,32 @@
 
         /* 2. ZONE DE JEU (Flexible) */
         #main-container {
-            flex: 1 1 auto; /* Prend toute la place dispo */
+            flex: 1 1 auto;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             width: 100%;
-            min-height: 0; /* Important pour Firefox/Flexbox */
+            min-height: 0;
             padding: 5px;
         }
 
-        /* CADRE DU JEU (S'adapte sans dépasser) */
+        /* CADRE DU JEU */
         #arcade-frame {
             border: 4px solid var(--neon-pink);
             box-shadow: 0 0 20px var(--neon-pink), inset 0 0 20px var(--neon-cyan);
             background: rgba(0, 0, 0, 0.9);
             position: relative;
             
-            /* LA CLE DU SUCCES : */
-            /* Le jeu garde ses proportions mais ne dépasse jamais le conteneur */
+            /* RESPONSIVE MAGIQUE */
             max-width: 100%;
             max-height: 100%;
-            aspect-ratio: 300 / 600; /* Ratio du canvas */
+            aspect-ratio: 300 / 600;
             width: auto;
             height: auto;
         }
 
-        /* Le canvas remplit le cadre parfaitement */
         canvas {
             display: block;
             width: 100%;
@@ -82,51 +80,51 @@
 
         /* 3. CONTROLES MOBILE (Fixe en bas) */
         #mobile-controls {
-            flex: 0 0 auto; /* Taille fixe */
-            height: 140px; /* Assez haut pour les gros doigts */
+            flex: 0 0 auto;
+            height: 100px;
             width: 100%;
             background: #111;
             border-top: 2px solid var(--neon-cyan);
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr; /* Gauche, Bas, Droite */
             gap: 4px;
             padding: 4px;
-            z-index: 100; /* Au dessus de tout */
+            z-index: 100;
         }
 
-        /* Disposition ergonomique des boutons */
-        /* Grille 3x2 */
-        /* [ Gauche ] [ Bas ] [ Droite ] */
-        /* [ Rotate ] [ Bas ] [ Rotate ] */
-        
-        .btn-l { grid-column: 1; grid-row: 1 / span 2; background: #222; }
-        .btn-d { grid-column: 2; grid-row: 1 / span 2; background: #222; }
-        .btn-r { grid-column: 3; grid-row: 1 / span 2; background: #222; }
-        
-        /* Bouton Rotate Flottant par dessus */
+        /* BOUTON ROTATION FLOTTANT (Côté Droit) */
         #btnRotateFloat {
             position: absolute;
-            bottom: 160px; /* Au dessus du pad */
-            right: 20px;
-            width: 70px;
-            height: 70px;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            background: rgba(255, 0, 255, 0.3);
+            background: rgba(255, 0, 255, 0.2);
             border: 3px solid var(--neon-pink);
+            color: var(--neon-pink);
             display: flex; justify-content: center; align-items: center;
-            font-size: 30px;
+            font-size: 40px;
             z-index: 101;
             box-shadow: 0 0 15px var(--neon-pink);
+            /* Pour ne pas gêner le jeu si l'écran est petit */
+            pointer-events: auto;
+            touch-action: manipulation;
+        }
+        #btnRotateFloat:active {
+            background: var(--neon-pink);
+            color: white;
+            transform: translateY(-50%) scale(0.95);
         }
 
         .ctrl-btn {
+            background: #222;
             border: 1px solid #444;
             border-radius: 8px;
             color: white;
-            font-size: 20px;
+            font-size: 30px;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             touch-action: none;
@@ -136,6 +134,25 @@
         .ctrl-btn:active, .ctrl-btn.active {
             background: var(--neon-cyan);
             color: black;
+        }
+
+        /* NEXT PIECE (Overlay dans le jeu) */
+        #next-piece-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--neon-yellow);
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        #nextCanvas {
+            width: 40px; height: 40px;
         }
 
         /* OVERLAYS */
@@ -179,6 +196,11 @@
         <div id="arcade-frame">
             <canvas id="gameCanvas" width="300" height="600"></canvas>
             
+            <div id="next-piece-overlay">
+                <div class="text-[8px] text-yellow-300 mb-1">NEXT</div>
+                <canvas id="nextCanvas" width="80" height="80"></canvas>
+            </div>
+
             <div id="startScreen" class="overlay">
                 <h2 class="text-yellow-400 text-xl mb-4 text-center animate-pulse">INSERT COIN</h2>
                 <button id="startBtn" class="px-6 py-3 border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-bold text-sm pointer-events-auto">JOUER</button>
@@ -203,15 +225,15 @@
                 SCORE: <span id="hud-score">0</span>
             </div>
         </div>
+        
+        <div id="btnRotateFloat" class="md:hidden">↻</div>
     </div>
 
     <div id="mobile-controls" class="md:hidden">
-        <div id="btnLeft" class="ctrl-btn btn-l">GAUCHE</div>
-        <div id="btnDown" class="ctrl-btn btn-d">BAS</div>
-        <div id="btnRight" class="ctrl-btn btn-r">DROITE</div>
+        <div id="btnLeft" class="ctrl-btn">←</div>
+        <div id="btnDown" class="ctrl-btn">↓</div>
+        <div id="btnRight" class="ctrl-btn">→</div>
     </div>
-    
-    <div id="btnRotateFloat" class="md:hidden">↻</div>
 
     <script>
         // --- PREVENTION ZOOM ---
@@ -277,6 +299,10 @@
             constructor() {
                 this.canvas = document.getElementById('gameCanvas');
                 this.ctx = this.canvas.getContext('2d');
+                // Gestion Next Piece
+                this.nextCanvas = document.getElementById('nextCanvas');
+                this.nextCtx = this.nextCanvas.getContext('2d');
+
                 this.audio = new SoundEngine();
                 
                 this.grid = this.createGrid();
@@ -284,6 +310,7 @@
                 this.gameOver = false;
                 
                 this.piece = null;
+                this.nextPieceObj = null;
                 this.dropCounter = 0;
                 this.dropInterval = 1000;
                 this.lastTime = 0;
@@ -303,6 +330,8 @@
                 this.gameOver = false;
                 this.dropInterval = 1000;
                 this.piece = this.randomPiece();
+                this.nextPieceObj = this.randomPiece();
+                
                 document.getElementById('hud-score').innerText = 0;
                 document.getElementById('startScreen').classList.add('hidden');
                 document.getElementById('gameOverScreen').classList.add('hidden');
@@ -320,14 +349,18 @@
                 };
             }
 
-            drawBlock(x, y, color) {
-                this.ctx.fillStyle = color;
-                this.ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-                this.ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                this.ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, 2);
-                this.ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, 2, BLOCK_SIZE);
-                this.ctx.strokeStyle = '#000';
-                this.ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            drawBlock(ctx, x, y, color, size, isGhost = false) {
+                if (isGhost) {
+                    ctx.fillStyle = 'transparent'; ctx.strokeStyle = color; ctx.lineWidth = 1;
+                    ctx.strokeRect(x * size, y * size, size, size);
+                    ctx.fillStyle = color + '22'; ctx.fillRect(x * size, y * size, size, size);
+                } else {
+                    ctx.fillStyle = color; ctx.shadowBlur = 10; ctx.shadowColor = color;
+                    ctx.fillRect(x * size, y * size, size, size);
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(x * size, y * size, size, 2); ctx.fillRect(x * size, y * size, 2, size);
+                    ctx.strokeStyle = '#000'; ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                }
             }
 
             draw() {
@@ -338,16 +371,48 @@
                 // Grille
                 this.grid.forEach((row, y) => {
                     row.forEach((value, x) => {
-                        if (value !== 0) this.drawBlock(x, y, value);
+                        if (value !== 0) this.drawBlock(this.ctx, x, y, value, BLOCK_SIZE);
                     });
                 });
 
                 // Pièce active
                 if (this.piece) {
+                    // Ghost
+                    const ghost = { ...this.piece };
+                    while (!this.collide(ghost)) { ghost.y++; } ghost.y--;
+                    if (ghost.y > this.piece.y) {
+                        ghost.shape.forEach((row, y) => {
+                            row.forEach((value, x) => {
+                                if (value) this.drawBlock(this.ctx, ghost.x + x, ghost.y + y, this.piece.color, BLOCK_SIZE, true);
+                            });
+                        });
+                    }
+                    // Reel
                     this.piece.shape.forEach((row, y) => {
                         row.forEach((value, x) => {
                             if (value) {
-                                this.drawBlock(this.piece.x + x, this.piece.y + y, this.piece.color);
+                                this.drawBlock(this.ctx, this.piece.x + x, this.piece.y + y, this.piece.color, BLOCK_SIZE);
+                            }
+                        });
+                    });
+                }
+
+                // DESSIN NEXT PIECE
+                this.nextCtx.fillStyle = '#000';
+                this.nextCtx.fillRect(0, 0, 80, 80);
+                if (this.nextPieceObj) {
+                    const scale = 15; // Plus petit pour tenir dans 80x80
+                    const offsetX = (80 - this.nextPieceObj.shape[0].length * scale) / 2;
+                    const offsetY = (80 - this.nextPieceObj.shape.length * scale) / 2;
+                    
+                    this.nextPieceObj.shape.forEach((row, y) => {
+                        row.forEach((value, x) => {
+                            if (value) {
+                                // Draw simple block for next
+                                this.nextCtx.fillStyle = this.nextPieceObj.color;
+                                this.nextCtx.fillRect(offsetX + x*scale, offsetY + y*scale, scale, scale);
+                                this.nextCtx.strokeStyle = '#000';
+                                this.nextCtx.strokeRect(offsetX + x*scale, offsetY + y*scale, scale, scale);
                             }
                         });
                     });
@@ -421,28 +486,24 @@
                     this.merge();
                     this.audio.playDrop();
                     this.arenaSweep();
-                    this.piece = this.randomPiece();
+                    this.piece = this.nextPieceObj;
+                    this.nextPieceObj = this.randomPiece();
                     if (this.collide(this.piece)) {
                         this.gameOver = true;
                         this.audio.playGameOver();
                         document.getElementById('finalScore').innerText = this.score;
                         document.getElementById('gameOverScreen').classList.remove('hidden');
                         
-                        // Check Highscore localstorage logic here
+                        // Check Highscore
                         const savedScores = JSON.parse(localStorage.getItem('neonTetrisLB')) || [];
                         const minScore = savedScores.length < 5 ? 0 : savedScores[savedScores.length-1].score;
-                        
                         const form = document.getElementById('highScoreForm');
                         const restart = document.getElementById('restartBtn');
                         
                         if(this.score > minScore || savedScores.length < 5) {
-                            form.classList.remove('hidden');
-                            form.classList.add('flex');
-                            restart.classList.add('hidden');
+                            form.classList.remove('hidden'); form.classList.add('flex'); restart.classList.add('hidden');
                         } else {
-                            form.classList.add('hidden');
-                            form.classList.remove('flex');
-                            restart.classList.remove('hidden');
+                            form.classList.add('hidden'); form.classList.remove('flex'); restart.classList.remove('hidden');
                         }
                     }
                 }
@@ -476,7 +537,6 @@
             }
 
             setupInputs() {
-                // Clavier (Desktop)
                 document.addEventListener('keydown', event => {
                     if (this.gameOver) return;
                     if([37,38,39,40].includes(event.keyCode)) event.preventDefault();
@@ -488,20 +548,18 @@
                     }
                 });
 
-                // --- GESTION TACTILE SIMPLIFIEE ---
+                // --- GESTION TACTILE ---
                 const bindTouch = (id, action, repeat = true) => {
                     const btn = document.getElementById(id);
                     let interval;
                     
                     const trigger = (e) => {
-                        // Important: Stop la propagation pour éviter les double clicks fantômes
                         if(e.cancelable) e.preventDefault(); 
                         if (this.gameOver) return;
                         
                         btn.classList.add('active');
-                        action(); // Action immédiate
+                        action(); 
                         
-                        // Répétition si maintenu
                         if(repeat) {
                             clearInterval(interval);
                             interval = setInterval(() => {
@@ -516,15 +574,10 @@
                         btn.classList.remove('active');
                     };
 
-                    // On écoute uniquement touchstart/touchend pour le mobile
                     btn.addEventListener('touchstart', trigger, {passive: false});
                     btn.addEventListener('touchend', release);
-                    btn.addEventListener('touchcancel', release);
-                    
-                    // Souris pour le test desktop
                     btn.addEventListener('mousedown', trigger);
                     btn.addEventListener('mouseup', release);
-                    btn.addEventListener('mouseleave', release);
                 };
 
                 bindTouch('btnLeft', () => this.playerMove(-1));
