@@ -209,7 +209,6 @@
 
     <div id="game-container">
         <div id="score-display">0</div>
-        <!-- Canvas fixé en 1080x1920 -->
         <canvas id="gameCanvas" width="1080" height="1920"></canvas>
         <div id="demo-indicator">MODE DÉMO<br>TOUCHER POUR JOUER</div>
         
@@ -817,40 +816,36 @@
             requestAnimationFrame(loop);
         }
 
+        // --- GESTION DES ENTRÉES UTILISATEUR CORRIGÉE ---
         function inputAction(e) {
             resetInactivity();
+            
+            // Si on est en train d'écrire un nom, on laisse faire (ne pas sauter)
             if (isHighscoreInputActive) return;
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
-            if(e.type !== 'click') e.preventDefault();
+
+            // INTELLIGENCE : Si on clique sur un bouton, un input ou un lien -> ON LAISSE PASSER LE CLIC
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'A') {
+                return; 
+            }
+
+            // Sinon (clic dans le vide/jeu), on empêche le scroll et on saute
+            if(e.cancelable && e.type !== 'click') e.preventDefault();
+            
             if (gameState === 'START') startGame();
             else if (gameState === 'PLAYING') player.jump();
         }
 
         window.addEventListener('keydown', (e) => { resetInactivity(); if (!isHighscoreInputActive && e.code === 'Space') inputAction(e); });
         window.addEventListener('mousedown', inputAction);
-        window.addEventListener('touchstart', (e) => { inputAction(e); }, {passive: false});
+        
+        // Touchstart avec passive: false pour pouvoir bloquer le scroll du jeu sans bloquer les boutons
+        window.addEventListener('touchstart', inputAction, {passive: false});
+        
         window.addEventListener('mousemove', resetInactivity);
 
         background.init();
         updateLeaderboardDisplay(); 
         loop();
     </script>
-<script>
-    // Quand on touche l'écran du téléphone
-    document.addEventListener('touchstart', function(e) {
-        // On empêche le zoom ou le scroll
-        e.preventDefault();
-        
-        // On simule l'appui sur la barre ESPACE (code 32)
-        var event = new KeyboardEvent('keydown', {
-            'keyCode': 32,
-            'which': 32
-        });
-        document.dispatchEvent(event);
-        
-        // Pour certains jeux qui écoutent 'window' au lieu de 'document'
-        window.dispatchEvent(event);
-    }, {passive: false});
-</script>
 </body>
 </html>
