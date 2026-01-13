@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portail Cor-Tech</title>
+    <title>Cor-Tech | L'asso Numérique</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
@@ -20,161 +20,251 @@
         
         .text-primary { color: var(--primary-color); }
         .bg-primary { background-color: var(--primary-color); color: #000; }
+        .border-primary { border-color: var(--primary-color); }
         
         .neon-shadow { box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); }
         .neon-text { text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+        .neon-box { border: 1px solid var(--primary-color); box-shadow: 0 0 5px var(--primary-color); }
 
-        /* --- STYLES ARCADE --- */
+        /* --- STYLES ARCADE (GAUCHE) --- */
         #arcade-container {
             border: 2px solid var(--primary-color);
             border-radius: 12px;
             overflow: hidden;
             background: #000;
             position: relative;
-            aspect-ratio: 16/9;
-            max-height: 700px;
-        }
-
-        iframe {
+            aspect-ratio: 4/3; 
             width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
         }
 
-        /* Grille des boutons au-dessus */
+        iframe { width: 100%; height: 100%; border: none; display: block; }
+
+        /* Boutons Arcade Compacts */
         .game-btn {
             background-color: var(--panel-bg);
             border: 1px solid #374151;
             color: white;
+            font-size: 0.8rem;
             transition: all 0.2s;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            border-radius: 8px;
+            justify-content: flex-start;
+            padding: 0.5rem;
+            border-radius: 6px;
             cursor: pointer;
+            gap: 10px;
         }
-        
-        .game-btn:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
-        }
+        .game-btn:hover { border-color: var(--primary-color); color: var(--primary-color); transform: translateX(5px); }
+        .game-btn.active { background-color: var(--primary-color); color: black; font-weight: bold; }
 
-        .game-btn.active {
-            background-color: var(--primary-color);
-            color: black;
-            font-weight: bold;
-            box-shadow: 0 0 15px var(--primary-color);
-        }
-        
-        .notion-btn:hover { box-shadow: 0 0 20px var(--primary-color); transform: translateY(-2px); }
+        /* Scrollbar personnalisée */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
     </style>
 </head>
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col lg:flex-row min-h-screen">
 
-    <nav class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <h1 class="text-3xl font-bold text-white tracking-wider neon-text">COR-TECH</h1>
-            </div>
-            <a href="mailto:accueil@cor-tech.fr" class="text-sm text-gray-400 hover:text-primary transition">
-                <i class="fas fa-envelope"></i> Contact
-            </a>
-        </div>
-    </nav>
-
-    <main class="flex-grow">
+    <aside class="w-full lg:w-1/3 bg-gray-900 border-r border-gray-800 lg:h-screen lg:sticky lg:top-0 flex flex-col p-4 overflow-y-auto z-50">
         
-        <section class="max-w-7xl mx-auto px-4 py-12 text-center">
-            <h2 class="text-4xl md:text-6xl font-bold mb-6 text-white">L'ASSOCIATION <span class="text-primary neon-text">NUMÉRIQUE</span></h2>
-            <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-                Retrouvez l'agenda des ateliers, les inscriptions et toute la vie de l'association sur notre espace membre Notion.
-            </p>
-            <div class="flex flex-col md:flex-row gap-6 justify-center mb-12">
-                <a href="https://notion.so/ton-lien-ici" target="_blank" 
-                   class="bg-primary notion-btn font-bold py-4 px-10 rounded-full text-lg transition duration-300 flex items-center justify-center gap-3">
-                    <i class="fas fa-rocket"></i> ACCÉDER À L'ESPACE MEMBRE
+        <div class="mb-6 text-center">
+            <h1 class="text-4xl font-bold text-white tracking-wider neon-text mb-2">COR-TECH</h1>
+            <p class="text-xs text-gray-400 uppercase tracking-widest">Zone Arcade & Détente</p>
+        </div>
+
+        <div id="arcade-container" class="neon-shadow bg-black mb-6 shadow-lg">
+            <iframe id="game-frame" src="Flappy.html" title="Ecran de Jeu" allow="autoplay; fullscreen"></iframe>
+        </div>
+
+        <h3 class="text-white mb-3 text-sm border-b border-gray-700 pb-1"><i class="fas fa-gamepad text-primary"></i> SÉLECTIONNER UNE CARTOUCHE</h3>
+        
+        <div class="grid grid-cols-2 gap-2">
+            <button onclick="loadGame('Flappy.html', this)" class="game-btn active"><i class="fas fa-dove"></i> Flappy</button>
+            <button onclick="loadGame('tetris 8bit fx.html', this)" class="game-btn"><i class="fas fa-cubes"></i> Tetris</button>
+            <button onclick="loadGame('candy crush .html', this)" class="game-btn"><i class="fas fa-gem"></i> Candy</button>
+            <button onclick="loadGame('air hockey.html', this)" class="game-btn"><i class="fas fa-circle"></i> Hockey</button>
+            <button onclick="loadGame('casse brick .html', this)" class="game-btn"><i class="fas fa-th"></i> Casse-Brique</button>
+            <button onclick="loadGame('course.html', this)" class="game-btn"><i class="fas fa-car"></i> Racing</button>
+            <button onclick="loadGame('sinapse.html', this)" class="game-btn"><i class="fas fa-brain"></i> Sinapse</button>
+            <button onclick="loadGame('reflexe kawaii .html', this)" class="game-btn"><i class="fas fa-bolt"></i> Réflexe</button>
+        </div>
+
+        <div class="mt-auto pt-6 text-center hidden lg:block">
+            <p class="text-xs text-gray-600">Jouez en attendant votre atelier !</p>
+        </div>
+    </aside>
+
+
+    <main class="w-full lg:w-2/3 bg-gray-800 text-gray-200">
+        
+        <section class="relative bg-gray-900 p-8 md:p-12 border-b border-gray-700">
+            <div class="absolute top-0 right-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
+                 <div class="absolute -right-20 -top-20 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
+            </div>
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">CONNECTER CORDEMAIS <br><span class="text-primary neon-text">AU NUMÉRIQUE DU FUTUR</span></h2>
+            <p class="text-lg text-gray-400 max-w-2xl">La petite sœur rebelle et créative de Micromédia. Un lieu d'apprentissage, de partage et de création ouvert à tous.</p>
+            
+            <div class="mt-8 flex flex-wrap gap-4">
+                <a href="https://notion.so/ton-lien-ici" target="_blank" class="bg-primary text-black font-bold py-3 px-6 rounded hover:opacity-90 transition flex items-center gap-2">
+                    <i class="fas fa-calendar-alt"></i> PLANNING & INSCRIPTIONS
+                </a>
+                <a href="mailto:accueil@cor-tech.fr" class="border border-gray-500 hover:border-white text-white py-3 px-6 rounded transition flex items-center gap-2">
+                    <i class="fas fa-envelope"></i> NOUS CONTACTER
                 </a>
             </div>
         </section>
 
-        <section class="bg-gray-800 py-12 border-t border-gray-700 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-color to-transparent opacity-50"></div>
+        <div class="p-8 md:p-12 space-y-16">
 
-            <div class="max-w-6xl mx-auto px-4">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-white"><i class="fas fa-gamepad text-primary"></i> ARCADE COR-TECH</h2>
-                    <p class="text-gray-400">Cliquez sur une cartouche pour lancer le jeu !</p>
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <section>
+                <h3 class="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">NOS PRESTATIONS & ATELIERS</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     
-                    <button onclick="loadGame('Flappy.html', this)" class="game-btn active">
-                        <i class="fas fa-dove text-2xl mb-2"></i> <span>Flappy</span>
-                    </button>
+                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
+                        <i class="fas fa-robot text-3xl text-primary mb-4 group-hover:scale-110 transition duration-300"></i>
+                        <h4 class="text-xl font-bold text-white mb-2">Intelligence Artificielle</h4>
+                        <p class="text-sm text-gray-400">Initiation, détournement créatif et éthique. Comprendre et maîtriser les outils qui changent le monde.</p>
+                    </div>
 
-                    <button onclick="loadGame('tetris 8bit fx.html', this)" class="game-btn">
-                        <i class="fas fa-cubes text-2xl mb-2"></i> <span>Tetris</span>
-                    </button>
+                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
+                        <i class="fas fa-cube text-3xl text-orange-400 mb-4 group-hover:scale-110 transition duration-300"></i>
+                        <h4 class="text-xl font-bold text-white mb-2">Impression 3D</h4>
+                        <p class="text-sm text-gray-400">De la modélisation à l'impression. Concevez vos objets, figurines et pièces mécaniques.</p>
+                    </div>
 
-                    <button onclick="loadGame('candy crush.html', this)" class="game-btn">
-                        <i class="fas fa-gem text-2xl mb-2"></i> <span>Candy Crush</span>
-                    </button>
+                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
+                        <i class="fas fa-gamepad text-3xl text-purple-400 mb-4 group-hover:scale-110 transition duration-300"></i>
+                        <h4 class="text-xl font-bold text-white mb-2">Jeu Vidéo & E-Sport</h4>
+                        <p class="text-sm text-gray-400">Tournois, analyses, streaming et création de jeux. Avec bienveillance et stratégie.</p>
+                    </div>
 
-                    <button onclick="loadGame('air hockey.html', this)" class="game-btn">
-                        <i class="fas fa-circle text-2xl mb-2"></i> <span>Hockey</span>
-                    </button>
+                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
+                        <i class="fas fa-scissors text-3xl text-pink-400 mb-4 group-hover:scale-110 transition duration-300"></i>
+                        <h4 class="text-xl font-bold text-white mb-2">Découpe Numérique</h4>
+                        <p class="text-sm text-gray-400">Plotters de découpe pour stickers, flocages textiles et objets déco.</p>
+                    </div>
 
-                    <button onclick="loadGame('casse brick.html', this)" class="game-btn">
-                        <i class="fas fa-th text-2xl mb-2"></i> <span>Casse-Briques</span>
-                    </button>
-
-                    <button onclick="loadGame('course.html', this)" class="game-btn">
-                        <i class="fas fa-car text-2xl mb-2"></i> <span>Racing</span>
-                    </button>
-
-                    <button onclick="loadGame('sinapse.html', this)" class="game-btn">
-                        <i class="fas fa-brain text-2xl mb-2"></i> <span>Sinapse</span>
-                    </button>
-
-                    <button onclick="loadGame('reflexe kawaii.html', this)" class="game-btn">
-                        <i class="fas fa-bolt text-2xl mb-2"></i> <span>Réflexe</span>
-                    </button>
+                    <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
+                        <i class="fas fa-video text-3xl text-red-500 mb-4 group-hover:scale-110 transition duration-300"></i>
+                        <h4 class="text-xl font-bold text-white mb-2">Création de Contenu</h4>
+                        <p class="text-sm text-gray-400">Podcasts, vidéos YouTube, shorts, tutos. Exprimez-vous avec des formats pros.</p>
+                    </div>
+                     <div class="bg-gray-900 p-6 rounded border border-gray-700 hover:border-primary transition group">
+                        <i class="fas fa-pen-nib text-3xl text-yellow-400 mb-4 group-hover:scale-110 transition duration-300"></i>
+                        <h4 class="text-xl font-bold text-white mb-2">Création Graphique</h4>
+                        <p class="text-sm text-gray-400">Design pour réseaux sociaux, affiches, avatars et montages.</p>
+                    </div>
 
                 </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 
-                <div id="arcade-container" class="neon-shadow bg-black">
-                    <iframe id="game-frame" src="Flappy.html" title="Ecran de Jeu" allow="autoplay; fullscreen"></iframe>
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">INFOS PRATIQUES</h3>
+                    
+                    <div class="bg-gray-900 p-6 rounded border border-gray-700 mb-6">
+                        <h4 class="text-lg font-bold text-white mb-4"><i class="fas fa-map-marker-alt text-primary mr-2"></i> Localisation</h4>
+                        <p class="text-gray-300">
+                            <strong>Médiathèque Jacques Fairand</strong><br>
+                            Avenue des 4 vents<br>
+                            44360 CORDEMAIS
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-900 p-6 rounded border border-gray-700">
+                        <h4 class="text-lg font-bold text-white mb-4"><i class="fas fa-clock text-primary mr-2"></i> Horaires d'ouverture</h4>
+                        <ul class="space-y-2 text-gray-300">
+                            <li class="flex justify-between border-b border-gray-800 pb-2"><span>Mardi</span> <span>9h-12h / 13h30-18h</span></li>
+                            <li class="flex justify-between border-b border-gray-800 pb-2"><span>Mercredi</span> <span>10h-12h / 13h30-18h</span></li>
+                            <li class="flex justify-between border-b border-gray-800 pb-2"><span>Jeudi</span> <span>9h-12h / 13h30-18h</span></li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </section>
+
+                <div class="flex flex-col gap-6">
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">TARIFS 2025</h3>
+                        <div class="bg-gray-900 p-4 rounded border border-gray-700 space-y-3">
+                            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                                <span class="text-gray-300">Adulte</span>
+                                <span class="text-xl font-bold text-primary">25 € <span class="text-xs text-gray-500">/an</span></span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                                <span class="text-gray-300">Enfant (-18 ans)</span>
+                                <span class="text-xl font-bold text-primary">10 € <span class="text-xs text-gray-500">/an</span></span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-300">Association Partenaire</span>
+                                <span class="text-xl font-bold text-primary">160 € <span class="text-xs text-gray-500">/an</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">LE BUREAU</h3>
+                        <div class="bg-gray-900 p-6 rounded border border-gray-700">
+                            <ul class="space-y-4">
+                                <li class="flex items-center gap-4">
+                                    <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-primary"><i class="fas fa-user-astronaut"></i></div>
+                                    <div>
+                                        <p class="font-bold text-white">Alice SAVRY</p>
+                                        <p class="text-xs text-primary uppercase">Présidente</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-center gap-4">
+                                    <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400"><i class="fas fa-user"></i></div>
+                                    <div>
+                                        <p class="font-bold text-white">Simon CANEVET</p>
+                                        <p class="text-xs text-gray-500 uppercase">Vice-Président</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-center gap-4">
+                                    <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400"><i class="fas fa-user"></i></div>
+                                    <div>
+                                        <p class="font-bold text-white">Sébastien SAVRY</p>
+                                        <p class="text-xs text-gray-500 uppercase">Trésorier</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-center gap-4">
+                                    <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400"><i class="fas fa-user"></i></div>
+                                    <div>
+                                        <p class="font-bold text-white">Aurélien AUDOUIS</p>
+                                        <p class="text-xs text-gray-500 uppercase">Secrétaire</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <footer class="text-center text-gray-500 text-sm pt-12 border-t border-gray-800">
+                <p>&copy; 2025 Cor-Tech (Ass. Micromédia). Tous droits réservés.</p>
+                <p class="mt-2"><a href="mentions.html" class="hover:text-primary">Mentions Légales</a> | <a href="mailto:accueil@cor-tech.fr" class="hover:text-primary">Contact</a></p>
+            </footer>
+
+        </div>
     </main>
 
-    <footer class="bg-gray-900 border-t border-gray-800 text-center p-8 mt-auto">
-        <p class="text-gray-500">&copy; <span id="year"></span> Cor-Tech.</p>
-        <p class="mt-2 text-sm"><a href="mentions.html" class="text-gray-600 hover:text-primary">Mentions Légales</a></p>
-    </footer>
-
     <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-
         function loadGame(filename, btnElement) {
             const frame = document.getElementById('game-frame');
-            
-            // J'ai viré la sécurité .html car tes fichiers ont parfois des espaces avant
             frame.src = filename;
 
             // Animation bouton
             const buttons = document.querySelectorAll('.game-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
+            
+            // Scroll doux vers le jeu sur mobile uniquement
+            if(window.innerWidth < 1024) {
+                document.getElementById('arcade-container').scrollIntoView({behavior: 'smooth'});
+            }
         }
     </script>
 </body>
 </html>
-
-
