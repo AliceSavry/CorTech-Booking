@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News - COR-TECH</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --c-neon: #00FFFF;
+            --c-petrol: #003939;
+            --c-cyan-dark: #007879;
+            --c-text-cyan: #00b6b6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #050505;
+            font-family: 'Rajdhani', sans-serif;
+            color: #e5e7eb;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+        .font-tech { font-family: 'Share Tech Mono', monospace; }
+
+        /* Header */
+        .news-header {
+            background: var(--c-petrol);
+            padding: 24px;
+            border-bottom: 2px solid var(--c-cyan-dark);
+        }
+        .news-header h1 {
+            color: white;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .news-header h1 i { color: var(--c-neon); }
+        .news-header p {
+            color: var(--c-text-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        /* Container des news */
+        .news-container {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ========================================
+           CARTE NEWS - STRUCTURE À COPIER/COLLER
+        ======================================== */
+        .news-card {
+            background: linear-gradient(135deg, #001515 0%, #000a0a 100%);
+            border: 1px solid var(--c-petrol);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--c-neon);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .news-card:hover {
+            border-color: var(--c-cyan-dark);
+            transform: translateX(5px);
+        }
+        .news-card:hover::before { opacity: 1; }
+
+        /* En-tête de la carte */
+        .news-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Tags de catégorie */
+        .news-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--c-petrol);
+            color: var(--c-neon);
+            font-size: 0.7rem;
+            font-family: 'Share Tech Mono', monospace;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+        /* Variantes de couleurs pour les tags */
+        .news-tag.event { background: #3d0a50; color: #e879f9; }
+        .news-tag.atelier { background: #0a3d20; color: #4ade80; }
+        .news-tag.info { background: #0a2d4d; color: #60a5fa; }
+        .news-tag.partenariat { background: #4d3a0a; color: #fbbf24; }
+        .news-tag.materiel { background: #3d1a0a; color: #fb923c; }
+
+        /* Date */
+        .news-date {
+            font-size: 0.75rem;
+            color: #555;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Titre */
+        .news-title {
+            font-size: 1.25rem;
+            color: white;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        /* Contenu texte */
+        .news-content {
+            color: #9ca3af;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* Métadonnées (icônes + infos) */
+        .news-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .news-meta-item {
+            color: var(--c-text-cyan);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .news-meta-item i { font-size: 0.8rem; }
+
+        /* Image optionnelle */
+        .news-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            border: 1px solid var(--c-petrol);
+        }
+
+        /* Lien/bouton optionnel */
+        .news-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--c-neon);
+            text-decoration: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            border: 1px solid var(--c-cyan-dark);
+            border-radius: 4px;
+            transition: all 0.3s;
+            margin-top: 12px;
+        }
+        .news-link:hover {
+            background: var(--c-petrol);
+            border-color: var(--c-neon);
+        }
+
+        /* Séparateur "épinglé" pour news importantes */
+        .news-card.pinned {
+            border-color: var(--c-neon);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+        .news-card.pinned::after {
+            content: '📌';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        .news-footer {
+            text-align: center;
+            padding: 24px;
+            color: #555;
+            font-size: 0.8rem;
+            border-top: 1px solid #222;
+            margin-top: 20px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <!-- ================================
+         EN-TÊTE DE LA PAGE NEWS
+    ================================= -->
+    <header class="news-header">
+        <h1><i class="fas fa-satellite-dish"></i> ACTUALITÉS DU CLUB</h1>
+        <p>Les dernières nouvelles de l'univers Cor-Tech</p>
+    </header>
+
+    <!-- ================================
+         CONTAINER DES NEWS
+         
+         POUR AJOUTER UNE NEWS :
+         1. Copiez un bloc <article class="news-card">...</article>
+         2. Collez-le en haut (pour qu'il soit en premier)
+         3. Modifiez le contenu
+         
+         TAGS DISPONIBLES :
+         - news-tag event     → Violet (événements)
+         - news-tag atelier   → Vert (ateliers/formations)
+         - news-tag info      → Bleu (informations)
+         - news-tag partenariat → Jaune (partenariats)
+         - news-tag materiel  → Orange (nouveau matériel)
+         - news-tag (sans classe) → Cyan (par défaut)
+         
+         OPTION ÉPINGLÉ :
+         Ajoutez la classe "pinned" à news-card pour mettre en avant
+    ================================= -->
+    <div class="news-container">
+
+        <!-- ============ NEWS ÉPINGLÉE (EXEMPLE) ============ -->
+        <article class="news-card pinned">
+            <div class="news-card-header">
+                <span class="news-tag event"><i class="fas fa-star"></i> ÉVÉNEMENT</span>
+                <span class="news-date">15 JANVIER 2025</span>
+            </div>
+            <h2 class="news-title">🎮 Tournoi E-Sport Summer 2025</h2>
+            <p class="news-content">
+                Préparez-vous pour le plus grand tournoi de l'été ! League of Legends, Rocket League et Valorant au programme. Inscriptions ouvertes dès maintenant. Places limitées !
+            </p>
+            <div class="news-meta">
+                <span class="news-meta-item"><i class="fas fa-users"></i> 32 inscrits</span>
+                <span class="news-meta-item"><i class="fas fa-trophy"></i> 500€ de prix</span>
+                <span class="news-meta-item"><i class="fas fa-calendar"></i> 15 Juillet 2025</span>
+            </div>
+            <a href="#" class="news-link"><i class="fas fa-arrow-right"></i> S'inscrire</a>
+        </article>
+
+        <!-- ============ NEWS ATELIER ============ -->
+        <article class="news-card">
+            <div class="news-card-header">
+                <span class="news-tag atelier"><i class="fas fa-graduation-cap"></i> ATELIER</span>
+                <span class="news-date">10 JANVIER 2025</span>
+            </div>
+            <h2 class="news-title">Formation IA : Créer avec Midjourney</h2>
+            <p class="news-content">
+                Découvrez les secrets de la génération d'images par IA. Atelier pratique de 3h pour maîtriser les prompts et créer des visuels époustouflants. Ouvert à tous les niveaux !
+            </p>
+            <div class="news-meta">
+                <span class="news-meta-item"><i class="fas fa-calendar"></i> Samedi 25 Janvier</span>
+                <span class="news-meta-item"><i class="fas fa-clock"></i> 14h - 17h</span>
+                <span class="news-meta-item"><i class="fas fa-euro-sign"></i> Gratuit membres</span>
+            </div>
+        </article>
+
+        <!-- ============ NEWS MATÉRIEL ============ -->
+        <article class="news-card">
+            <div class="news-card-header">
+                <span class="news-tag materiel"><i class="fas fa-cube"></i> MATÉRIEL</span>
+                <span class="news-date">05 JANVIER 2025</span>
+            </div>
+            <h2 class="news-title">Nouvelle imprimante Bambu Lab X1</h2>
+            <!-- EXEMPLE AVEC IMAGE (décommentez et ajoutez votre image) -->
+            <!-- <img src="images/bambu-lab.jpg" alt="Imprimante 3D" class="news-image"> -->
+            <p class="news-content">
+                Le club s'équipe ! Notre nouvelle imprimante multi-filaments est arrivée. Venez découvrir ses capacités lors des ateliers du mercredi. Impressions en multi-couleurs possibles !
+            </p>
+            <div class="news-meta">
+                <span class="news-meta-item"><i class="fas fa-print"></i> Multi-couleurs</span>
+                <span class="news-meta-item"><i class="fas fa-bolt"></i> Ultra rapide</span>
+            </div>
+        </article>
+
+        <!-- ============ NEWS PARTENARIAT ============ -->
+        <article class="news-card">
+            <div class="news-card-header">
+                <span class="news-tag partenariat"><i class="fas fa-handshake"></i> PARTENARIAT</span>
+                <span class="news-date">20 DÉCEMBRE 2024</span>
+            </div>
+            <h2 class="news-title">Collaboration avec le Collège</h2>
+            <p class="news-content">
+                Cor-Tech s'associe au collège de Cordemais pour proposer des ateliers numériques aux élèves. Programmation, robotique et création graphique au menu pour cette année scolaire !
+            </p>
+            <div class="news-meta">
+                <span class="news-meta-item"><i class="fas fa-school"></i> Collège Cordemais</span>
+                <span class="news-meta-item"><i class="fas fa-child"></i> 60 élèves</span>
+            </div>
+        </article>
+
+        <!-- ============ NEWS INFO SIMPLE ============ -->
+        <article class="news-card">
+            <div class="news-card-header">
+                <span class="news-tag info"><i class="fas fa-info-circle"></i> INFO</span>
+                <span class="news-date">15 DÉCEMBRE 2024</span>
+            </div>
+            <h2 class="news-title">Fermeture pendant les fêtes</h2>
+            <p class="news-content">
+                Le club sera fermé du 23 décembre au 3 janvier inclus. Nous vous souhaitons de joyeuses fêtes ! Rendez-vous en 2025 pour de nouvelles aventures numériques.
+            </p>
+            <div class="news-meta">
+                <span class="news-meta-item"><i class="fas fa-calendar-times"></i> 23 Déc - 3 Jan</span>
+            </div>
+        </article>
+
+        <!-- 
+        ╔════════════════════════════════════════════════════════╗
+        ║  MODÈLE VIDE À COPIER POUR NOUVELLE NEWS               ║
+        ╠════════════════════════════════════════════════════════╣
+        
+        <article class="news-card">
+            <div class="news-card-header">
+                <span class="news-tag"><i class="fas fa-newspaper"></i> CATÉGORIE</span>
+                <span class="news-date">JJ MOIS AAAA</span>
+            </div>
+            <h2 class="news-title">Titre de votre news</h2>
+            <p class="news-content">
+                Description de votre actualité. Écrivez ici le contenu principal.
+            </p>
+            <div class="news-meta">
+                <span class="news-meta-item"><i class="fas fa-info"></i> Info 1</span>
+                <span class="news-meta-item"><i class="fas fa-info"></i> Info 2</span>
+            </div>
+        </article>
+        
+        ╚════════════════════════════════════════════════════════╝
+        -->
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="news-footer">
+        <p>COR-TECH © 2025 — Actualités du club</p>
+    </footer>
+
+</body>
+</html>
