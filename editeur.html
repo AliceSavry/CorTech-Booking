@@ -560,6 +560,185 @@
             }
         }
 
+        /* ===== MARKDOWN STYLES ===== */
+        .markdown-badge {
+            background: #333;
+            color: #7c3aed;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+            font-weight: normal;
+        }
+        .markdown-badge i { margin-right: 4px; }
+
+        .markdown-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 8px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+        }
+        .markdown-toolbar button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #252525;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .markdown-toolbar button:hover {
+            background: var(--c-petrol);
+            color: var(--c-neon);
+            border-color: var(--c-cyan-dark);
+        }
+        .markdown-toolbar button.help-btn {
+            margin-left: auto;
+            background: #2d1f5e;
+            color: #a78bfa;
+            border-color: #4c1d95;
+        }
+        .markdown-toolbar button.help-btn:hover {
+            background: #4c1d95;
+            color: #e9d5ff;
+        }
+        .toolbar-separator {
+            width: 1px;
+            height: 24px;
+            background: #333;
+            margin: 4px 6px;
+            align-self: center;
+        }
+
+        #news-content {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            min-height: 180px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Aide Markdown */
+        .markdown-help {
+            display: none;
+            background: #151515;
+            border: 1px solid #4c1d95;
+            border-radius: 6px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .markdown-help.show { display: block; }
+        .markdown-help-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #2d1f5e;
+            border-bottom: 1px solid #4c1d95;
+        }
+        .markdown-help-header h4 {
+            color: #a78bfa;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        .markdown-help-header h4 i { margin-right: 8px; }
+        .markdown-help-header button {
+            background: none;
+            border: none;
+            color: #a78bfa;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .markdown-help-header button:hover { color: #e9d5ff; }
+        .markdown-help-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            padding: 15px;
+        }
+        .help-section h5 {
+            color: #a78bfa;
+            font-size: 0.75rem;
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .help-section {
+            font-size: 0.8rem;
+            color: #999;
+            line-height: 1.8;
+        }
+        .help-section code {
+            background: #252525;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #4ade80;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .help-section strong { color: white; }
+        .help-section em { color: #e5e7eb; font-style: italic; }
+        .help-section del { color: #888; }
+
+        /* Styles pour le contenu Markdown rendu */
+        .news-content h1, .news-content h2, .news-content h3 {
+            color: white;
+            margin: 16px 0 8px 0;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .news-content h1 { font-size: 1.4rem; }
+        .news-content h2 { font-size: 1.2rem; }
+        .news-content h3 { font-size: 1rem; }
+        .news-content strong { color: white; font-weight: 600; }
+        .news-content em { font-style: italic; }
+        .news-content del { text-decoration: line-through; opacity: 0.7; }
+        .news-content code {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--c-neon);
+            font-size: 0.85em;
+        }
+        .news-content a {
+            color: var(--c-neon);
+            text-decoration: underline;
+        }
+        .news-content a:hover { color: white; }
+        .news-content ul, .news-content ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+        .news-content li { margin: 4px 0; }
+        .news-content blockquote {
+            border-left: 3px solid var(--c-neon);
+            margin: 12px 0;
+            padding: 8px 16px;
+            background: rgba(0, 255, 255, 0.05);
+            font-style: italic;
+            color: #aaa;
+        }
+        .news-content hr {
+            border: none;
+            border-top: 1px solid var(--c-petrol);
+            margin: 16px 0;
+        }
+        .news-content img {
+            max-width: 100%;
+            border-radius: 6px;
+            margin: 12px 0;
+        }
+
         /* Icones sélecteur */
         .icon-selector {
             display: grid;
@@ -696,11 +875,76 @@
                 <input type="date" id="news-date" onchange="updatePreview()">
             </div>
 
-            <!-- Contenu -->
+            <!-- Contenu avec Markdown -->
             <div class="form-group">
-                <label><span class="required">*</span> Contenu de l'article</label>
-                <textarea id="news-content" placeholder="Décrivez votre actualité ici..." oninput="updatePreview()"></textarea>
-                <small>Vous pouvez utiliser des emojis ! 🎮 🚀 ⭐</small>
+                <label><span class="required">*</span> Contenu de l'article <span class="markdown-badge"><i class="fab fa-markdown"></i> Markdown</span></label>
+                
+                <!-- Barre d'outils Markdown -->
+                <div class="markdown-toolbar">
+                    <button type="button" onclick="insertMarkdown('**', '**')" title="Gras"><i class="fas fa-bold"></i></button>
+                    <button type="button" onclick="insertMarkdown('*', '*')" title="Italique"><i class="fas fa-italic"></i></button>
+                    <button type="button" onclick="insertMarkdown('~~', '~~')" title="Barré"><i class="fas fa-strikethrough"></i></button>
+                    <span class="toolbar-separator"></span>
+                    <button type="button" onclick="insertMarkdown('# ', '')" title="Titre H1"><i class="fas fa-heading"></i>1</button>
+                    <button type="button" onclick="insertMarkdown('## ', '')" title="Titre H2"><i class="fas fa-heading"></i>2</button>
+                    <button type="button" onclick="insertMarkdown('### ', '')" title="Titre H3"><i class="fas fa-heading"></i>3</button>
+                    <span class="toolbar-separator"></span>
+                    <button type="button" onclick="insertMarkdown('\n- ', '')" title="Liste à puces"><i class="fas fa-list-ul"></i></button>
+                    <button type="button" onclick="insertMarkdown('\n1. ', '')" title="Liste numérotée"><i class="fas fa-list-ol"></i></button>
+                    <button type="button" onclick="insertMarkdown('\n> ', '')" title="Citation"><i class="fas fa-quote-left"></i></button>
+                    <span class="toolbar-separator"></span>
+                    <button type="button" onclick="insertMarkdown('[', '](url)')" title="Lien"><i class="fas fa-link"></i></button>
+                    <button type="button" onclick="insertMarkdown('![alt](', ')')" title="Image"><i class="fas fa-image"></i></button>
+                    <button type="button" onclick="insertMarkdown('`', '`')" title="Code inline"><i class="fas fa-code"></i></button>
+                    <span class="toolbar-separator"></span>
+                    <button type="button" onclick="insertMarkdown('\n---\n', '')" title="Ligne horizontale"><i class="fas fa-minus"></i></button>
+                    <button type="button" class="help-btn" onclick="toggleMarkdownHelp()" title="Aide Markdown"><i class="fas fa-question-circle"></i></button>
+                </div>
+
+                <textarea id="news-content" placeholder="Écrivez votre contenu ici...
+
+Utilisez le Markdown :
+**gras**, *italique*, [lien](url)
+- liste à puces
+1. liste numérotée
+> citation" oninput="updatePreview()"></textarea>
+                
+                <!-- Aide Markdown (repliable) -->
+                <div class="markdown-help" id="markdown-help">
+                    <div class="markdown-help-header">
+                        <h4><i class="fab fa-markdown"></i> Aide-mémoire Markdown</h4>
+                        <button type="button" onclick="toggleMarkdownHelp()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="markdown-help-content">
+                        <div class="help-section">
+                            <h5>Texte</h5>
+                            <code>**gras**</code> → <strong>gras</strong><br>
+                            <code>*italique*</code> → <em>italique</em><br>
+                            <code>~~barré~~</code> → <del>barré</del><br>
+                            <code>`code`</code> → <code>code</code>
+                        </div>
+                        <div class="help-section">
+                            <h5>Titres</h5>
+                            <code># Titre 1</code><br>
+                            <code>## Titre 2</code><br>
+                            <code>### Titre 3</code>
+                        </div>
+                        <div class="help-section">
+                            <h5>Listes</h5>
+                            <code>- élément</code> → liste à puces<br>
+                            <code>1. élément</code> → liste numérotée
+                        </div>
+                        <div class="help-section">
+                            <h5>Autres</h5>
+                            <code>[texte](url)</code> → lien<br>
+                            <code>![alt](url)</code> → image<br>
+                            <code>> citation</code> → bloc citation<br>
+                            <code>---</code> → ligne horizontale
+                        </div>
+                    </div>
+                </div>
+                
+                <small>Supporte le <strong>Markdown</strong> ! Vous pouvez aussi utiliser des emojis 🎮 🚀 ⭐</small>
             </div>
 
             <!-- Épinglé -->
@@ -811,6 +1055,113 @@
         let selectedTagLabel = 'NEWS';
         let selectedTagIcon = 'fa-newspaper';
         let metaItems = [];
+
+        // ===== PARSEUR MARKDOWN =====
+        function parseMarkdown(text) {
+            if (!text) return '';
+            
+            let html = text;
+            
+            // Échapper les caractères HTML dangereux
+            html = html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            // Lignes horizontales (avant les listes pour éviter conflits)
+            html = html.replace(/^---+$/gm, '<hr>');
+            
+            // Titres (H1, H2, H3)
+            html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+            
+            // Gras **texte** ou __texte__
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+            
+            // Italique *texte* ou _texte_
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+            
+            // Barré ~~texte~~
+            html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+            
+            // Code inline `code`
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            // Images ![alt](url)
+            html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+            
+            // Liens [texte](url)
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+            
+            // Citations > texte
+            html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+            // Fusionner les blockquotes consécutifs
+            html = html.replace(/<\/blockquote>\n<blockquote>/g, '<br>');
+            
+            // Listes à puces - élément
+            html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+            // Envelopper les li consécutifs dans ul
+            html = html.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
+                return '<ul>' + match.trim() + '</ul>';
+            });
+            
+            // Listes numérotées 1. élément
+            html = html.replace(/^\d+\. (.+)$/gm, '<oli>$1</oli>');
+            // Envelopper les oli consécutifs dans ol
+            html = html.replace(/(<oli>.*<\/oli>\n?)+/g, function(match) {
+                return '<ol>' + match.replace(/<\/?oli>/g, function(tag) {
+                    return tag.replace('oli', 'li');
+                }).trim() + '</ol>';
+            });
+            
+            // Paragraphes (lignes vides = nouveau paragraphe)
+            html = html.replace(/\n\n+/g, '</p><p>');
+            
+            // Sauts de ligne simples
+            html = html.replace(/\n/g, '<br>');
+            
+            // Nettoyer les <br> après les balises block
+            html = html.replace(/(<\/(h[1-3]|ul|ol|blockquote|hr)>)<br>/g, '$1');
+            html = html.replace(/<br>(<(h[1-3]|ul|ol|blockquote|hr))/g, '$1');
+            
+            // Envelopper dans un paragraphe si nécessaire
+            if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<ol') && !html.startsWith('<blockquote')) {
+                html = '<p>' + html + '</p>';
+            }
+            
+            // Nettoyer les paragraphes vides
+            html = html.replace(/<p><\/p>/g, '');
+            html = html.replace(/<p><br><\/p>/g, '');
+            
+            return html;
+        }
+
+        // Insérer du Markdown dans le textarea
+        function insertMarkdown(before, after) {
+            const textarea = document.getElementById('news-content');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selectedText = text.substring(start, end);
+            
+            const newText = text.substring(0, start) + before + selectedText + after + text.substring(end);
+            textarea.value = newText;
+            
+            // Repositionner le curseur
+            const newCursorPos = start + before.length + selectedText.length + after.length;
+            textarea.focus();
+            textarea.setSelectionRange(
+                start + before.length,
+                start + before.length + selectedText.length
+            );
+            
+            updatePreview();
+        }
+
+        // Toggle aide Markdown
+        function toggleMarkdownHelp() {
+            document.getElementById('markdown-help').classList.toggle('show');
+        }
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
@@ -934,6 +1285,9 @@
                 return;
             }
 
+            // Parser le contenu Markdown
+            const parsedContent = parseMarkdown(content);
+
             // Construire le HTML de prévisualisation
             const tagClass = selectedTag ? ` ${selectedTag}` : '';
             const pinnedClass = pinned ? ' pinned' : '';
@@ -946,7 +1300,7 @@
                     </div>
                     <h2 class="news-title">${title || 'Titre de l\'article'}</h2>
                     ${image ? `<img src="${image}" alt="${imageAlt}" class="news-image" onerror="this.style.display='none'">` : ''}
-                    <p class="news-content">${content || 'Contenu de l\'article...'}</p>
+                    <div class="news-content">${parsedContent || '<p>Contenu de l\'article...</p>'}</div>
                     ${metaHTML ? `<div class="news-meta">${metaHTML}</div>` : ''}
                     ${linkText && linkUrl ? `<a href="${linkUrl}" class="news-link" target="_blank"><i class="fas fa-arrow-right"></i> ${linkText}</a>` : ''}
                 </article>
@@ -954,7 +1308,17 @@
 
             document.getElementById('preview-area').innerHTML = previewHTML;
 
-            // Générer le code HTML propre
+            // Générer le code HTML propre (avec Markdown parsé)
+            // Formater le HTML parsé pour une meilleure lisibilité
+            let formattedContent = parsedContent
+                .replace(/<\/p><p>/g, '</p>\n        <p>')
+                .replace(/<br>/g, '<br>\n        ')
+                .replace(/<\/ul>/g, '</ul>\n        ')
+                .replace(/<\/ol>/g, '</ol>\n        ')
+                .replace(/<\/blockquote>/g, '</blockquote>\n        ')
+                .replace(/<\/h([1-3])>/g, '</h$1>\n        ')
+                .replace(/<hr>/g, '<hr>\n        ');
+            
             let codeHTML = `<article class="news-card${pinnedClass}">
     <div class="news-card-header">
         <span class="news-tag${tagClass}"><i class="fas ${selectedTagIcon}"></i> ${selectedTagLabel}</span>
@@ -966,7 +1330,7 @@
                 codeHTML += `\n    <img src="${image}" alt="${imageAlt}" class="news-image">`;
             }
 
-            codeHTML += `\n    <p class="news-content">\n        ${content || 'Contenu...'}\n    </p>`;
+            codeHTML += `\n    <div class="news-content">\n        ${formattedContent || '<p>Contenu...</p>'}\n    </div>`;
 
             if (metaCode) {
                 codeHTML += `\n    <div class="news-meta">${metaCode}\n    </div>`;
