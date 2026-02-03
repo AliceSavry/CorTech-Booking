@@ -14,7 +14,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
     <style>
-        /* --- VARIABLES --- */
         :root { 
             --c-neon: #00FFFF;
             --c-black: #000000;
@@ -29,7 +28,6 @@
             font-family: 'Rajdhani', sans-serif;
             color: #e5e7eb;
             overflow: hidden; 
-            /* CORRECTION : On autorise le tactile pour que les boutons marchent ! */
             touch-action: manipulation; 
         }
 
@@ -39,10 +37,8 @@
         .text-neon { color: var(--c-neon); text-shadow: 0 0 8px rgba(0, 255, 255, 0.6); }
         .border-neon { border: 1px solid var(--c-neon); box-shadow: 0 0 10px rgba(0, 255, 255, 0.15); }
 
-        /* LAYOUT DESKTOP */
         .main-container { display: flex; width: 100vw; height: 100vh; }
 
-        /* --- GAUCHE : ARCADE --- */
         .left-panel {
             width: 33.33%; height: 100%;
             background-color: #111;
@@ -62,9 +58,8 @@
             padding: 20px;
             position: relative;
             overflow-y: auto; overflow-x: hidden;
-            touch-action: pan-y; /* Permet de scroller la liste des jeux */
+            touch-action: pan-y;
         }
-        /* Scanlines */
         .crt-monitor::before {
             content: " "; display: block; position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
@@ -73,15 +68,14 @@
             pointer-events: none; z-index: 10;
         }
 
-        /* --- DROITE : INFOS --- */
         .right-panel {
             width: 66.66%; height: 100%;
             background-color: #050505;
             overflow-y: auto; padding: 0;
             touch-action: pan-y;
+            display: flex; flex-direction: column;
         }
 
-        /* BOUTONS JEUX */
         .game-item {
             display: flex; align-items: center; padding: 15px 10px;
             border-bottom: 1px dashed #005555; cursor: pointer;
@@ -91,7 +85,6 @@
         .game-item:hover { background: rgba(0, 255, 255, 0.1); color: #fff; text-shadow: 0 0 8px #00FFFF; padding-left: 20px; }
         .game-item i { margin-right: 15px; font-size: 1.2rem; }
 
-        /* --- MODALE JEU --- */
         #game-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.95); z-index: 9999;
@@ -113,7 +106,6 @@
             background: red; color: white; border: none; padding: 5px 15px;
             font-weight: bold; cursor: pointer; font-family: 'Orbitron';
         }
-        /* Iframe sans restrictions */
         .game-iframe { width: 100%; height: 100%; border: none; background: #000; touch-action: manipulation; }
 
         .blink { animation: blinker 1.5s linear infinite; }
@@ -123,25 +115,111 @@
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
 
-        /* =========================================
-           VERSION MOBILE
-        ========================================= */
+        /* TABS NAVIGATION */
+        .tabs-nav {
+            display: flex;
+            background: #0a0a0a;
+            border-bottom: 2px solid var(--c-petrol);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 16px 10px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .tab-btn:hover { color: var(--c-text-cyan); background: rgba(0,255,255,0.05); }
+        .tab-btn.active {
+            color: var(--c-neon);
+            border-bottom-color: var(--c-neon);
+            background: rgba(0,255,255,0.1);
+            text-shadow: 0 0 10px var(--c-neon);
+        }
+        .tab-btn i { font-size: 1rem; }
+
+        .tab-content { display: none; flex: 1; overflow-y: auto; }
+        .tab-content.active { display: block; }
+
+        /* NEWS STYLES */
+        .news-card {
+            background: linear-gradient(135deg, #001515 0%, #000a0a 100%);
+            border: 1px solid var(--c-petrol);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--c-neon);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .news-card:hover {
+            border-color: var(--c-cyan-dark);
+            transform: translateX(5px);
+        }
+        .news-card:hover::before { opacity: 1; }
+        .news-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: var(--c-petrol);
+            color: var(--c-neon);
+            font-size: 0.65rem;
+            font-family: 'Share Tech Mono', monospace;
+            border-radius: 3px;
+            margin-bottom: 10px;
+        }
+        .news-date {
+            font-size: 0.7rem;
+            color: #555;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* PROMPT GENERATOR IFRAME */
+        .prompt-iframe-container {
+            width: 100%;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+        .prompt-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #000;
+        }
+
         @media (max-width: 1024px) {
             html, body { overflow: auto; height: auto; touch-action: auto; } 
-            
             .main-container { flex-direction: column; width: 100%; height: auto; }
-
             .left-panel { 
                 width: 100%; height: auto; min-height: auto;
                 border-right: none; border-bottom: 4px solid var(--c-neon); 
                 padding: 10px;
             }
-
             .crt-monitor { height: 400px; margin-bottom: 10px; }
             .right-panel { width: 100%; height: auto; overflow: visible; }
-
             .modal-container { width: 100%; height: 100%; border: none; border-radius: 0; }
             .modal-header { padding: 5px 10px; }
+            .tab-btn { font-size: 0.6rem; padding: 12px 5px; }
+            .tab-btn span { display: none; }
+            .tab-btn i { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -183,13 +261,9 @@
 
             <div class="space-y-1 relative z-20">
                 <div class="game-item" onclick="openGame('troll.html', 'TROLL')"><i class="fas fa-dove"></i> <span>TROLL</span></div>
-                
                 <div class="game-item" onclick="openGame('Flappy.html', 'FLAPPY COR-TECH')"><i class="fas fa-dove"></i> <span>FLAPPY COR-TECH</span></div>
-                
                 <div class="game-item" onclick="openGame('tetris 8bit fx.html', 'TETRIS')"><i class="fas fa-cubes"></i> <span>TETRIS 8-BIT</span></div>
-                
                 <div class="game-item" onclick="openGame('https://folgoas.github.io/candydeche/', 'DELICES SUCRES')"><i class="fas fa-gem"></i> <span>DÉLICES SUCRÉS</span></div>
-                
                 <div class="game-item" onclick="openGame('air hockey.html', 'HOCKEY')"><i class="fas fa-circle"></i> <span>AIR HOCKEY</span></div>
                 <div class="game-item" onclick="openGame('casse brick.html', 'BRIQUES')"><i class="fas fa-th"></i> <span>CASSE BRIQUES</span></div>
                 <div class="game-item" onclick="openGame('course.html', 'RACING')"><i class="fas fa-car"></i> <span>RACING</span></div>
@@ -204,108 +278,224 @@
     </aside>
 
     <main class="right-panel">
-        <header class="bg-[#003939] p-6 border-b border-[#007879] sticky top-0 z-40 bg-opacity-95 backdrop-blur shadow-lg">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="text-3xl font-bold text-white mb-1">L'ASSOCIATION <span class="text-neon">NUMÉRIQUE</span></h2>
-                    <p class="text-[#00b6b6] font-tech text-sm">« Cordemais, branchée sur la tech du futur. »</p>
-                </div>
-                <div>
-                    <a href="mailto:contact@cor-tech.fr?subject=Demande%20d'informations" class="bg-[#00FFFF] hover:bg-white text-black font-bold py-3 px-6 rounded font-tech shadow-[0_0_15px_rgba(0,255,255,0.4)] transition inline-flex items-center gap-2">
-                        <i class="fas fa-paper-plane"></i> NOUS REJOINDRE
-                    </a>
-                </div>
-            </div>
-        </header>
+        <!-- NAVIGATION ONGLETS -->
+        <nav class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('infos')">
+                <i class="fas fa-info-circle"></i>
+                <span>INFOS</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('news')">
+                <i class="fas fa-newspaper"></i>
+                <span>NEWS</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('prompt')">
+                <i class="fas fa-magic"></i>
+                <span>PROMPT AI</span>
+            </button>
+        </nav>
 
-        <div class="p-8 lg:p-12 space-y-12">
-            <section>
-                <h3 class="text-2xl text-white mb-4 border-l-4 border-[#00FFFF] pl-4 flex items-center">
-                    <i class="fas fa-info-circle mr-3 text-[#007879]"></i> QUI SOMMES-NOUS ?
-                </h3>
-                <div class="bg-[#001010] p-6 rounded border border-[#003939] text-gray-300 leading-relaxed shadow-lg">
-                    <p class="mb-4 text-lg"><strong>Cor-Tech</strong> est la petite sœur rebelle et créative de Micromédia. Née à Cordemais, c'est une entité indépendante dédiée aux passionnés de technologie.</p>
-                    <p><i class="fas fa-quote-left text-[#00FFFF] opacity-50 mr-2"></i>Notre ambition ? Faire tomber les barrières du numérique, reconnecter les générations.</p>
-                </div>
-            </section>
-
-            <section>
-                <h3 class="text-2xl text-white mb-6 border-l-4 border-[#00FFFF] pl-4">NOS ATELIERS</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
-                        <i class="fas fa-robot text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
-                        <h4 class="text-lg text-white font-bold">Intelligence Artificielle</h4>
-                        <p class="text-[#00b6b6] text-sm">Comprendre les outils qui changent le monde.</p>
+        <!-- TAB: INFOS -->
+        <div id="tab-infos" class="tab-content active">
+            <header class="bg-[#003939] p-6 border-b border-[#007879] bg-opacity-95 backdrop-blur shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-1">L'ASSOCIATION <span class="text-neon">NUMÉRIQUE</span></h2>
+                        <p class="text-[#00b6b6] font-tech text-sm">« Cordemais, branchée sur la tech du futur. »</p>
                     </div>
-                    <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
-                        <i class="fas fa-cube text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
-                        <h4 class="text-lg text-white font-bold">Impression 3D</h4>
-                        <p class="text-[#00b6b6] text-sm">De la modélisation à l'impression.</p>
-                    </div>
-                    <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
-                        <i class="fas fa-gamepad text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
-                        <h4 class="text-lg text-white font-bold">Jeu Vidéo & E-Sport</h4>
-                        <p class="text-[#00b6b6] text-sm">Tournois, streaming et analyse.</p>
-                    </div>
-                    <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
-                        <i class="fas fa-pen-nib text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
-                        <h4 class="text-lg text-white font-bold">Création Graphique</h4>
-                        <p class="text-[#00b6b6] text-sm">Design pour réseaux sociaux et affiches.</p>
+                    <div>
+                        <a href="mailto:contact@cor-tech.fr?subject=Demande%20d'informations" class="bg-[#00FFFF] hover:bg-white text-black font-bold py-3 px-6 rounded font-tech shadow-[0_0_15px_rgba(0,255,255,0.4)] transition inline-flex items-center gap-2">
+                            <i class="fas fa-paper-plane"></i> NOUS REJOINDRE
+                        </a>
                     </div>
                 </div>
-            </section>
+            </header>
 
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-6">
-                    <div class="bg-[#003939] p-6 rounded border border-[#007879]">
-                        <h4 class="text-white font-bold mb-3"><i class="fas fa-map-marker-alt mr-2 text-[#00FFFF]"></i> ADRESSE</h4>
-                        <p class="text-gray-300">Médiathèque Jacques Fairand<br>Avenue des 4 vents, 44360 CORDEMAIS.</p>
+            <div class="p-8 lg:p-12 space-y-12">
+                <section>
+                    <h3 class="text-2xl text-white mb-4 border-l-4 border-[#00FFFF] pl-4 flex items-center">
+                        <i class="fas fa-info-circle mr-3 text-[#007879]"></i> QUI SOMMES-NOUS ?
+                    </h3>
+                    <div class="bg-[#001010] p-6 rounded border border-[#003939] text-gray-300 leading-relaxed shadow-lg">
+                        <p class="mb-4 text-lg"><strong>Cor-Tech</strong> est la petite sœur rebelle et créative de Micromédia. Née à Cordemais, c'est une entité indépendante dédiée aux passionnés de technologie.</p>
+                        <p><i class="fas fa-quote-left text-[#00FFFF] opacity-50 mr-2"></i>Notre ambition ? Faire tomber les barrières du numérique, reconnecter les générations.</p>
                     </div>
-                    <div class="bg-[#003939] p-6 rounded border border-[#007879]">
-                        <h4 class="text-white font-bold mb-4 flex items-center"><i class="fas fa-clock mr-2 text-[#00FFFF]"></i> HORAIRES</h4>
-                        <p class="text-[#00b6b6] font-tech text-xs mb-2 border-b border-[#007879] pb-1">PÉRIODE SCOLAIRE</p>
-                        <ul class="text-gray-300 space-y-1 text-sm mb-4">
-                            <li class="flex justify-between border-b border-[#005555] pb-1"><span>Mardi</span> <span>9h-12h / 13h30-18h</span></li>
-                            <li class="flex justify-between border-b border-[#005555] pb-1"><span>Mercredi</span> <span>10h-12h / 13h30-18h</span></li>
-                            <li class="flex justify-between border-b border-[#005555] pb-1"><span>Jeudi</span> <span>9h-12h / 13h30-18h</span></li>
-                        </ul>
-                        <p class="text-[#00b6b6] font-tech text-xs mb-2 border-b border-[#007879] pb-1">VACANCES SCOLAIRES</p>
-                        <ul class="text-gray-300 space-y-1 text-sm">
-                            <li class="flex justify-between"><span>Lun - Ven</span> <span>14h00 - 18h00</span></li>
-                        </ul>
-                    </div>
-                </div>
+                </section>
 
-                <div class="space-y-6">
-                    <div class="border-neon rounded bg-black p-6 relative overflow-hidden">
-                        <h3 class="text-xl font-bold text-white mb-4 font-tech">TARIFS 2025</h3>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-end border-b border-gray-800 pb-2"><span class="text-[#00b6b6]">Adulte</span><span class="text-2xl font-bold text-white">30 €</span></div>
-                            <div class="flex justify-between items-end border-b border-gray-800 pb-2"><span class="text-[#00b6b6]">Enfant (-18)</span><span class="text-2xl font-bold text-white">15 €</span></div>
-                            <div class="flex justify-between items-end"><span class="text-[#00b6b6]">Asso</span><span class="text-2xl font-bold text-white">160 €</span></div>
+                <section>
+                    <h3 class="text-2xl text-white mb-6 border-l-4 border-[#00FFFF] pl-4">NOS ATELIERS</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                            <i class="fas fa-robot text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
+                            <h4 class="text-lg text-white font-bold">Intelligence Artificielle</h4>
+                            <p class="text-[#00b6b6] text-sm">Comprendre les outils qui changent le monde.</p>
+                        </div>
+                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                            <i class="fas fa-cube text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
+                            <h4 class="text-lg text-white font-bold">Impression 3D</h4>
+                            <p class="text-[#00b6b6] text-sm">De la modélisation à l'impression.</p>
+                        </div>
+                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                            <i class="fas fa-gamepad text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
+                            <h4 class="text-lg text-white font-bold">Jeu Vidéo & E-Sport</h4>
+                            <p class="text-[#00b6b6] text-sm">Tournois, streaming et analyse.</p>
+                        </div>
+                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                            <i class="fas fa-pen-nib text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
+                            <h4 class="text-lg text-white font-bold">Création Graphique</h4>
+                            <p class="text-[#00b6b6] text-sm">Design pour réseaux sociaux et affiches.</p>
                         </div>
                     </div>
-                    <div class="bg-[#003939] p-6 rounded border border-[#007879]">
-                        <h3 class="text-xl font-bold text-white mb-4 font-tech">LE BUREAU</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li class="flex items-center gap-3"><div class="w-2 h-2 bg-[#00FFFF] rounded-full"></div><div><strong class="text-white block font-sans">Alice SAVRY</strong> <span class="text-[#00b6b6]">Présidente</span></div></li>
-                            <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Simon CANEVET</strong> <span class="text-gray-400">Vice-Président</span></div></li>
-                            <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Sébastien SAVRY</strong> <span class="text-gray-400">Trésorier</span></div></li>
-                            <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Aurélien AUDOUIS</strong> <span class="text-gray-400">Secrétaire</span></div></li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <footer class="text-center text-[#007879] text-sm pt-8 border-t border-[#003939] pb-8">
-                <p>&copy; 2025 Association Cor-Tech.</p>
-                <p class="mt-2"><a href="mentions.html" class="hover:text-[#00FFFF]">Mentions Légales</a></p>
-            </footer>
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="bg-[#003939] p-6 rounded border border-[#007879]">
+                            <h4 class="text-white font-bold mb-3"><i class="fas fa-map-marker-alt mr-2 text-[#00FFFF]"></i> ADRESSE</h4>
+                            <p class="text-gray-300">Médiathèque Jacques Fairand<br>Avenue des 4 vents, 44360 CORDEMAIS.</p>
+                        </div>
+                        <div class="bg-[#003939] p-6 rounded border border-[#007879]">
+                            <h4 class="text-white font-bold mb-4 flex items-center"><i class="fas fa-clock mr-2 text-[#00FFFF]"></i> HORAIRES</h4>
+                            <p class="text-[#00b6b6] font-tech text-xs mb-2 border-b border-[#007879] pb-1">PÉRIODE SCOLAIRE</p>
+                            <ul class="text-gray-300 space-y-1 text-sm mb-4">
+                                <li class="flex justify-between border-b border-[#005555] pb-1"><span>Mardi</span> <span>9h-12h / 13h30-18h</span></li>
+                                <li class="flex justify-between border-b border-[#005555] pb-1"><span>Mercredi</span> <span>10h-12h / 13h30-18h</span></li>
+                                <li class="flex justify-between border-b border-[#005555] pb-1"><span>Jeudi</span> <span>9h-12h / 13h30-18h</span></li>
+                            </ul>
+                            <p class="text-[#00b6b6] font-tech text-xs mb-2 border-b border-[#007879] pb-1">VACANCES SCOLAIRES</p>
+                            <ul class="text-gray-300 space-y-1 text-sm">
+                                <li class="flex justify-between"><span>Lun - Ven</span> <span>14h00 - 18h00</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="border-neon rounded bg-black p-6 relative overflow-hidden">
+                            <h3 class="text-xl font-bold text-white mb-4 font-tech">TARIFS 2025</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-end border-b border-gray-800 pb-2"><span class="text-[#00b6b6]">Adulte</span><span class="text-2xl font-bold text-white">30 €</span></div>
+                                <div class="flex justify-between items-end border-b border-gray-800 pb-2"><span class="text-[#00b6b6]">Enfant (-18)</span><span class="text-2xl font-bold text-white">15 €</span></div>
+                                <div class="flex justify-between items-end"><span class="text-[#00b6b6]">Asso</span><span class="text-2xl font-bold text-white">160 €</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-[#003939] p-6 rounded border border-[#007879]">
+                            <h3 class="text-xl font-bold text-white mb-4 font-tech">LE BUREAU</h3>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-[#00FFFF] rounded-full"></div><div><strong class="text-white block font-sans">Alice SAVRY</strong> <span class="text-[#00b6b6]">Présidente</span></div></li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Simon CANEVET</strong> <span class="text-gray-400">Vice-Président</span></div></li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Sébastien SAVRY</strong> <span class="text-gray-400">Trésorier</span></div></li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Aurélien AUDOUIS</strong> <span class="text-gray-400">Secrétaire</span></div></li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="text-center text-[#007879] text-sm pt-8 border-t border-[#003939] pb-8">
+                    <p>&copy; 2025 Association Cor-Tech.</p>
+                    <p class="mt-2"><a href="mentions.html" class="hover:text-[#00FFFF]">Mentions Légales</a></p>
+                </footer>
+            </div>
+        </div>
+
+        <!-- TAB: NEWS -->
+        <div id="tab-news" class="tab-content">
+            <header class="bg-[#003939] p-6 border-b border-[#007879]">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <i class="fas fa-satellite-dish text-neon"></i>
+                    ACTUALITÉS <span class="text-neon">DU CLUB</span>
+                </h2>
+                <p class="text-[#00b6b6] font-tech text-sm mt-1">Les dernières nouvelles de l'univers Cor-Tech</p>
+            </header>
+
+            <div class="p-8 space-y-6">
+                <!-- News Item 1 -->
+                <article class="news-card">
+                    <span class="news-tag"><i class="fas fa-star mr-1"></i> ÉVÉNEMENT</span>
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl text-white font-bold">Tournoi E-Sport Summer 2025</h3>
+                        <span class="news-date">15 JAN 2025</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Préparez-vous pour le plus grand tournoi de l'été ! League of Legends, Rocket League et Valorant au programme. Inscriptions ouvertes dès maintenant.</p>
+                    <div class="flex items-center gap-4">
+                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-users mr-1"></i> 32 inscrits</span>
+                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-trophy mr-1"></i> 500€ de prix</span>
+                    </div>
+                </article>
+
+                <!-- News Item 2 -->
+                <article class="news-card">
+                    <span class="news-tag"><i class="fas fa-graduation-cap mr-1"></i> ATELIER</span>
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl text-white font-bold">Formation IA : Créer avec Midjourney</h3>
+                        <span class="news-date">10 JAN 2025</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Découvrez les secrets de la génération d'images par IA. Atelier pratique de 3h pour maîtriser les prompts et créer des visuels époustouflants.</p>
+                    <div class="flex items-center gap-4">
+                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-calendar mr-1"></i> Samedi 25 Jan</span>
+                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-clock mr-1"></i> 14h - 17h</span>
+                    </div>
+                </article>
+
+                <!-- News Item 3 -->
+                <article class="news-card">
+                    <span class="news-tag"><i class="fas fa-cube mr-1"></i> 3D PRINTING</span>
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl text-white font-bold">Nouvelle imprimante Bambu Lab X1</h3>
+                        <span class="news-date">05 JAN 2025</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Le club s'équipe ! Notre nouvelle imprimante multi-filaments est arrivée. Venez découvrir ses capacités lors des ateliers du mercredi.</p>
+                    <div class="flex items-center gap-4">
+                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-print mr-1"></i> Multi-couleurs</span>
+                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-bolt mr-1"></i> Ultra rapide</span>
+                    </div>
+                </article>
+
+                <!-- News Item 4 -->
+                <article class="news-card">
+                    <span class="news-tag"><i class="fas fa-handshake mr-1"></i> PARTENARIAT</span>
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl text-white font-bold">Collaboration avec le Collège</h3>
+                        <span class="news-date">20 DÉC 2024</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Cor-Tech s'associe au collège de Cordemais pour proposer des ateliers numériques aux élèves. Programmation, robotique et création graphique au menu !</p>
+                    <div class="flex items-center gap-4">
+                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-school mr-1"></i> Collège Cordemais</span>
+                    </div>
+                </article>
+
+                <div class="text-center pt-8">
+                    <button class="border border-[#007879] text-[#00b6b6] px-6 py-3 rounded hover:bg-[#003939] transition font-tech">
+                        <i class="fas fa-history mr-2"></i> ARCHIVES
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: PROMPT GENERATOR -->
+        <div id="tab-prompt" class="tab-content">
+            <div class="prompt-iframe-container">
+                <iframe src="game-prompt-generator.html" class="prompt-iframe" title="Générateur de Prompt IA"></iframe>
+            </div>
         </div>
     </main>
 </div>
 
 <script>
+    // TAB SWITCHING
+    function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById('tab-' + tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    // GAME MODAL
     function openGame(filename, title) {
         const modal = document.getElementById('game-modal');
         const iframe = document.getElementById('game-frame');
@@ -315,20 +505,13 @@
         titleEl.innerText = "JEU : " + title;
         modal.style.display = 'flex';
 
-        // INJECTION TACTILE PERMISSIVE
-        // Fait sauter l'oiseau mais laisse les clics passer !
         iframe.onload = function() {
             try {
                 iframe.contentWindow.focus();
                 const gameDoc = iframe.contentWindow.document;
-                
-                // On empêche le zoom (double tap) mais pas le clic
                 gameDoc.body.style.touchAction = "manipulation"; 
 
                 gameDoc.addEventListener('touchstart', function(e) {
-                    // On ne met PAS e.preventDefault() -> Le clic passe !
-                    
-                    // On envoie quand même la touche Espace pour le jeu
                     const k = new KeyboardEvent('keydown', {keyCode: 32, which: 32, bubbles:true});
                     gameDoc.dispatchEvent(k);
                     iframe.contentWindow.dispatchEvent(k);
@@ -343,14 +526,11 @@
     function closeGame() {
         const modal = document.getElementById('game-modal');
         const iframe = document.getElementById('game-frame');
-        
         modal.style.display = 'none';
         iframe.src = '';
     }
+
 </script>
 
 </body>
 </html>
-
-
-
