@@ -2,1463 +2,541 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur de News - COR-TECH</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>COR-TECH | Arcade & Infos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
     <style>
-        :root {
+        :root { 
             --c-neon: #00FFFF;
+            --c-black: #000000;
             --c-petrol: #003939;
             --c-cyan-dark: #007879;
             --c-text-cyan: #00b6b6;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background: linear-gradient(135deg, #0a0a0a 0%, #001515 100%);
+        html, body {
+            height: 100%; margin: 0; padding: 0; 
+            background-color: var(--c-black);
             font-family: 'Rajdhani', sans-serif;
             color: #e5e7eb;
-            min-height: 100vh;
+            overflow: hidden; 
+            touch-action: manipulation; 
         }
 
-        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
-        .font-tech { font-family: 'Share Tech Mono', monospace; }
+        h1, h2 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        h3, h4, .font-tech { font-family: 'Share Tech Mono', monospace; }
+        .font-pixel { font-family: 'Press Start 2P', cursive; }
+        .text-neon { color: var(--c-neon); text-shadow: 0 0 8px rgba(0, 255, 255, 0.6); }
+        .border-neon { border: 1px solid var(--c-neon); box-shadow: 0 0 10px rgba(0, 255, 255, 0.15); }
 
-        /* Header */
-        .editor-header {
-            background: var(--c-petrol);
-            padding: 20px 30px;
-            border-bottom: 3px solid var(--c-neon);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .editor-header h1 {
-            color: white;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .editor-header h1 i { color: var(--c-neon); }
-        .back-link {
-            color: var(--c-text-cyan);
-            text-decoration: none;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border: 1px solid var(--c-cyan-dark);
-            border-radius: 4px;
-            transition: all 0.3s;
-        }
-        .back-link:hover {
-            background: var(--c-petrol);
-            border-color: var(--c-neon);
-            color: var(--c-neon);
-        }
+        .main-container { display: flex; width: 100vw; height: 100vh; }
 
-        /* Layout principal */
-        .editor-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            min-height: calc(100vh - 80px);
-        }
-
-        /* Panneau gauche - Formulaire */
-        .form-panel {
-            background: #0a0a0a;
-            padding: 30px;
-            overflow-y: auto;
-            border-right: 2px solid #222;
-        }
-        .form-panel h2 {
-            color: var(--c-neon);
-            font-size: 1rem;
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--c-petrol);
-        }
-
-        /* Groupes de formulaire */
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            color: var(--c-text-cyan);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-        .form-group label .required {
-            color: #ff6b6b;
-        }
-        .form-group small {
-            display: block;
-            color: #555;
-            font-size: 0.75rem;
-            margin-top: 5px;
-        }
-
-        /* Inputs */
-        input[type="text"],
-        input[type="url"],
-        input[type="date"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 12px 15px;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: white;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        input:focus,
-        textarea:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--c-neon);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
-        }
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        select {
-            cursor: pointer;
-        }
-        select option {
-            background: #111;
-            color: white;
-        }
-
-        /* Checkbox & Toggle */
-        .toggle-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .toggle-group:hover {
-            border-color: var(--c-cyan-dark);
-        }
-        .toggle-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            accent-color: var(--c-neon);
-            cursor: pointer;
-        }
-        .toggle-group span {
-            color: #ccc;
-            font-size: 0.95rem;
-        }
-
-        /* Tags sélection */
-        .tag-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .tag-option {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-            opacity: 0.6;
-        }
-        .tag-option:hover { opacity: 0.8; }
-        .tag-option.selected {
-            opacity: 1;
-            border-color: white;
-            transform: scale(1.05);
-        }
-        .tag-option.default { background: var(--c-petrol); color: var(--c-neon); }
-        .tag-option.event { background: #3d0a50; color: #e879f9; }
-        .tag-option.atelier { background: #0a3d20; color: #4ade80; }
-        .tag-option.info { background: #0a2d4d; color: #60a5fa; }
-        .tag-option.partenariat { background: #4d3a0a; color: #fbbf24; }
-        .tag-option.materiel { background: #3d1a0a; color: #fb923c; }
-
-        /* Section repliable */
-        .collapsible {
-            margin-bottom: 20px;
-        }
-        .collapsible-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            background: #151515;
-            border: 1px solid #333;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .collapsible-header:hover {
-            border-color: var(--c-cyan-dark);
-        }
-        .collapsible-header h3 {
-            font-size: 0.85rem;
-            color: #aaa;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .collapsible-header h3 i {
-            color: var(--c-cyan-dark);
-        }
-        .collapsible-header .arrow {
-            color: #555;
-            transition: transform 0.3s;
-        }
-        .collapsible.open .collapsible-header {
-            border-color: var(--c-neon);
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-        .collapsible.open .collapsible-header .arrow {
-            transform: rotate(180deg);
-        }
-        .collapsible-content {
-            display: none;
+        .left-panel {
+            width: 33.33%; height: 100%;
+            background-color: #111;
+            border-right: 10px solid #222;
+            display: flex; flex-direction: column;
             padding: 20px;
-            background: #0f0f0f;
-            border: 1px solid var(--c-cyan-dark);
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-        }
-        .collapsible.open .collapsible-content {
-            display: block;
+            box-shadow: inset -5px 0 20px rgba(0,0,0,0.8);
+            position: relative; z-index: 20;
         }
 
-        /* Meta items dynamiques */
-        .meta-items-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .meta-item-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .meta-item-row select {
-            width: 50px;
-            padding: 8px;
-            text-align: center;
-        }
-        .meta-item-row input {
-            flex: 1;
-        }
-        .meta-item-row .remove-meta {
-            background: #ff4444;
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .add-meta-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px;
-            background: transparent;
-            border: 1px dashed var(--c-cyan-dark);
-            border-radius: 6px;
-            color: var(--c-text-cyan);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .add-meta-btn:hover {
-            background: rgba(0, 255, 255, 0.05);
-            border-color: var(--c-neon);
-        }
-
-        /* Panneau droit - Prévisualisation */
-        .preview-panel {
-            background: #050505;
-            display: flex;
-            flex-direction: column;
-        }
-        .preview-header {
-            padding: 15px 20px;
-            background: #111;
-            border-bottom: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .preview-header h2 {
-            color: #888;
-            font-size: 0.85rem;
-        }
-        .preview-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .preview-actions button {
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-copy {
-            background: var(--c-neon);
-            color: black;
-            border: none;
-            font-weight: bold;
-        }
-        .btn-copy:hover {
-            background: white;
-        }
-        .btn-reset {
-            background: transparent;
-            color: #888;
-            border: 1px solid #444;
-        }
-        .btn-reset:hover {
-            border-color: #ff6b6b;
-            color: #ff6b6b;
-        }
-
-        .preview-content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-        }
-
-        /* Code généré */
-        .code-section {
-            background: #111;
-            border-top: 1px solid #333;
-            max-height: 300px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .code-header {
-            padding: 10px 20px;
-            background: #1a1a1a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-        .code-header span {
-            color: #666;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-        }
-        .code-content {
-            flex: 1;
-            overflow: auto;
-            padding: 15px;
-        }
-        .code-content pre {
-            margin: 0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            color: #4ade80;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        /* Style de la carte preview (copié de news.html) */
-        .news-card {
-            background: linear-gradient(135deg, #001515 0%, #000a0a 100%);
-            border: 1px solid var(--c-petrol);
-            border-radius: 8px;
+        .crt-monitor {
+            flex-grow: 1;
+            background-color: #001a1a;
+            border-radius: 20px;
+            border: 4px solid #333;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
             padding: 20px;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto; overflow-x: hidden;
+            touch-action: pan-y;
         }
-        .news-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 4px; height: 100%;
-            background: var(--c-neon);
-        }
-        .news-card.pinned {
-            border-color: var(--c-neon);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
-        }
-        .news-card.pinned::after {
-            content: '📌';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.2rem;
-        }
-        .news-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .news-tag {
-            display: inline-block;
-            padding: 4px 12px;
-            background: var(--c-petrol);
-            color: var(--c-neon);
-            font-size: 0.7rem;
-            font-family: 'Share Tech Mono', monospace;
-            border-radius: 3px;
-            text-transform: uppercase;
-        }
-        .news-tag.event { background: #3d0a50; color: #e879f9; }
-        .news-tag.atelier { background: #0a3d20; color: #4ade80; }
-        .news-tag.info { background: #0a2d4d; color: #60a5fa; }
-        .news-tag.partenariat { background: #4d3a0a; color: #fbbf24; }
-        .news-tag.materiel { background: #3d1a0a; color: #fb923c; }
-        .news-date {
-            font-size: 0.75rem;
-            color: #555;
-            font-family: 'Share Tech Mono', monospace;
-        }
-        .news-title {
-            font-size: 1.25rem;
-            color: white;
-            margin-bottom: 12px;
-            line-height: 1.3;
-            font-family: 'Orbitron', sans-serif;
-        }
-        .news-image {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            border: 1px solid var(--c-petrol);
-        }
-        .news-content {
-            color: #9ca3af;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-        .news-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .news-meta-item {
-            color: var(--c-text-cyan);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .news-meta-item i { font-size: 0.8rem; }
-        .news-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--c-neon);
-            text-decoration: none;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            padding: 8px 16px;
-            border: 1px solid var(--c-cyan-dark);
-            border-radius: 4px;
-            transition: all 0.3s;
-            margin-top: 12px;
-        }
-        .news-link:hover {
-            background: var(--c-petrol);
-            border-color: var(--c-neon);
+        .crt-monitor::before {
+            content: " "; display: block; position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none; z-index: 10;
         }
 
-        /* Empty state preview */
-        .empty-preview {
-            text-align: center;
-            padding: 60px 20px;
-            color: #444;
-        }
-        .empty-preview i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-        .empty-preview p {
-            font-family: 'Share Tech Mono', monospace;
+        .right-panel {
+            width: 66.66%; height: 100%;
+            background-color: #050505;
+            overflow-y: auto; padding: 0;
+            touch-action: pan-y;
+            display: flex; flex-direction: column;
         }
 
-        /* Toast notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--c-neon);
-            color: black;
-            padding: 15px 25px;
-            border-radius: 8px;
-            font-family: 'Share Tech Mono', monospace;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s;
-            z-index: 1000;
+        .game-item {
+            display: flex; align-items: center; padding: 15px 10px;
+            border-bottom: 1px dashed #005555; cursor: pointer;
+            transition: all 0.2s; font-family: 'Share Tech Mono', monospace;
+            color: #00b6b6; position: relative; z-index: 20;
         }
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
+        .game-item:hover { background: rgba(0, 255, 255, 0.1); color: #fff; text-shadow: 0 0 8px #00FFFF; padding-left: 20px; }
+        .game-item i { margin-right: 15px; font-size: 1.2rem; }
+
+        #game-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.95); z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        .modal-container {
+            width: 90vw; height: 85vh; max-width: 1200px;
+            background: #000; border: 4px solid var(--c-neon);
+            border-radius: 10px; box-shadow: 0 0 50px var(--c-neon);
+            display: flex; flex-direction: column; position: relative;
+        }
+        .modal-header {
+            height: 50px; background: var(--c-petrol);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; border-bottom: 2px solid var(--c-neon);
+        }
+        .close-btn {
+            background: red; color: white; border: none; padding: 5px 15px;
+            font-weight: bold; cursor: pointer; font-family: 'Orbitron';
+        }
+        .game-iframe { width: 100%; height: 100%; border: none; background: #000; touch-action: manipulation; }
+
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* Animation shake pour mot de passe incorrect */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
 
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .editor-layout {
-                grid-template-columns: 1fr;
-            }
-            .form-panel {
-                border-right: none;
-                border-bottom: 2px solid var(--c-neon);
-            }
-            .preview-panel {
-                min-height: 600px;
-            }
-        }
-
-        /* ===== MARKDOWN STYLES ===== */
-        .markdown-badge {
-            background: #333;
-            color: #7c3aed;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            margin-left: 10px;
-            font-weight: normal;
-        }
-        .markdown-badge i { margin-right: 4px; }
-
-        .markdown-toolbar {
+        /* TABS NAVIGATION */
+        .tabs-nav {
             display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            padding: 8px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-bottom: none;
-            border-radius: 6px 6px 0 0;
+            background: #0a0a0a;
+            border-bottom: 2px solid var(--c-petrol);
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
-        .markdown-toolbar button {
-            width: 32px;
-            height: 32px;
+        .tab-btn {
+            flex: 1;
+            padding: 16px 10px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #252525;
-            border: 1px solid #333;
-            border-radius: 4px;
-            color: #888;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s;
+            gap: 8px;
         }
-        .markdown-toolbar button:hover {
-            background: var(--c-petrol);
+        .tab-btn:hover { color: var(--c-text-cyan); background: rgba(0,255,255,0.05); }
+        .tab-btn.active {
             color: var(--c-neon);
-            border-color: var(--c-cyan-dark);
+            border-bottom-color: var(--c-neon);
+            background: rgba(0,255,255,0.1);
+            text-shadow: 0 0 10px var(--c-neon);
         }
-        .markdown-toolbar button.help-btn {
-            margin-left: auto;
-            background: #2d1f5e;
-            color: #a78bfa;
-            border-color: #4c1d95;
-        }
-        .markdown-toolbar button.help-btn:hover {
-            background: #4c1d95;
-            color: #e9d5ff;
-        }
-        .toolbar-separator {
-            width: 1px;
-            height: 24px;
-            background: #333;
-            margin: 4px 6px;
-            align-self: center;
-        }
+        .tab-btn i { font-size: 1rem; }
 
-        #news-content {
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
-            min-height: 180px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
+        .tab-content { display: none; flex: 1; overflow-y: auto; }
+        .tab-content.active { display: block; }
 
-        /* Aide Markdown */
-        .markdown-help {
-            display: none;
-            background: #151515;
-            border: 1px solid #4c1d95;
-            border-radius: 6px;
-            margin-top: 10px;
+        /* NEWS IFRAME */
+        .news-iframe-container {
+            width: 100%;
+            height: calc(100vh - 60px);
             overflow: hidden;
         }
-        .markdown-help.show { display: block; }
-        .markdown-help-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            background: #2d1f5e;
-            border-bottom: 1px solid #4c1d95;
-        }
-        .markdown-help-header h4 {
-            color: #a78bfa;
-            font-size: 0.85rem;
-            margin: 0;
-        }
-        .markdown-help-header h4 i { margin-right: 8px; }
-        .markdown-help-header button {
-            background: none;
+        .news-iframe {
+            width: 100%;
+            height: 100%;
             border: none;
-            color: #a78bfa;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .markdown-help-header button:hover { color: #e9d5ff; }
-        .markdown-help-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            padding: 15px;
-        }
-        .help-section h5 {
-            color: #a78bfa;
-            font-size: 0.75rem;
-            margin: 0 0 8px 0;
-            text-transform: uppercase;
-            font-family: 'Share Tech Mono', monospace;
-        }
-        .help-section {
-            font-size: 0.8rem;
-            color: #999;
-            line-height: 1.8;
-        }
-        .help-section code {
-            background: #252525;
-            padding: 2px 6px;
-            border-radius: 3px;
-            color: #4ade80;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-        }
-        .help-section strong { color: white; }
-        .help-section em { color: #e5e7eb; font-style: italic; }
-        .help-section del { color: #888; }
-
-        /* Styles pour le contenu Markdown rendu */
-        .news-content h1, .news-content h2, .news-content h3 {
-            color: white;
-            margin: 16px 0 8px 0;
-            font-family: 'Orbitron', sans-serif;
-        }
-        .news-content h1 { font-size: 1.4rem; }
-        .news-content h2 { font-size: 1.2rem; }
-        .news-content h3 { font-size: 1rem; }
-        .news-content strong { color: white; font-weight: 600; }
-        .news-content em { font-style: italic; }
-        .news-content del { text-decoration: line-through; opacity: 0.7; }
-        .news-content code {
-            background: rgba(0, 255, 255, 0.1);
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Share Tech Mono', monospace;
-            color: var(--c-neon);
-            font-size: 0.85em;
-        }
-        .news-content a {
-            color: var(--c-neon);
-            text-decoration: underline;
-        }
-        .news-content a:hover { color: white; }
-        .news-content ul, .news-content ol {
-            margin: 12px 0;
-            padding-left: 24px;
-        }
-        .news-content li { margin: 4px 0; }
-        .news-content blockquote {
-            border-left: 3px solid var(--c-neon);
-            margin: 12px 0;
-            padding: 8px 16px;
-            background: rgba(0, 255, 255, 0.05);
-            font-style: italic;
-            color: #aaa;
-        }
-        .news-content hr {
-            border: none;
-            border-top: 1px solid var(--c-petrol);
-            margin: 16px 0;
-        }
-        .news-content img {
-            max-width: 100%;
-            border-radius: 6px;
-            margin: 12px 0;
+            background: #050505;
         }
 
-        /* Icones sélecteur */
-        .icon-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-            gap: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            padding: 10px;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 6px;
+        /* PROMPT GENERATOR IFRAME */
+        .prompt-iframe-container {
+            width: 100%;
+            height: calc(100vh - 60px);
+            overflow: hidden;
         }
-        .icon-option {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 4px;
-            color: #888;
-            cursor: pointer;
-            transition: all 0.2s;
+        .prompt-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #000;
         }
-        .icon-option:hover {
-            background: var(--c-petrol);
-            color: var(--c-neon);
-            border-color: var(--c-cyan-dark);
-        }
-        .icon-option.selected {
-            background: var(--c-petrol);
-            color: var(--c-neon);
-            border-color: var(--c-neon);
+
+        @media (max-width: 1024px) {
+            html, body { overflow: auto; height: auto; touch-action: auto; } 
+            .main-container { flex-direction: column; width: 100%; height: auto; }
+            .left-panel { 
+                width: 100%; height: auto; min-height: auto;
+                border-right: none; border-bottom: 4px solid var(--c-neon); 
+                padding: 10px;
+            }
+            .crt-monitor { height: 400px; margin-bottom: 10px; }
+            .right-panel { width: 100%; height: auto; overflow: visible; }
+            .modal-container { width: 100%; height: 100%; border: none; border-radius: 0; }
+            .modal-header { padding: 5px 10px; }
+            .tab-btn { font-size: 0.6rem; padding: 12px 5px; }
+            .tab-btn span { display: none; }
+            .tab-btn i { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="editor-header">
-        <h1><i class="fas fa-newspaper"></i> ÉDITEUR DE NEWS COR-TECH</h1>
-        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Retour au site</a>
-    </header>
-
-    <!-- Layout principal -->
-    <div class="editor-layout">
-        
-        <!-- Panneau gauche : Formulaire -->
-        <div class="form-panel">
-            <h2><i class="fas fa-edit"></i> CRÉER UN ARTICLE</h2>
-
-            <!-- Titre -->
-            <div class="form-group">
-                <label><span class="required">*</span> Titre de l'article</label>
-                <input type="text" id="news-title" placeholder="Ex: Tournoi E-Sport ce samedi !" oninput="updatePreview()">
-            </div>
-
-            <!-- Tag / Catégorie -->
-            <div class="form-group">
-                <label>Catégorie</label>
-                <div class="tag-selector">
-                    <div class="tag-option default selected" data-tag="" data-label="NEWS" onclick="selectTag(this)">
-                        <i class="fas fa-newspaper"></i> NEWS
-                    </div>
-                    <div class="tag-option event" data-tag="event" data-label="ÉVÉNEMENT" onclick="selectTag(this)">
-                        <i class="fas fa-star"></i> ÉVÉNEMENT
-                    </div>
-                    <div class="tag-option atelier" data-tag="atelier" data-label="ATELIER" onclick="selectTag(this)">
-                        <i class="fas fa-tools"></i> ATELIER
-                    </div>
-                    <div class="tag-option info" data-tag="info" data-label="INFO" onclick="selectTag(this)">
-                        <i class="fas fa-info-circle"></i> INFO
-                    </div>
-                    <div class="tag-option partenariat" data-tag="partenariat" data-label="PARTENARIAT" onclick="selectTag(this)">
-                        <i class="fas fa-handshake"></i> PARTENARIAT
-                    </div>
-                    <div class="tag-option materiel" data-tag="materiel" data-label="MATÉRIEL" onclick="selectTag(this)">
-                        <i class="fas fa-cube"></i> MATÉRIEL
-                    </div>
-                </div>
-            </div>
-
-            <!-- Icône du tag -->
-            <div class="form-group">
-                <label>Icône du tag</label>
-                <div class="icon-selector" id="tag-icon-selector">
-                    <!-- Icônes populaires -->
-                    <div class="icon-option selected" data-icon="fa-newspaper" onclick="selectIcon(this, 'tag')"><i class="fas fa-newspaper"></i></div>
-                    <div class="icon-option" data-icon="fa-star" onclick="selectIcon(this, 'tag')"><i class="fas fa-star"></i></div>
-                    <div class="icon-option" data-icon="fa-calendar" onclick="selectIcon(this, 'tag')"><i class="fas fa-calendar"></i></div>
-                    <div class="icon-option" data-icon="fa-gamepad" onclick="selectIcon(this, 'tag')"><i class="fas fa-gamepad"></i></div>
-                    <div class="icon-option" data-icon="fa-trophy" onclick="selectIcon(this, 'tag')"><i class="fas fa-trophy"></i></div>
-                    <div class="icon-option" data-icon="fa-gift" onclick="selectIcon(this, 'tag')"><i class="fas fa-gift"></i></div>
-                    <div class="icon-option" data-icon="fa-rocket" onclick="selectIcon(this, 'tag')"><i class="fas fa-rocket"></i></div>
-                    <div class="icon-option" data-icon="fa-lightbulb" onclick="selectIcon(this, 'tag')"><i class="fas fa-lightbulb"></i></div>
-                    <div class="icon-option" data-icon="fa-bolt" onclick="selectIcon(this, 'tag')"><i class="fas fa-bolt"></i></div>
-                    <div class="icon-option" data-icon="fa-fire" onclick="selectIcon(this, 'tag')"><i class="fas fa-fire"></i></div>
-                    <div class="icon-option" data-icon="fa-heart" onclick="selectIcon(this, 'tag')"><i class="fas fa-heart"></i></div>
-                    <div class="icon-option" data-icon="fa-users" onclick="selectIcon(this, 'tag')"><i class="fas fa-users"></i></div>
-                    <div class="icon-option" data-icon="fa-graduation-cap" onclick="selectIcon(this, 'tag')"><i class="fas fa-graduation-cap"></i></div>
-                    <div class="icon-option" data-icon="fa-tools" onclick="selectIcon(this, 'tag')"><i class="fas fa-tools"></i></div>
-                    <div class="icon-option" data-icon="fa-cube" onclick="selectIcon(this, 'tag')"><i class="fas fa-cube"></i></div>
-                    <div class="icon-option" data-icon="fa-robot" onclick="selectIcon(this, 'tag')"><i class="fas fa-robot"></i></div>
-                    <div class="icon-option" data-icon="fa-code" onclick="selectIcon(this, 'tag')"><i class="fas fa-code"></i></div>
-                    <div class="icon-option" data-icon="fa-paint-brush" onclick="selectIcon(this, 'tag')"><i class="fas fa-paint-brush"></i></div>
-                    <div class="icon-option" data-icon="fa-music" onclick="selectIcon(this, 'tag')"><i class="fas fa-music"></i></div>
-                    <div class="icon-option" data-icon="fa-video" onclick="selectIcon(this, 'tag')"><i class="fas fa-video"></i></div>
-                    <div class="icon-option" data-icon="fa-camera" onclick="selectIcon(this, 'tag')"><i class="fas fa-camera"></i></div>
-                    <div class="icon-option" data-icon="fa-microphone" onclick="selectIcon(this, 'tag')"><i class="fas fa-microphone"></i></div>
-                    <div class="icon-option" data-icon="fa-headphones" onclick="selectIcon(this, 'tag')"><i class="fas fa-headphones"></i></div>
-                    <div class="icon-option" data-icon="fa-desktop" onclick="selectIcon(this, 'tag')"><i class="fas fa-desktop"></i></div>
-                    <div class="icon-option" data-icon="fa-laptop" onclick="selectIcon(this, 'tag')"><i class="fas fa-laptop"></i></div>
-                    <div class="icon-option" data-icon="fa-mobile-alt" onclick="selectIcon(this, 'tag')"><i class="fas fa-mobile-alt"></i></div>
-                    <div class="icon-option" data-icon="fa-print" onclick="selectIcon(this, 'tag')"><i class="fas fa-print"></i></div>
-                    <div class="icon-option" data-icon="fa-vr-cardboard" onclick="selectIcon(this, 'tag')"><i class="fas fa-vr-cardboard"></i></div>
-                    <div class="icon-option" data-icon="fa-brain" onclick="selectIcon(this, 'tag')"><i class="fas fa-brain"></i></div>
-                    <div class="icon-option" data-icon="fa-cog" onclick="selectIcon(this, 'tag')"><i class="fas fa-cog"></i></div>
-                    <div class="icon-option" data-icon="fa-wrench" onclick="selectIcon(this, 'tag')"><i class="fas fa-wrench"></i></div>
-                    <div class="icon-option" data-icon="fa-hammer" onclick="selectIcon(this, 'tag')"><i class="fas fa-hammer"></i></div>
-                    <div class="icon-option" data-icon="fa-magic" onclick="selectIcon(this, 'tag')"><i class="fas fa-magic"></i></div>
-                    <div class="icon-option" data-icon="fa-wand-magic-sparkles" onclick="selectIcon(this, 'tag')"><i class="fas fa-wand-magic-sparkles"></i></div>
-                    <div class="icon-option" data-icon="fa-bullhorn" onclick="selectIcon(this, 'tag')"><i class="fas fa-bullhorn"></i></div>
-                    <div class="icon-option" data-icon="fa-handshake" onclick="selectIcon(this, 'tag')"><i class="fas fa-handshake"></i></div>
-                    <div class="icon-option" data-icon="fa-info-circle" onclick="selectIcon(this, 'tag')"><i class="fas fa-info-circle"></i></div>
-                    <div class="icon-option" data-icon="fa-exclamation-triangle" onclick="selectIcon(this, 'tag')"><i class="fas fa-exclamation-triangle"></i></div>
-                    <div class="icon-option" data-icon="fa-check-circle" onclick="selectIcon(this, 'tag')"><i class="fas fa-check-circle"></i></div>
-                </div>
-            </div>
-
-            <!-- Date -->
-            <div class="form-group">
-                <label>Date de publication</label>
-                <input type="date" id="news-date" onchange="updatePreview()">
-            </div>
-
-            <!-- Contenu avec Markdown -->
-            <div class="form-group">
-                <label><span class="required">*</span> Contenu de l'article <span class="markdown-badge"><i class="fab fa-markdown"></i> Markdown</span></label>
-                
-                <!-- Barre d'outils Markdown -->
-                <div class="markdown-toolbar">
-                    <button type="button" onclick="insertMarkdown('**', '**')" title="Gras"><i class="fas fa-bold"></i></button>
-                    <button type="button" onclick="insertMarkdown('*', '*')" title="Italique"><i class="fas fa-italic"></i></button>
-                    <button type="button" onclick="insertMarkdown('~~', '~~')" title="Barré"><i class="fas fa-strikethrough"></i></button>
-                    <span class="toolbar-separator"></span>
-                    <button type="button" onclick="insertMarkdown('# ', '')" title="Titre H1"><i class="fas fa-heading"></i>1</button>
-                    <button type="button" onclick="insertMarkdown('## ', '')" title="Titre H2"><i class="fas fa-heading"></i>2</button>
-                    <button type="button" onclick="insertMarkdown('### ', '')" title="Titre H3"><i class="fas fa-heading"></i>3</button>
-                    <span class="toolbar-separator"></span>
-                    <button type="button" onclick="insertMarkdown('\n- ', '')" title="Liste à puces"><i class="fas fa-list-ul"></i></button>
-                    <button type="button" onclick="insertMarkdown('\n1. ', '')" title="Liste numérotée"><i class="fas fa-list-ol"></i></button>
-                    <button type="button" onclick="insertMarkdown('\n> ', '')" title="Citation"><i class="fas fa-quote-left"></i></button>
-                    <span class="toolbar-separator"></span>
-                    <button type="button" onclick="insertMarkdown('[', '](url)')" title="Lien"><i class="fas fa-link"></i></button>
-                    <button type="button" onclick="insertMarkdown('![alt](', ')')" title="Image"><i class="fas fa-image"></i></button>
-                    <button type="button" onclick="insertMarkdown('`', '`')" title="Code inline"><i class="fas fa-code"></i></button>
-                    <span class="toolbar-separator"></span>
-                    <button type="button" onclick="insertMarkdown('\n---\n', '')" title="Ligne horizontale"><i class="fas fa-minus"></i></button>
-                    <button type="button" class="help-btn" onclick="toggleMarkdownHelp()" title="Aide Markdown"><i class="fas fa-question-circle"></i></button>
-                </div>
-
-                <textarea id="news-content" placeholder="Écrivez votre contenu ici...
-
-Utilisez le Markdown :
-**gras**, *italique*, [lien](url)
-- liste à puces
-1. liste numérotée
-> citation" oninput="updatePreview()"></textarea>
-                
-                <!-- Aide Markdown (repliable) -->
-                <div class="markdown-help" id="markdown-help">
-                    <div class="markdown-help-header">
-                        <h4><i class="fab fa-markdown"></i> Aide-mémoire Markdown</h4>
-                        <button type="button" onclick="toggleMarkdownHelp()"><i class="fas fa-times"></i></button>
-                    </div>
-                    <div class="markdown-help-content">
-                        <div class="help-section">
-                            <h5>Texte</h5>
-                            <code>**gras**</code> → <strong>gras</strong><br>
-                            <code>*italique*</code> → <em>italique</em><br>
-                            <code>~~barré~~</code> → <del>barré</del><br>
-                            <code>`code`</code> → <code>code</code>
-                        </div>
-                        <div class="help-section">
-                            <h5>Titres</h5>
-                            <code># Titre 1</code><br>
-                            <code>## Titre 2</code><br>
-                            <code>### Titre 3</code>
-                        </div>
-                        <div class="help-section">
-                            <h5>Listes</h5>
-                            <code>- élément</code> → liste à puces<br>
-                            <code>1. élément</code> → liste numérotée
-                        </div>
-                        <div class="help-section">
-                            <h5>Autres</h5>
-                            <code>[texte](url)</code> → lien<br>
-                            <code>![alt](url)</code> → image<br>
-                            <code>> citation</code> → bloc citation<br>
-                            <code>---</code> → ligne horizontale
-                        </div>
-                    </div>
-                </div>
-                
-                <small>Supporte le <strong>Markdown</strong> ! Vous pouvez aussi utiliser des emojis 🎮 🚀 ⭐</small>
-            </div>
-
-            <!-- Épinglé -->
-            <div class="form-group">
-                <label class="toggle-group">
-                    <input type="checkbox" id="news-pinned" onchange="updatePreview()">
-                    <span>📌 Épingler cet article (mis en avant)</span>
-                </label>
-            </div>
-
-            <!-- Section Image (repliable) -->
-            <div class="collapsible" id="section-image">
-                <div class="collapsible-header" onclick="toggleCollapsible('section-image')">
-                    <h3><i class="fas fa-image"></i> Ajouter une image</h3>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </div>
-                <div class="collapsible-content">
-                    <div class="form-group">
-                        <label>URL de l'image</label>
-                        <input type="url" id="news-image" placeholder="https://exemple.com/image.jpg" oninput="updatePreview()">
-                        <small>Ou chemin relatif : images/photo.jpg</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Description de l'image (alt)</label>
-                        <input type="text" id="news-image-alt" placeholder="Description pour l'accessibilité" oninput="updatePreview()">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section Métadonnées (repliable) -->
-            <div class="collapsible" id="section-meta">
-                <div class="collapsible-header" onclick="toggleCollapsible('section-meta')">
-                    <h3><i class="fas fa-tags"></i> Métadonnées (date, lieu, etc.)</h3>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </div>
-                <div class="collapsible-content">
-                    <div class="meta-items-container" id="meta-container">
-                        <!-- Les meta items seront ajoutés ici dynamiquement -->
-                    </div>
-                    <button type="button" class="add-meta-btn" onclick="addMetaItem()">
-                        <i class="fas fa-plus"></i> Ajouter une info
-                    </button>
-                </div>
-            </div>
-
-            <!-- Section Lien (repliable) -->
-            <div class="collapsible" id="section-link">
-                <div class="collapsible-header" onclick="toggleCollapsible('section-link')">
-                    <h3><i class="fas fa-link"></i> Ajouter un lien / bouton</h3>
-                    <i class="fas fa-chevron-down arrow"></i>
-                </div>
-                <div class="collapsible-content">
-                    <div class="form-group">
-                        <label>Texte du bouton</label>
-                        <input type="text" id="news-link-text" placeholder="Ex: En savoir plus" oninput="updatePreview()">
-                    </div>
-                    <div class="form-group">
-                        <label>URL du lien</label>
-                        <input type="url" id="news-link-url" placeholder="https://exemple.com" oninput="updatePreview()">
-                    </div>
-                </div>
-            </div>
-
+<div id="game-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 id="modal-title" class="text-white font-pixel text-xs">JEU EN COURS...</h2>
+            <button onclick="closeGame()" class="close-btn">FERMER X</button>
         </div>
+        <iframe id="game-frame" class="game-iframe" src=""></iframe>
+    </div>
+</div>
 
-        <!-- Panneau droit : Prévisualisation -->
-        <div class="preview-panel">
-            <div class="preview-header">
-                <h2><i class="fas fa-eye"></i> PRÉVISUALISATION</h2>
-                <div class="preview-actions">
-                    <button class="btn-reset" onclick="resetForm()">
-                        <i class="fas fa-undo"></i> Réinitialiser
-                    </button>
-                    <button class="btn-copy" onclick="copyCode()">
-                        <i class="fas fa-copy"></i> COPIER LE CODE
-                    </button>
-                </div>
-            </div>
+<div class="main-container">
 
-            <div class="preview-content" id="preview-area">
-                <div class="empty-preview">
-                    <i class="fas fa-pencil-alt"></i>
-                    <p>Remplissez le formulaire pour voir l'aperçu...</p>
-                </div>
-            </div>
-
-            <div class="code-section">
-                <div class="code-header">
-                    <span><i class="fas fa-code"></i> CODE HTML GÉNÉRÉ</span>
-                </div>
-                <div class="code-content">
-                    <pre id="code-output"><!-- Le code apparaîtra ici --></pre>
-                </div>
+    <aside class="left-panel">
+        <div class="text-center mb-6 relative z-30">
+            <img src="images/Logo_Cor-Tech.png" 
+                 alt="COR-TECH" 
+                 class="w-32 mx-auto drop-shadow-[0_0_15px_#00FFFF]"
+                 onerror="this.style.display='none'; document.getElementById('backup-logo').style.display='block';">
+            
+            <div id="backup-logo" class="hidden text-center border-2 border-[#00FFFF] p-2 rounded mt-2 bg-black">
+                <h1 class="font-pixel text-neon text-xl">COR-TECH</h1>
             </div>
         </div>
 
+        <div class="crt-monitor custom-scroll">
+            <div class="text-center mb-6 relative z-20">
+                <h3 class="font-pixel text-[10px] text-[#00b6b6] mb-2">SYSTEM READY...</h3>
+                <h2 class="font-pixel text-sm text-[#00FFFF] blink">INSERT COIN</h2>
+            </div>
+
+            <div class="text-center mb-4 relative z-20">
+                <p class="text-gray-400 font-tech text-xs border-b border-gray-700 pb-2">CLIQUEZ POUR JOUER</p>
+            </div>
+
+            <div class="space-y-1 relative z-20">
+                <div class="game-item" onclick="openGame('troll.html', 'TROLL')"><i class="fas fa-dove"></i> <span>TROLL</span></div>
+                <div class="game-item" onclick="openGame('Flappy.html', 'FLAPPY COR-TECH')"><i class="fas fa-dove"></i> <span>FLAPPY COR-TECH</span></div>
+                <div class="game-item" onclick="openGame('tetris 8bit fx.html', 'TETRIS')"><i class="fas fa-cubes"></i> <span>TETRIS 8-BIT</span></div>
+                <div class="game-item" onclick="openGame('https://folgoas.github.io/candydeche/', 'DELICES SUCRES')"><i class="fas fa-gem"></i> <span>DÉLICES SUCRÉS</span></div>
+                <div class="game-item" onclick="openGame('air hockey.html', 'HOCKEY')"><i class="fas fa-circle"></i> <span>AIR HOCKEY</span></div>
+                <div class="game-item" onclick="openGame('casse brick.html', 'BRIQUES')"><i class="fas fa-th"></i> <span>CASSE BRIQUES</span></div>
+                <div class="game-item" onclick="openGame('course.html', 'RACING')"><i class="fas fa-car"></i> <span>RACING</span></div>
+                <div class="game-item" onclick="openGame('sinapse.html', 'SINAPSE')"><i class="fas fa-brain"></i> <span>SINAPSE</span></div>
+                <div class="game-item" onclick="openGame('reflexe kawaii.html', 'REFLEXE')"><i class="fas fa-bolt"></i> <span>REFLEXE</span></div>
+            </div>
+
+            <div class="mt-8 text-center opacity-50 relative z-20">
+                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V5.1</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="right-panel">
+        <!-- NAVIGATION ONGLETS -->
+        <nav class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('infos')">
+                <i class="fas fa-info-circle"></i>
+                <span>INFOS</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('news')">
+                <i class="fas fa-newspaper"></i>
+                <span>NEWS</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('prompt')">
+                <i class="fas fa-magic"></i>
+                <span>PROMPT AI</span>
+            </button>
+        </nav>
+
+        <!-- TAB: INFOS -->
+        <div id="tab-infos" class="tab-content active">
+            <header class="bg-[#003939] p-6 border-b border-[#007879] bg-opacity-95 backdrop-blur shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-1">L'ASSOCIATION <span class="text-neon">NUMÉRIQUE</span></h2>
+                        <p class="text-[#00b6b6] font-tech text-sm">« Cordemais, branchée sur la tech du futur. »</p>
+                    </div>
+                    <div>
+                        <a href="mailto:contact@cor-tech.fr?subject=Demande%20d'informations" class="bg-[#00FFFF] hover:bg-white text-black font-bold py-3 px-6 rounded font-tech shadow-[0_0_15px_rgba(0,255,255,0.4)] transition inline-flex items-center gap-2">
+                            <i class="fas fa-paper-plane"></i> NOUS REJOINDRE
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-8 lg:p-12 space-y-12">
+                <section>
+                    <h3 class="text-2xl text-white mb-4 border-l-4 border-[#00FFFF] pl-4 flex items-center">
+                        <i class="fas fa-info-circle mr-3 text-[#007879]"></i> QUI SOMMES-NOUS ?
+                    </h3>
+                    <div class="bg-[#001010] p-6 rounded border border-[#003939] text-gray-300 leading-relaxed shadow-lg">
+                        <p class="mb-4 text-lg"><strong>Cor-Tech</strong> est la petite sœur rebelle et créative de Micromédia. Née à Cordemais, c'est une entité indépendante dédiée aux passionnés de technologie.</p>
+                        <p><i class="fas fa-quote-left text-[#00FFFF] opacity-50 mr-2"></i>Notre ambition ? Faire tomber les barrières du numérique, reconnecter les générations.</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-2xl text-white mb-6 border-l-4 border-[#00FFFF] pl-4">NOS ATELIERS</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                            <i class="fas fa-robot text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
+                            <h4 class="text-lg text-white font-bold">Intelligence Artificielle</h4>
+                            <p class="text-[#00b6b6] text-sm">Comprendre les outils qui changent le monde.</p>
+                        </div>
+                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                            <i class="fas fa-cube text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
+                            <h4 class="text-lg text-white font-bold">Impression 3D</h4>
+                            <p class="text-[#00b6b6] text-sm">De la modélisation à l'impression.</p>
+                        </div>
+                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                            <i class="fas fa-gamepad text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
+                            <h4 class="text-lg text-white font-bold">Jeu Vidéo & E-Sport</h4>
+                            <p class="text-[#00b6b6] text-sm">Tournois, streaming et analyse.</p>
+                        </div>
+                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
+                            <i class="fas fa-pen-nib text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
+                            <h4 class="text-lg text-white font-bold">Création Graphique</h4>
+                            <p class="text-[#00b6b6] text-sm">Design pour réseaux sociaux et affiches.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="bg-[#003939] p-6 rounded border border-[#007879]">
+                            <h4 class="text-white font-bold mb-3"><i class="fas fa-map-marker-alt mr-2 text-[#00FFFF]"></i> ADRESSE</h4>
+                            <p class="text-gray-300">Médiathèque Jacques Fairand<br>Avenue des 4 vents, 44360 CORDEMAIS.</p>
+                        </div>
+                        <div class="bg-[#003939] p-6 rounded border border-[#007879]">
+                            <h4 class="text-white font-bold mb-4 flex items-center"><i class="fas fa-clock mr-2 text-[#00FFFF]"></i> HORAIRES</h4>
+                            <p class="text-[#00b6b6] font-tech text-xs mb-2 border-b border-[#007879] pb-1">PÉRIODE SCOLAIRE</p>
+                            <ul class="text-gray-300 space-y-1 text-sm mb-4">
+                                <li class="flex justify-between border-b border-[#005555] pb-1"><span>Mardi</span> <span>9h-12h / 13h30-18h</span></li>
+                                <li class="flex justify-between border-b border-[#005555] pb-1"><span>Mercredi</span> <span>10h-12h / 13h30-18h</span></li>
+                                <li class="flex justify-between border-b border-[#005555] pb-1"><span>Jeudi</span> <span>9h-12h / 13h30-18h</span></li>
+                            </ul>
+                            <p class="text-[#00b6b6] font-tech text-xs mb-2 border-b border-[#007879] pb-1">VACANCES SCOLAIRES</p>
+                            <ul class="text-gray-300 space-y-1 text-sm">
+                                <li class="flex justify-between"><span>Lun - Ven</span> <span>14h00 - 18h00</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="border-neon rounded bg-black p-6 relative overflow-hidden">
+                            <h3 class="text-xl font-bold text-white mb-4 font-tech">TARIFS 2025</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-end border-b border-gray-800 pb-2"><span class="text-[#00b6b6]">Adulte</span><span class="text-2xl font-bold text-white">30 €</span></div>
+                                <div class="flex justify-between items-end border-b border-gray-800 pb-2"><span class="text-[#00b6b6]">Enfant (-18)</span><span class="text-2xl font-bold text-white">15 €</span></div>
+                                <div class="flex justify-between items-end"><span class="text-[#00b6b6]">Asso</span><span class="text-2xl font-bold text-white">160 €</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-[#003939] p-6 rounded border border-[#007879]">
+                            <h3 class="text-xl font-bold text-white mb-4 font-tech">LE BUREAU</h3>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-[#00FFFF] rounded-full"></div><div><strong class="text-white block font-sans">Alice SAVRY</strong> <span class="text-[#00b6b6]">Présidente</span></div></li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Simon CANEVET</strong> <span class="text-gray-400">Vice-Président</span></div></li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Sébastien SAVRY</strong> <span class="text-gray-400">Trésorier</span></div></li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Aurélien AUDOUIS</strong> <span class="text-gray-400">Secrétaire</span></div></li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="text-center text-[#007879] text-sm pt-8 border-t border-[#003939] pb-8">
+                    <p>&copy; 2025 Association Cor-Tech.</p>
+                    <p class="mt-2"><a href="mentions.html" class="hover:text-[#00FFFF]">Mentions Légales</a></p>
+                    
+                    <!-- Accès secret éditeur - Triple clic sur le point -->
+                    <p class="mt-6 opacity-30 hover:opacity-50 transition-opacity duration-1000">
+                        <span id="secret-trigger" class="cursor-default select-none" style="color: #0a0a0a;">●</span>
+                    </p>
+                </footer>
+            </div>
+        </div>
+
+        <!-- TAB: NEWS -->
+        <div id="tab-news" class="tab-content">
+            <div class="news-iframe-container">
+                <iframe src="news.html" class="news-iframe" title="Actualités du club"></iframe>
+            </div>
+        </div>
+
+        <!-- TAB: PROMPT GENERATOR -->
+        <div id="tab-prompt" class="tab-content">
+            <div class="prompt-iframe-container">
+                <iframe src="game-prompt-generator.html" class="prompt-iframe" title="Générateur de Prompt IA"></iframe>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal mot de passe secret -->
+<div id="secret-modal" class="fixed inset-0 bg-black/95 z-[9999] hidden items-center justify-center backdrop-blur-sm">
+    <div class="bg-[#0a0a0a] border border-[#003939] rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl">
+        <div class="text-center mb-4">
+            <i class="fas fa-lock text-[#003939] text-3xl mb-2"></i>
+            <h3 class="text-[#007879] font-tech text-sm">ZONE RESTREINTE</h3>
+        </div>
+        <input 
+            type="password" 
+            id="secret-password" 
+            placeholder="Mot de passe..."
+            class="w-full bg-black border border-[#003939] rounded px-4 py-3 text-white font-tech text-center focus:outline-none focus:border-[#00FFFF] transition"
+            onkeypress="if(event.key==='Enter')checkSecretPassword()"
+        >
+        <div id="secret-error" class="text-red-500 text-xs text-center mt-2 hidden font-tech">Accès refusé</div>
+        <div class="flex gap-3 mt-4">
+            <button onclick="closeSecretModal()" class="flex-1 py-2 border border-[#333] text-[#666] rounded font-tech text-sm hover:border-[#555] hover:text-[#888] transition">
+                Annuler
+            </button>
+            <button onclick="checkSecretPassword()" class="flex-1 py-2 bg-[#003939] text-[#00FFFF] rounded font-tech text-sm hover:bg-[#004a4a] transition">
+                Entrer
+            </button>
+        </div>
     </div>
+</div>
 
-    <!-- Toast notification -->
-    <div class="toast" id="toast">
-        <i class="fas fa-check-circle"></i>
-        <span>Code copié dans le presse-papier !</span>
-    </div>
-
-    <script>
-        // Variables globales
-        let selectedTag = '';
-        let selectedTagLabel = 'NEWS';
-        let selectedTagIcon = 'fa-newspaper';
-        let metaItems = [];
-
-        // ===== PARSEUR MARKDOWN =====
-        function parseMarkdown(text) {
-            if (!text) return '';
-            
-            let html = text;
-            
-            // Échapper les caractères HTML dangereux
-            html = html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            
-            // Lignes horizontales (avant les listes pour éviter conflits)
-            html = html.replace(/^---+$/gm, '<hr>');
-            
-            // Titres (H1, H2, H3)
-            html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-            html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-            html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-            
-            // Gras **texte** ou __texte__
-            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-            html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
-            
-            // Italique *texte* ou _texte_
-            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-            html = html.replace(/_(.+?)_/g, '<em>$1</em>');
-            
-            // Barré ~~texte~~
-            html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
-            
-            // Code inline `code`
-            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-            
-            // Images ![alt](url)
-            html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
-            
-            // Liens [texte](url)
-            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-            
-            // Citations > texte
-            html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
-            // Fusionner les blockquotes consécutifs
-            html = html.replace(/<\/blockquote>\n<blockquote>/g, '<br>');
-            
-            // Listes à puces - élément
-            html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
-            // Envelopper les li consécutifs dans ul
-            html = html.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
-                return '<ul>' + match.trim() + '</ul>';
-            });
-            
-            // Listes numérotées 1. élément
-            html = html.replace(/^\d+\. (.+)$/gm, '<oli>$1</oli>');
-            // Envelopper les oli consécutifs dans ol
-            html = html.replace(/(<oli>.*<\/oli>\n?)+/g, function(match) {
-                return '<ol>' + match.replace(/<\/?oli>/g, function(tag) {
-                    return tag.replace('oli', 'li');
-                }).trim() + '</ol>';
-            });
-            
-            // Paragraphes (lignes vides = nouveau paragraphe)
-            html = html.replace(/\n\n+/g, '</p><p>');
-            
-            // Sauts de ligne simples
-            html = html.replace(/\n/g, '<br>');
-            
-            // Nettoyer les <br> après les balises block
-            html = html.replace(/(<\/(h[1-3]|ul|ol|blockquote|hr)>)<br>/g, '$1');
-            html = html.replace(/<br>(<(h[1-3]|ul|ol|blockquote|hr))/g, '$1');
-            
-            // Envelopper dans un paragraphe si nécessaire
-            if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<ol') && !html.startsWith('<blockquote')) {
-                html = '<p>' + html + '</p>';
-            }
-            
-            // Nettoyer les paragraphes vides
-            html = html.replace(/<p><\/p>/g, '');
-            html = html.replace(/<p><br><\/p>/g, '');
-            
-            return html;
-        }
-
-        // Insérer du Markdown dans le textarea
-        function insertMarkdown(before, after) {
-            const textarea = document.getElementById('news-content');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const text = textarea.value;
-            const selectedText = text.substring(start, end);
-            
-            const newText = text.substring(0, start) + before + selectedText + after + text.substring(end);
-            textarea.value = newText;
-            
-            // Repositionner le curseur
-            const newCursorPos = start + before.length + selectedText.length + after.length;
-            textarea.focus();
-            textarea.setSelectionRange(
-                start + before.length,
-                start + before.length + selectedText.length
-            );
-            
-            updatePreview();
-        }
-
-        // Toggle aide Markdown
-        function toggleMarkdownHelp() {
-            document.getElementById('markdown-help').classList.toggle('show');
-        }
-
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Date par défaut = aujourd'hui
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('news-date').value = today;
-            updatePreview();
+<script>
+    // TAB SWITCHING
+    function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
         });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById('tab-' + tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
 
-        // Sélection du tag
-        function selectTag(element) {
-            document.querySelectorAll('.tag-option').forEach(t => t.classList.remove('selected'));
-            element.classList.add('selected');
-            selectedTag = element.dataset.tag;
-            selectedTagLabel = element.dataset.label;
-            updatePreview();
-        }
+    // GAME MODAL
+    function openGame(filename, title) {
+        const modal = document.getElementById('game-modal');
+        const iframe = document.getElementById('game-frame');
+        const titleEl = document.getElementById('modal-title');
+        
+        iframe.src = filename;
+        titleEl.innerText = "JEU : " + title;
+        modal.style.display = 'flex';
 
-        // Sélection de l'icône
-        function selectIcon(element, type) {
-            const container = element.parentElement;
-            container.querySelectorAll('.icon-option').forEach(i => i.classList.remove('selected'));
-            element.classList.add('selected');
-            
-            if (type === 'tag') {
-                selectedTagIcon = element.dataset.icon;
-            }
-            updatePreview();
-        }
-
-        // Toggle sections repliables
-        function toggleCollapsible(id) {
-            const section = document.getElementById(id);
-            section.classList.toggle('open');
-        }
-
-        // Ajouter un meta item
-        function addMetaItem() {
-            const container = document.getElementById('meta-container');
-            const id = Date.now();
-            
-            const icons = [
-                { value: 'fa-calendar', label: '📅' },
-                { value: 'fa-clock', label: '🕐' },
-                { value: 'fa-map-marker-alt', label: '📍' },
-                { value: 'fa-users', label: '👥' },
-                { value: 'fa-euro-sign', label: '💶' },
-                { value: 'fa-ticket-alt', label: '🎟️' },
-                { value: 'fa-info-circle', label: 'ℹ️' },
-                { value: 'fa-phone', label: '📞' },
-                { value: 'fa-envelope', label: '✉️' },
-                { value: 'fa-link', label: '🔗' }
-            ];
-
-            const row = document.createElement('div');
-            row.className = 'meta-item-row';
-            row.id = `meta-${id}`;
-            row.innerHTML = `
-                <select onchange="updatePreview()">
-                    ${icons.map(i => `<option value="${i.value}">${i.label}</option>`).join('')}
-                </select>
-                <input type="text" placeholder="Texte de l'info" oninput="updatePreview()">
-                <button type="button" class="remove-meta" onclick="removeMetaItem(${id})">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-            container.appendChild(row);
-            updatePreview();
-        }
-
-        // Supprimer un meta item
-        function removeMetaItem(id) {
-            const row = document.getElementById(`meta-${id}`);
-            if (row) row.remove();
-            updatePreview();
-        }
-
-        // Formater la date
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
-                           'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-            const date = new Date(dateStr);
-            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-        }
-
-        // Mise à jour de la prévisualisation
-        function updatePreview() {
-            const title = document.getElementById('news-title').value;
-            const date = document.getElementById('news-date').value;
-            const content = document.getElementById('news-content').value;
-            const pinned = document.getElementById('news-pinned').checked;
-            const image = document.getElementById('news-image').value;
-            const imageAlt = document.getElementById('news-image-alt').value || 'Image';
-            const linkText = document.getElementById('news-link-text').value;
-            const linkUrl = document.getElementById('news-link-url').value;
-
-            // Récupérer les meta items
-            const metaRows = document.querySelectorAll('.meta-item-row');
-            let metaHTML = '';
-            let metaCode = '';
-            
-            metaRows.forEach(row => {
-                const icon = row.querySelector('select').value;
-                const text = row.querySelector('input').value;
-                if (text.trim()) {
-                    metaHTML += `<span class="news-meta-item"><i class="fas ${icon}"></i> ${text}</span>`;
-                    metaCode += `\n                <span class="news-meta-item"><i class="fas ${icon}"></i> ${text}</span>`;
-                }
-            });
-
-            // Si aucun contenu, afficher message vide
-            if (!title && !content) {
-                document.getElementById('preview-area').innerHTML = `
-                    <div class="empty-preview">
-                        <i class="fas fa-pencil-alt"></i>
-                        <p>Remplissez le formulaire pour voir l'aperçu...</p>
-                    </div>
-                `;
-                document.getElementById('code-output').textContent = '<!-- Remplissez le formulaire pour générer le code -->';
-                return;
-            }
-
-            // Parser le contenu Markdown
-            const parsedContent = parseMarkdown(content);
-
-            // Construire le HTML de prévisualisation
-            const tagClass = selectedTag ? ` ${selectedTag}` : '';
-            const pinnedClass = pinned ? ' pinned' : '';
-            
-            let previewHTML = `
-                <article class="news-card${pinnedClass}">
-                    <div class="news-card-header">
-                        <span class="news-tag${tagClass}"><i class="fas ${selectedTagIcon}"></i> ${selectedTagLabel}</span>
-                        <span class="news-date">${formatDate(date)}</span>
-                    </div>
-                    <h2 class="news-title">${title || 'Titre de l\'article'}</h2>
-                    ${image ? `<img src="${image}" alt="${imageAlt}" class="news-image" onerror="this.style.display='none'">` : ''}
-                    <div class="news-content">${parsedContent || '<p>Contenu de l\'article...</p>'}</div>
-                    ${metaHTML ? `<div class="news-meta">${metaHTML}</div>` : ''}
-                    ${linkText && linkUrl ? `<a href="${linkUrl}" class="news-link" target="_blank"><i class="fas fa-arrow-right"></i> ${linkText}</a>` : ''}
-                </article>
-            `;
-
-            document.getElementById('preview-area').innerHTML = previewHTML;
-
-            // Générer le code HTML propre (avec Markdown parsé)
-            // Formater le HTML parsé pour une meilleure lisibilité
-            let formattedContent = parsedContent
-                .replace(/<\/p><p>/g, '</p>\n        <p>')
-                .replace(/<br>/g, '<br>\n        ')
-                .replace(/<\/ul>/g, '</ul>\n        ')
-                .replace(/<\/ol>/g, '</ol>\n        ')
-                .replace(/<\/blockquote>/g, '</blockquote>\n        ')
-                .replace(/<\/h([1-3])>/g, '</h$1>\n        ')
-                .replace(/<hr>/g, '<hr>\n        ');
-            
-            let codeHTML = `<article class="news-card${pinnedClass}">
-    <div class="news-card-header">
-        <span class="news-tag${tagClass}"><i class="fas ${selectedTagIcon}"></i> ${selectedTagLabel}</span>
-        <span class="news-date">${formatDate(date)}</span>
-    </div>
-    <h2 class="news-title">${title || 'Titre'}</h2>`;
-
-            if (image) {
-                codeHTML += `\n    <img src="${image}" alt="${imageAlt}" class="news-image">`;
-            }
-
-            codeHTML += `\n    <div class="news-content">\n        ${formattedContent || '<p>Contenu...</p>'}\n    </div>`;
-
-            if (metaCode) {
-                codeHTML += `\n    <div class="news-meta">${metaCode}\n    </div>`;
-            }
-
-            if (linkText && linkUrl) {
-                codeHTML += `\n    <a href="${linkUrl}" class="news-link" target="_blank"><i class="fas fa-arrow-right"></i> ${linkText}</a>`;
-            }
-
-            codeHTML += `\n</article>`;
-
-            document.getElementById('code-output').textContent = codeHTML;
-        }
-
-        // Copier le code
-        function copyCode() {
-            const code = document.getElementById('code-output').textContent;
-            
-            if (code.includes('Remplissez le formulaire')) {
-                alert('⚠️ Veuillez d\'abord remplir le formulaire !');
-                return;
-            }
-
-            // Méthode 1: API Clipboard moderne (HTTPS requis)
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(code).then(() => {
-                    showToast();
-                }).catch(err => {
-                    console.error('Clipboard API failed:', err);
-                    fallbackCopy(code);
-                });
-            } else {
-                // Méthode 2: Fallback pour HTTP ou anciens navigateurs
-                fallbackCopy(code);
-            }
-        }
-
-        // Fallback pour copier (fonctionne en HTTP)
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-9999px';
-            textarea.style.top = '0';
-            document.body.appendChild(textarea);
-            textarea.focus();
-            textarea.select();
-            
+        iframe.onload = function() {
             try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showToast();
-                } else {
-                    showManualCopyDialog(text);
-                }
-            } catch (err) {
-                console.error('Fallback copy failed:', err);
-                showManualCopyDialog(text);
+                iframe.contentWindow.focus();
+                const gameDoc = iframe.contentWindow.document;
+                gameDoc.body.style.touchAction = "manipulation"; 
+
+                gameDoc.addEventListener('touchstart', function(e) {
+                    const k = new KeyboardEvent('keydown', {keyCode: 32, which: 32, bubbles:true});
+                    gameDoc.dispatchEvent(k);
+                    iframe.contentWindow.dispatchEvent(k);
+                }, {passive: true});
+
+            } catch(e) {
+                console.log("Jeu externe ou erreur");
             }
+        };
+    }
+
+    function closeGame() {
+        const modal = document.getElementById('game-modal');
+        const iframe = document.getElementById('game-frame');
+        modal.style.display = 'none';
+        iframe.src = '';
+    }
+
+    // ========== ACCÈS SECRET ÉDITEUR ==========
+    let secretClickCount = 0;
+    let secretClickTimer = null;
+
+    document.getElementById('secret-trigger').addEventListener('click', function() {
+        secretClickCount++;
+        
+        if (secretClickTimer) clearTimeout(secretClickTimer);
+        
+        // Reset après 1 seconde d'inactivité
+        secretClickTimer = setTimeout(() => {
+            secretClickCount = 0;
+        }, 1000);
+        
+        // Triple clic détecté
+        if (secretClickCount >= 3) {
+            secretClickCount = 0;
+            openSecretModal();
+        }
+    });
+
+    function openSecretModal() {
+        const modal = document.getElementById('secret-modal');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.getElementById('secret-password').value = '';
+        document.getElementById('secret-error').classList.add('hidden');
+        document.getElementById('secret-password').focus();
+    }
+
+    function closeSecretModal() {
+        const modal = document.getElementById('secret-modal');
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+    }
+
+    function checkSecretPassword() {
+        const password = document.getElementById('secret-password').value;
+        const correctPassword = 'P1r@t&moi!!44360';
+        
+        if (password === correctPassword) {
+            closeSecretModal();
+            window.location.href = 'news-editor.html';
+        } else {
+            document.getElementById('secret-error').classList.remove('hidden');
+            document.getElementById('secret-password').value = '';
+            document.getElementById('secret-password').focus();
             
-            document.body.removeChild(textarea);
+            // Shake effect
+            const input = document.getElementById('secret-password');
+            input.style.animation = 'shake 0.5s';
+            setTimeout(() => { input.style.animation = ''; }, 500);
         }
+    }
 
-        // Dialog pour copie manuelle si tout échoue
-        function showManualCopyDialog(text) {
-            const modal = document.createElement('div');
-            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-            modal.innerHTML = `
-                <div style="background:#111;border:2px solid #00FFFF;border-radius:8px;padding:20px;max-width:600px;width:100%;max-height:80vh;display:flex;flex-direction:column;">
-                    <h3 style="color:#00FFFF;margin:0 0 15px 0;font-family:Orbitron,sans-serif;">📋 Copiez manuellement</h3>
-                    <p style="color:#888;margin:0 0 15px 0;font-size:0.9rem;">Sélectionnez tout (Ctrl+A) puis copiez (Ctrl+C) :</p>
-                    <textarea id="manual-copy-area" style="flex:1;min-height:200px;background:#000;color:#4ade80;border:1px solid #333;border-radius:4px;padding:10px;font-family:'Share Tech Mono',monospace;font-size:0.8rem;resize:none;">${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
-                    <button onclick="this.parentElement.parentElement.remove()" style="margin-top:15px;padding:10px 20px;background:#00FFFF;color:black;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Fermer</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            
-            // Sélectionner automatiquement le texte
-            setTimeout(() => {
-                const area = document.getElementById('manual-copy-area');
-                area.focus();
-                area.select();
-            }, 100);
+    // Fermer modal avec Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeSecretModal();
         }
+    });
 
-        // Afficher le toast
-        function showToast() {
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // Réinitialiser le formulaire
-        function resetForm() {
-            document.getElementById('news-title').value = '';
-            document.getElementById('news-content').value = '';
-            document.getElementById('news-pinned').checked = false;
-            document.getElementById('news-image').value = '';
-            document.getElementById('news-image-alt').value = '';
-            document.getElementById('news-link-text').value = '';
-            document.getElementById('news-link-url').value = '';
-            
-            // Reset date à aujourd'hui
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('news-date').value = today;
-
-            // Reset tag
-            document.querySelectorAll('.tag-option').forEach(t => t.classList.remove('selected'));
-            document.querySelector('.tag-option.default').classList.add('selected');
-            selectedTag = '';
-            selectedTagLabel = 'NEWS';
-
-            // Reset icon
-            document.querySelectorAll('#tag-icon-selector .icon-option').forEach(i => i.classList.remove('selected'));
-            document.querySelector('#tag-icon-selector .icon-option').classList.add('selected');
-            selectedTagIcon = 'fa-newspaper';
-
-            // Reset meta items
-            document.getElementById('meta-container').innerHTML = '';
-
-            // Fermer les sections repliables
-            document.querySelectorAll('.collapsible').forEach(c => c.classList.remove('open'));
-
-            updatePreview();
-        }
-    </script>
+</script>
 
 </body>
 </html>
