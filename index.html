@@ -152,44 +152,17 @@
         .tab-content { display: none; flex: 1; overflow-y: auto; }
         .tab-content.active { display: block; }
 
-        /* NEWS STYLES */
-        .news-card {
-            background: linear-gradient(135deg, #001515 0%, #000a0a 100%);
-            border: 1px solid var(--c-petrol);
-            border-radius: 8px;
-            padding: 20px;
-            transition: all 0.3s;
-            position: relative;
+        /* NEWS IFRAME */
+        .news-iframe-container {
+            width: 100%;
+            height: calc(100vh - 60px);
             overflow: hidden;
         }
-        .news-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 4px; height: 100%;
-            background: var(--c-neon);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .news-card:hover {
-            border-color: var(--c-cyan-dark);
-            transform: translateX(5px);
-        }
-        .news-card:hover::before { opacity: 1; }
-        .news-tag {
-            display: inline-block;
-            padding: 3px 10px;
-            background: var(--c-petrol);
-            color: var(--c-neon);
-            font-size: 0.65rem;
-            font-family: 'Share Tech Mono', monospace;
-            border-radius: 3px;
-            margin-bottom: 10px;
-        }
-        .news-date {
-            font-size: 0.7rem;
-            color: #555;
-            font-family: 'Share Tech Mono', monospace;
+        .news-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #050505;
         }
 
         /* PROMPT GENERATOR IFRAME */
@@ -398,75 +371,8 @@
 
         <!-- TAB: NEWS -->
         <div id="tab-news" class="tab-content">
-            <header class="bg-[#003939] p-6 border-b border-[#007879]">
-                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                    <i class="fas fa-satellite-dish text-neon"></i>
-                    ACTUALITÉS <span class="text-neon">DU CLUB</span>
-                </h2>
-                <p class="text-[#00b6b6] font-tech text-sm mt-1">Les dernières nouvelles de l'univers Cor-Tech</p>
-            </header>
-
-            <div class="p-8 space-y-6">
-                <!-- News Item 1 -->
-                <article class="news-card">
-                    <span class="news-tag"><i class="fas fa-star mr-1"></i> ÉVÉNEMENT</span>
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl text-white font-bold">Tournoi E-Sport Summer 2025</h3>
-                        <span class="news-date">15 JAN 2025</span>
-                    </div>
-                    <p class="text-gray-400 mb-4">Préparez-vous pour le plus grand tournoi de l'été ! League of Legends, Rocket League et Valorant au programme. Inscriptions ouvertes dès maintenant.</p>
-                    <div class="flex items-center gap-4">
-                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-users mr-1"></i> 32 inscrits</span>
-                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-trophy mr-1"></i> 500€ de prix</span>
-                    </div>
-                </article>
-
-                <!-- News Item 2 -->
-                <article class="news-card">
-                    <span class="news-tag"><i class="fas fa-graduation-cap mr-1"></i> ATELIER</span>
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl text-white font-bold">Formation IA : Créer avec Midjourney</h3>
-                        <span class="news-date">10 JAN 2025</span>
-                    </div>
-                    <p class="text-gray-400 mb-4">Découvrez les secrets de la génération d'images par IA. Atelier pratique de 3h pour maîtriser les prompts et créer des visuels époustouflants.</p>
-                    <div class="flex items-center gap-4">
-                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-calendar mr-1"></i> Samedi 25 Jan</span>
-                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-clock mr-1"></i> 14h - 17h</span>
-                    </div>
-                </article>
-
-                <!-- News Item 3 -->
-                <article class="news-card">
-                    <span class="news-tag"><i class="fas fa-cube mr-1"></i> 3D PRINTING</span>
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl text-white font-bold">Nouvelle imprimante Bambu Lab X1</h3>
-                        <span class="news-date">05 JAN 2025</span>
-                    </div>
-                    <p class="text-gray-400 mb-4">Le club s'équipe ! Notre nouvelle imprimante multi-filaments est arrivée. Venez découvrir ses capacités lors des ateliers du mercredi.</p>
-                    <div class="flex items-center gap-4">
-                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-print mr-1"></i> Multi-couleurs</span>
-                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-bolt mr-1"></i> Ultra rapide</span>
-                    </div>
-                </article>
-
-                <!-- News Item 4 -->
-                <article class="news-card">
-                    <span class="news-tag"><i class="fas fa-handshake mr-1"></i> PARTENARIAT</span>
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl text-white font-bold">Collaboration avec le Collège</h3>
-                        <span class="news-date">20 DÉC 2024</span>
-                    </div>
-                    <p class="text-gray-400 mb-4">Cor-Tech s'associe au collège de Cordemais pour proposer des ateliers numériques aux élèves. Programmation, robotique et création graphique au menu !</p>
-                    <div class="flex items-center gap-4">
-                        <span class="text-[#00b6b6] text-sm"><i class="fas fa-school mr-1"></i> Collège Cordemais</span>
-                    </div>
-                </article>
-
-                <div class="text-center pt-8">
-                    <button class="border border-[#007879] text-[#00b6b6] px-6 py-3 rounded hover:bg-[#003939] transition font-tech">
-                        <i class="fas fa-history mr-2"></i> ARCHIVES
-                    </button>
-                </div>
+            <div class="news-iframe-container">
+                <iframe src="news.html" class="news-iframe" title="Actualités du club"></iframe>
             </div>
         </div>
 
