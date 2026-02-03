@@ -192,6 +192,35 @@
             font-size: 1.2rem;
         }
 
+        /* Message aucune news */
+        .no-news {
+            text-align: center;
+            padding: 60px 20px;
+            color: #555;
+        }
+        .no-news i {
+            font-size: 4rem;
+            color: var(--c-petrol);
+            margin-bottom: 20px;
+            display: block;
+            animation: pulse 2s infinite;
+        }
+        .no-news p {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .no-news span {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--c-cyan-dark);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+
         /* Footer */
         .news-footer {
             text-align: center;
@@ -237,116 +266,100 @@
          OPTION ÉPINGLÉ :
          Ajoutez la classe "pinned" à news-card pour mettre en avant
     ================================= -->
+    <!-- ================================
+         CONTAINER DES NEWS
+         
+         POUR AJOUTER UNE NEWS :
+         1. Copiez un modèle ci-dessous
+         2. Collez-le dans <div class="news-container">
+         3. Modifiez le contenu
+         
+         TAGS DISPONIBLES :
+         - news-tag event     → Violet (événements)
+         - news-tag atelier   → Vert (ateliers/formations)
+         - news-tag info      → Bleu (informations)
+         - news-tag partenariat → Jaune (partenariats)
+         - news-tag materiel  → Orange (nouveau matériel)
+         - news-tag (sans classe) → Cyan (par défaut)
+         
+         OPTION ÉPINGLÉ :
+         Ajoutez la classe "pinned" à news-card pour mettre en avant
+    ================================= -->
     <div class="news-container">
 
-        <!-- ============ NEWS ÉPINGLÉE (EXEMPLE) ============ -->
-        <article class="news-card pinned">
-            <div class="news-card-header">
-                <span class="news-tag event"><i class="fas fa-star"></i> ÉVÉNEMENT</span>
-                <span class="news-date">15 JANVIER 2025</span>
-            </div>
-            <h2 class="news-title">🎮 Tournoi E-Sport Summer 2025</h2>
-            <p class="news-content">
-                Préparez-vous pour le plus grand tournoi de l'été ! League of Legends, Rocket League et Valorant au programme. Inscriptions ouvertes dès maintenant. Places limitées !
-            </p>
-            <div class="news-meta">
-                <span class="news-meta-item"><i class="fas fa-users"></i> 32 inscrits</span>
-                <span class="news-meta-item"><i class="fas fa-trophy"></i> 500€ de prix</span>
-                <span class="news-meta-item"><i class="fas fa-calendar"></i> 15 Juillet 2025</span>
-            </div>
-            <a href="#" class="news-link"><i class="fas fa-arrow-right"></i> S'inscrire</a>
-        </article>
-
-        <!-- ============ NEWS ATELIER ============ -->
-        <article class="news-card">
-            <div class="news-card-header">
-                <span class="news-tag atelier"><i class="fas fa-graduation-cap"></i> ATELIER</span>
-                <span class="news-date">10 JANVIER 2025</span>
-            </div>
-            <h2 class="news-title">Formation IA : Créer avec Midjourney</h2>
-            <p class="news-content">
-                Découvrez les secrets de la génération d'images par IA. Atelier pratique de 3h pour maîtriser les prompts et créer des visuels époustouflants. Ouvert à tous les niveaux !
-            </p>
-            <div class="news-meta">
-                <span class="news-meta-item"><i class="fas fa-calendar"></i> Samedi 25 Janvier</span>
-                <span class="news-meta-item"><i class="fas fa-clock"></i> 14h - 17h</span>
-                <span class="news-meta-item"><i class="fas fa-euro-sign"></i> Gratuit membres</span>
-            </div>
-        </article>
-
-        <!-- ============ NEWS MATÉRIEL ============ -->
-        <article class="news-card">
-            <div class="news-card-header">
-                <span class="news-tag materiel"><i class="fas fa-cube"></i> MATÉRIEL</span>
-                <span class="news-date">05 JANVIER 2025</span>
-            </div>
-            <h2 class="news-title">Nouvelle imprimante Bambu Lab X1</h2>
-            <!-- EXEMPLE AVEC IMAGE (décommentez et ajoutez votre image) -->
-            <!-- <img src="images/bambu-lab.jpg" alt="Imprimante 3D" class="news-image"> -->
-            <p class="news-content">
-                Le club s'équipe ! Notre nouvelle imprimante multi-filaments est arrivée. Venez découvrir ses capacités lors des ateliers du mercredi. Impressions en multi-couleurs possibles !
-            </p>
-            <div class="news-meta">
-                <span class="news-meta-item"><i class="fas fa-print"></i> Multi-couleurs</span>
-                <span class="news-meta-item"><i class="fas fa-bolt"></i> Ultra rapide</span>
-            </div>
-        </article>
-
-        <!-- ============ NEWS PARTENARIAT ============ -->
-        <article class="news-card">
-            <div class="news-card-header">
-                <span class="news-tag partenariat"><i class="fas fa-handshake"></i> PARTENARIAT</span>
-                <span class="news-date">20 DÉCEMBRE 2024</span>
-            </div>
-            <h2 class="news-title">Collaboration avec le Collège</h2>
-            <p class="news-content">
-                Cor-Tech s'associe au collège de Cordemais pour proposer des ateliers numériques aux élèves. Programmation, robotique et création graphique au menu pour cette année scolaire !
-            </p>
-            <div class="news-meta">
-                <span class="news-meta-item"><i class="fas fa-school"></i> Collège Cordemais</span>
-                <span class="news-meta-item"><i class="fas fa-child"></i> 60 élèves</span>
-            </div>
-        </article>
-
-        <!-- ============ NEWS INFO SIMPLE ============ -->
-        <article class="news-card">
-            <div class="news-card-header">
-                <span class="news-tag info"><i class="fas fa-info-circle"></i> INFO</span>
-                <span class="news-date">15 DÉCEMBRE 2024</span>
-            </div>
-            <h2 class="news-title">Fermeture pendant les fêtes</h2>
-            <p class="news-content">
-                Le club sera fermé du 23 décembre au 3 janvier inclus. Nous vous souhaitons de joyeuses fêtes ! Rendez-vous en 2025 pour de nouvelles aventures numériques.
-            </p>
-            <div class="news-meta">
-                <span class="news-meta-item"><i class="fas fa-calendar-times"></i> 23 Déc - 3 Jan</span>
-            </div>
-        </article>
-
         <!-- 
-        ╔════════════════════════════════════════════════════════╗
-        ║  MODÈLE VIDE À COPIER POUR NOUVELLE NEWS               ║
-        ╠════════════════════════════════════════════════════════╣
-        
-        <article class="news-card">
-            <div class="news-card-header">
-                <span class="news-tag"><i class="fas fa-newspaper"></i> CATÉGORIE</span>
-                <span class="news-date">JJ MOIS AAAA</span>
-            </div>
-            <h2 class="news-title">Titre de votre news</h2>
-            <p class="news-content">
-                Description de votre actualité. Écrivez ici le contenu principal.
-            </p>
-            <div class="news-meta">
-                <span class="news-meta-item"><i class="fas fa-info"></i> Info 1</span>
-                <span class="news-meta-item"><i class="fas fa-info"></i> Info 2</span>
-            </div>
-        </article>
-        
-        ╚════════════════════════════════════════════════════════╝
+        ╔════════════════════════════════════════════════════════════════╗
+        ║  COLLEZ VOS NEWS ICI (les plus récentes en haut)               ║
+        ╚════════════════════════════════════════════════════════════════╝
         -->
 
+        <!-- Message affiché quand il n'y a pas de news -->
+        <div class="no-news">
+            <i class="fas fa-satellite-dish"></i>
+            <p>Aucune actualité pour le moment...</p>
+            <span>Revenez bientôt !</span>
+        </div>
+
     </div>
+
+    <!-- 
+    ╔════════════════════════════════════════════════════════════════════╗
+    ║                    MODÈLES À COPIER / COLLER                       ║
+    ╠════════════════════════════════════════════════════════════════════╣
+    
+    ══════════════ MODÈLE SIMPLE ══════════════
+    
+    <article class="news-card">
+        <div class="news-card-header">
+            <span class="news-tag"><i class="fas fa-newspaper"></i> CATÉGORIE</span>
+            <span class="news-date">JJ MOIS AAAA</span>
+        </div>
+        <h2 class="news-title">Titre de votre news</h2>
+        <p class="news-content">
+            Description de votre actualité ici.
+        </p>
+        <div class="news-meta">
+            <span class="news-meta-item"><i class="fas fa-info"></i> Info</span>
+        </div>
+    </article>
+    
+    ══════════════ MODÈLE ÉPINGLÉ (important) ══════════════
+    
+    <article class="news-card pinned">
+        <div class="news-card-header">
+            <span class="news-tag event"><i class="fas fa-star"></i> ÉVÉNEMENT</span>
+            <span class="news-date">JJ MOIS AAAA</span>
+        </div>
+        <h2 class="news-title">🎮 Titre important</h2>
+        <p class="news-content">
+            Description de l'événement important.
+        </p>
+        <div class="news-meta">
+            <span class="news-meta-item"><i class="fas fa-calendar"></i> Date</span>
+            <span class="news-meta-item"><i class="fas fa-users"></i> Participants</span>
+        </div>
+        <a href="#" class="news-link"><i class="fas fa-arrow-right"></i> En savoir plus</a>
+    </article>
+    
+    ══════════════ MODÈLE AVEC IMAGE ══════════════
+    
+    <article class="news-card">
+        <div class="news-card-header">
+            <span class="news-tag materiel"><i class="fas fa-cube"></i> MATÉRIEL</span>
+            <span class="news-date">JJ MOIS AAAA</span>
+        </div>
+        <h2 class="news-title">Titre avec image</h2>
+        <img src="images/votre-image.jpg" alt="Description" class="news-image">
+        <p class="news-content">
+            Description avec une image.
+        </p>
+        <div class="news-meta">
+            <span class="news-meta-item"><i class="fas fa-info"></i> Info</span>
+        </div>
+    </article>
+    
+    ╚════════════════════════════════════════════════════════════════════╝
+    -->
 
     <!-- FOOTER -->
     <footer class="news-footer">
