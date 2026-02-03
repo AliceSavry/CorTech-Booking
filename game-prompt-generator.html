@@ -3,304 +3,646 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Générateur de Prompts & Jeux HTML5 (+ Mode Troll)</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <title>Générateur de Prompts Jeux - COR-TECH</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  
   <style>
-    :root{
-      --app-bg-1:#0b1020;
-      --app-bg-2:#101a3b;
-      --panel: rgba(255,255,255,.08);
-      --panel-2: rgba(255,255,255,.12);
-      --stroke: rgba(255,255,255,.14);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.72);
-      --shadow: 0 16px 50px rgba(0,0,0,.35);
-      --accent:#7c3aed;
-      --accent-2:#22d3ee;
+    :root {
+      --c-neon: #00FFFF;
+      --c-black: #000000;
+      --c-bg: #050505;
+      --c-petrol: #003939;
+      --c-cyan-dark: #007879;
+      --c-text-cyan: #00b6b6;
+      --c-panel: #0a0a0a;
+      --c-panel-light: #111111;
+      --c-border: #003939;
     }
 
-    /* Background */
-    body{
-      background:
-        radial-gradient(1200px 700px at 15% 10%, rgba(34,211,238,.16), transparent 60%),
-        radial-gradient(900px 600px at 80% 20%, rgba(124,58,237,.18), transparent 60%),
-        linear-gradient(135deg, var(--app-bg-1), var(--app-bg-2));
-      color: var(--text);
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: var(--c-bg);
+      font-family: 'Rajdhani', sans-serif;
+      color: #e5e7eb;
+      min-height: 100vh;
     }
 
-    .glass{
-      background: linear-gradient(180deg, var(--panel), rgba(255,255,255,.06));
-      border: 1px solid var(--stroke);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
+    h1, h2, h3 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+    .font-tech { font-family: 'Share Tech Mono', monospace; }
+
+    /* Header */
+    .generator-header {
+      background: var(--c-petrol);
+      padding: 20px 24px;
+      border-bottom: 2px solid var(--c-neon);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .generator-header h1 {
+      color: white;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .generator-header h1 i { color: var(--c-neon); }
+    .header-badge {
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid var(--c-cyan-dark);
+      color: var(--c-text-cyan);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
     }
 
-    .soft-border{ border: 1px solid rgba(255,255,255,.12); }
-
-    .chip{
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
+    /* Layout */
+    .generator-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      min-height: calc(100vh - 70px);
     }
 
-    .codebox{
-      background: rgba(6,10,20,.78);
-      border: 1px solid rgba(255,255,255,.12);
+    /* Panneaux */
+    .form-panel {
+      background: var(--c-panel);
+      padding: 24px;
+      overflow-y: auto;
+      border-right: 1px solid var(--c-border);
+    }
+    .preview-panel {
+      background: var(--c-bg);
+      display: flex;
+      flex-direction: column;
     }
 
-    .btn{
-      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(34,211,238,.75));
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: 0 12px 30px rgba(0,0,0,.25);
-      transition: transform .15s ease, filter .15s ease;
+    /* Sections */
+    .section-title {
+      color: var(--c-neon);
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--c-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .btn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
-    .btn:active{ transform: translateY(0px) scale(.99); }
+    .section-title i { color: var(--c-cyan-dark); }
 
-    .btn-ghost{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.14);
-      transition: transform .15s ease, filter .15s ease;
+    /* Form groups */
+    .form-group {
+      margin-bottom: 20px;
     }
-    .btn-ghost:hover{ filter: brightness(1.08); transform: translateY(-1px); }
-
-    .select, .check{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.16);
-      color: var(--text);
-    }
-    select option{ color: #0b1020; }
-
-    .tab{
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
-    }
-    .tab[data-active="true"]{
-      background: rgba(255,255,255,.12);
-      border-color: rgba(255,255,255,.26);
+    .form-group label {
+      display: block;
+      color: var(--c-text-cyan);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+      text-transform: uppercase;
     }
 
-    /* Preview */
-    .preview-frame{
+    /* Selects */
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      background: var(--c-panel-light);
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      color: white;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    select:focus {
+      outline: none;
+      border-color: var(--c-neon);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    }
+    select option {
+      background: var(--c-panel);
+      color: white;
+      padding: 10px;
+    }
+
+    /* Checkboxes */
+    .checkbox-group {
+      background: var(--c-panel-light);
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 15px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .checkbox-item:hover { color: var(--c-neon); }
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--c-neon);
+      cursor: pointer;
+    }
+    .checkbox-item span {
+      font-size: 0.9rem;
+    }
+    .checkbox-item.troll-mode {
+      margin-top: 10px;
+      padding-top: 15px;
+      border-top: 1px dashed var(--c-border);
+    }
+    .checkbox-item.troll-mode span {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+    .checkbox-item.troll-mode input:checked {
+      accent-color: #ff6b6b;
+    }
+    .troll-description {
+      font-size: 0.7rem;
+      color: #666;
+      margin-left: 30px;
+      margin-top: 4px;
+    }
+
+    /* Range slider */
+    .range-container {
+      background: var(--c-panel-light);
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 15px;
+    }
+    .range-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 8px;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: var(--c-border);
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      background: var(--c-neon);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--c-neon);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, var(--c-petrol), var(--c-cyan-dark));
+      border: 1px solid var(--c-neon);
+      border-radius: 6px;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--c-cyan-dark), var(--c-petrol));
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+      transform: translateY(-2px);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      padding: 10px 16px;
+      background: transparent;
+      border: 1px solid var(--c-border);
+      border-radius: 4px;
+      color: var(--c-text-cyan);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--c-neon);
+      color: var(--c-neon);
+      background: rgba(0, 255, 255, 0.05);
+    }
+    .btn-secondary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .buttons-row .btn-secondary { flex: 1; justify-content: center; }
+
+    /* Preview area */
+    .preview-header {
+      padding: 15px 20px;
+      background: var(--c-panel);
+      border-bottom: 1px solid var(--c-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .preview-header h2 {
+      color: #888;
+      font-size: 0.8rem;
+    }
+    .preview-meta {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--c-text-cyan);
+    }
+
+    .preview-frame-container {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .preview-frame-wrapper {
+      flex: 1;
+      background: var(--c-panel);
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      min-height: 300px;
+    }
+    .preview-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #444;
+    }
+    .preview-placeholder i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: var(--c-petrol);
+    }
+    .preview-placeholder p {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+    }
+    .preview-frame {
       width: 100%;
       height: 100%;
-      border: 0;
-      border-radius: 14px;
-      background: rgba(0,0,0,.25);
+      border: none;
+      background: black;
+      border-radius: 8px;
+    }
+    .troll-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff4444;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: bold;
+      transform: rotate(3deg);
+      box-shadow: 0 2px 10px rgba(255, 68, 68, 0.5);
     }
 
-    .badge{
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.14);
+    .preview-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .preview-controls button { flex: 1; }
+
+    /* Output section */
+    .output-section {
+      background: var(--c-panel);
+      border-top: 1px solid var(--c-border);
+      padding: 20px;
+    }
+    .output-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .output-tab {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--c-border);
+      border-radius: 4px;
+      color: #666;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .output-tab:hover {
+      border-color: var(--c-cyan-dark);
+      color: var(--c-text-cyan);
+    }
+    .output-tab.active {
+      background: var(--c-petrol);
+      border-color: var(--c-neon);
+      color: var(--c-neon);
     }
 
-    /* Ambiance accents */
-    .accent-kawaii{ --accent:#ff4fb6; --accent-2:#ffd1e8; }
-    .accent-cyberpunk{ --accent:#00e5ff; --accent-2:#ff2bd6; }
-    .accent-retro{ --accent:#22c55e; --accent-2:#f59e0b; }
-    .accent-dark{ --accent:#64748b; --accent-2:#94a3b8; }
-    .accent-nature{ --accent:#22c55e; --accent-2:#a3e635; }
-    .accent-fantasy{ --accent:#a855f7; --accent-2:#f472b6; }
-    .accent-scifi{ --accent:#22d3ee; --accent-2:#60a5fa; }
-    .accent-minimalist{ --accent:#e5e7eb; --accent-2:#9ca3af; }
-    .accent-funky{ --accent:#fb7185; --accent-2:#fbbf24; }
-    .accent-horror{ --accent:#ef4444; --accent-2:#a3a3a3; }
-
-    .focus-ring:focus{ outline: 2px solid rgba(34,211,238,.55); outline-offset: 2px; }
-
-    /* Code scrollbar */
-    pre{ scrollbar-color: rgba(255,255,255,.25) rgba(0,0,0,.15); }
-    pre::-webkit-scrollbar{ height: 10px; width: 10px; }
-    pre::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.18); border-radius: 10px; }
-    pre::-webkit-scrollbar-track{ background: rgba(0,0,0,.15); }
-
-    /* Troll Checkbox specific style */
-    .check-troll:checked {
-        accent-color: #ef4444;
-        box-shadow: 0 0 10px #ef4444;
+    .output-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
     }
 
-    @media (prefers-reduced-motion: reduce){
-      .btn, .btn-ghost{ transition: none; }
+    .output-code {
+      background: #000;
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 15px;
+      max-height: 250px;
+      overflow: auto;
+    }
+    .output-code pre {
+      margin: 0;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: #4ade80;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .output-code.prompt-view pre {
+      color: var(--c-neon);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--c-neon);
+      color: black;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--c-panel); }
+    ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .generator-layout {
+        grid-template-columns: 1fr;
+      }
+      .form-panel {
+        border-right: none;
+        border-bottom: 2px solid var(--c-neon);
+      }
+      .preview-frame-wrapper {
+        min-height: 350px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .generator-header {
+        padding: 15px;
+      }
+      .generator-header h1 {
+        font-size: 0.9rem;
+      }
+      .form-panel, .preview-frame-container, .output-section {
+        padding: 15px;
+      }
+      .buttons-row {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
-<body class="min-h-screen">
-  <div class="max-w-7xl mx-auto px-4 py-8">
-    <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-8">
-      <div>
-        <div class="inline-flex items-center gap-2 badge rounded-full px-3 py-1 text-sm text-white/80">
-          <span class="w-2 h-2 rounded-full" style="background: var(--accent);"></span>
-          <span>Vanilla JS • Export HTML auto-contenu • PC + Mobile</span>
-        </div>
-        <h1 class="text-3xl md:text-4xl font-extrabold mt-3 tracking-tight">Générateur de Prompts & Jeux HTML5</h1>
-        <p class="text-white/70 mt-2 max-w-2xl">
-          Sélectionnez un template + une ambiance : l’app génère un <b>prompt ultra détaillé</b> (pour un LLM) et un <b>fichier HTML jouable</b>.
-        </p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button id="resetAll" class="btn-ghost rounded-xl px-4 py-2 text-sm focus-ring">Réinitialiser</button>
-      </div>
-    </header>
+<body>
 
-    <main class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Form -->
-      <section class="glass rounded-2xl p-5 md:p-6">
-        <div class="flex items-center justify-between gap-3 mb-5">
-          <h2 class="text-xl md:text-2xl font-bold">Critères</h2>
-          <div class="chip rounded-full px-3 py-1 text-xs text-white/70">Génère Prompt + HTML</div>
+  <!-- Header -->
+  <header class="generator-header">
+    <h1><i class="fas fa-wand-magic-sparkles"></i> Générateur de Prompts Jeux</h1>
+    <span class="header-badge"><i class="fas fa-code"></i> HTML5 Auto-contenu • PC + Mobile</span>
+  </header>
+
+  <!-- Layout -->
+  <div class="generator-layout">
+
+    <!-- Form Panel -->
+    <div class="form-panel">
+      <h2 class="section-title"><i class="fas fa-sliders"></i> Paramètres du jeu</h2>
+
+      <form id="gameForm">
+        <!-- Game Type -->
+        <div class="form-group">
+          <label><i class="fas fa-gamepad"></i> Template de jeu</label>
+          <select id="gameType">
+            <option value="clicker">🍪 Cookie Clicker - Click rapide, upgrades</option>
+            <option value="idleBusiness">💰 Idle Business - Gains passifs, buildings</option>
+            <option value="tapTree">🌳 Tap Tree - Récolte fruits, croissance</option>
+            <option value="match3">🧩 Match-3 Puzzle - Aligner 3+ éléments</option>
+            <option value="memory">🧠 Memory Game - Retourner cartes</option>
+            <option value="whackMole">🔨 Whack-a-Mole - Frapper les cibles</option>
+            <option value="targetPractice">🎯 Target Practice - Tir sur cibles</option>
+            <option value="simonSays">🔴 Simon Says - Répéter séquences</option>
+            <option value="runner">🦖 Runner Infini - Sauter obstacles</option>
+            <option value="spaceShooter">🚀 Space Shooter - Tirer sur ennemis</option>
+            <option value="platformer">🎮 Platformer - Sauter, plateformes</option>
+            <option value="flappyBird">🐦 Flappy Bird - Éviter obstacles</option>
+            <option value="dodgeEnemies">👾 Dodge Enemies - Éviter, survie</option>
+            <option value="warCard">🃏 War Card - Bataille de cartes</option>
+            <option value="slotMachine">🎰 Slot Machine - Machine à sous</option>
+            <option value="diceRoller">🎲 Dice Roller - Lancer de dés</option>
+            <option value="colorMatch">🌈 Color Match - Cliquer couleur</option>
+            <option value="breakout">🧱 Breakout - Casser briques</option>
+            <option value="drawing">🎨 Drawing Game - Dessiner formes</option>
+            <option value="tetris">🧩 Tetris-Like - Chute de blocs</option>
+          </select>
         </div>
 
-        <form id="gameForm" class="space-y-5">
-          <div>
-            <label class="block text-sm font-medium text-white/80 mb-2">🎮 Template de jeu</label>
-            <select id="gameType" class="select w-full rounded-xl px-4 py-3 focus-ring">
-              <option value="clicker">🍪 Cookie Clicker - Click rapide, upgrades exponentiels</option>
-              <option value="idleBusiness">💰 Idle Business - Gains passifs, employés, buildings</option>
-              <option value="tapTree">🌳 Tap Tree - Récolte fruits, croissance progressive</option>
-              <option value="match3">🧩 Match-3 Puzzle - Aligner 3+ éléments, combos</option>
-              <option value="memory">🧠 Memory Game - Retourner cartes identiques</option>
-              <option value="whackMole">🪜 Whack-a-Mole - Frapper cibles qui apparaissent</option>
-              <option value="targetPractice">🎯 Target Practice - Tirer/pointer sur cibles mobiles</option>
-              <option value="simonSays">🧠 Simon Says - Répéter séquences croissantes</option>
-              <option value="runner">🦖 Runner Infini - Sauter obstacles, score illimité</option>
-              <option value="spaceShooter">🚀 Space Shooter - Tirer sur ennemis, vagues</option>
-              <option value="platformer">🎮 Platformer Simple - Sauter, plateforme, boss</option>
-              <option value="flappyBird">🐦 Flappy Bird Clone - Éviter obstacles par tap/click</option>
-              <option value="dodgeEnemies">🎪 Dodge Enemies - Éviter ennemis mobiles, survie</option>
-              <option value="warCard">🃏 War Card Game - Cartes aléatoires, bataille rapide</option>
-              <option value="slotMachine">🎰 Slot Machine - Roulette chance, multiplicateurs</option>
-              <option value="diceRoller">🎲 Dice Roller - Lancer dés, lucky numbers, scoring</option>
-              <option value="colorMatch">🌈 Color Match - Clicker sur couleur demandée</option>
-              <option value="breakout">🧱 Breakout - Balle rebondissante, briques</option>
-              <option value="drawing">🎨 Drawing Game - Dessiner formes, reconnaissance simple</option>
-              <option value="tetris">🧩 Tetris-Like - Chutes de blocs, placement</option>
+        <!-- Ambiance + Platform -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label><i class="fas fa-palette"></i> Ambiance</label>
+            <select id="ambiance">
+              <option value="cyberpunk">🌐 Cyberpunk - Néon, synthé</option>
+              <option value="kawaii">🌸 Kawaii - Pastel, mignon</option>
+              <option value="retro">👾 Rétro - Pixel art, 8-bit</option>
+              <option value="dark">🌑 Dark - Sombre, sinistre</option>
+              <option value="nature">🌿 Nature - Vert, serein</option>
+              <option value="fantasy">⚔️ Fantasy - Épique, magique</option>
+              <option value="scifi">🛸 Sci-Fi - Futuriste</option>
+              <option value="minimalist">⚪ Minimaliste - Épuré</option>
+              <option value="funky">🎸 Funky - Groove, rétro</option>
+              <option value="horror">👻 Horror - Tension, peur</option>
             </select>
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-white/80 mb-2">🎨 Ambiance</label>
-              <select id="ambiance" class="select w-full rounded-xl px-4 py-3 focus-ring">
-                <option value="kawaii">🌸 Kawaii - pastel, emojis, sons aigus mignons</option>
-                <option value="cyberpunk">🌐 Cyberpunk - néon, synthé, distortion sonore</option>
-                <option value="retro">👾 Rétro - pixel art, 8-bit, bleep-bloop</option>
-                <option value="dark">🌑 Dark - sombre, sons graves, ambiance sinistre</option>
-                <option value="nature">🌿 Nature - verts, sons naturels, serein</option>
-                <option value="fantasy">⚔️ Fantasy - épique, cordes, sons magiques</option>
-                <option value="scifi">🛸 Sci-Fi - futuriste, pads électroniques</option>
-                <option value="minimalist">⚪ Minimaliste - simple, épuré, sons courts</option>
-                <option value="funky">🎸 Funky - groove, rétro-funk, percussions</option>
-                <option value="horror">👻 Horror - tension, bruits horrifiants, dissonance</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-white/80 mb-2">🖥️ Plateforme cible</label>
-              <select id="platform" class="select w-full rounded-xl px-4 py-3 focus-ring">
-                <option value="responsive" selected>📱💻 Responsive (PC + Mobile)</option>
-                <option value="mobile">📱 Mobile-first (touch + UI)</option>
-                <option value="desktop">💻 Desktop (clavier/souris)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="glass rounded-2xl p-4">
-              <div class="text-sm font-semibold mb-2">🔊 Audio & Troll</div>
-              <label class="flex items-center gap-3 text-white/80">
-                <input type="checkbox" id="musicEnabled" class="check accent-[var(--accent)]" checked />
-                <span>Musique générative</span>
-              </label>
-              <label class="flex items-center gap-3 mt-2 text-white/80">
-                <input type="checkbox" id="soundsEnabled" class="check accent-[var(--accent)]" checked />
-                <span>Effets sonores (SFX)</span>
-              </label>
-              
-              <!-- TROLL MODE ADDED HERE -->
-              <div class="mt-4 pt-3 border-t border-white/10">
-                <label class="flex items-center gap-3 text-red-200 font-bold cursor-pointer group">
-                    <input type="checkbox" id="trollMode" class="check check-troll" />
-                    <span class="group-hover:text-red-400 transition-colors">🤡 Mode Troll (Piège)</span>
-                </label>
-                <p class="text-[10px] text-white/50 mt-1 pl-7 leading-tight">
-                    Rend le jeu frustrant : contrôles inversés, faux bugs, triche de l'IA.
-                </p>
-              </div>
-
-            </div>
-            <div class="glass rounded-2xl p-4">
-              <div class="text-sm font-semibold mb-2">🎛️ Qualité visuelle</div>
-              <label class="block text-xs text-white/60 mb-2">Plus “pro” = HUD, particules, glow, canvas retina, transitions.</label>
-              <input id="polish" type="range" min="1" max="3" value="3" class="w-full" />
-              <div class="flex justify-between text-xs text-white/60 mt-1">
-                <span>Rapide</span>
-                <span>Pro</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row gap-3">
-            <button type="submit" class="btn rounded-2xl px-5 py-3 font-bold focus-ring flex-1">🚀 Générer Prompt + Jeu</button>
-            <button id="saveToLocal" type="button" class="btn-ghost rounded-2xl px-5 py-3 font-semibold focus-ring">💾 Sauvegarder</button>
-          </div>
-
-          <div class="text-xs text-white/60">
-            Astuce : cliquez <b>Jouer</b> pour lancer un aperçu réel. Le code exporté est autonome.
-          </div>
-        </form>
-      </section>
-
-      <!-- Preview + Outputs -->
-      <section class="space-y-6">
-        <div class="glass rounded-2xl p-5 md:p-6">
-          <div class="flex items-center justify-between gap-3 mb-4">
-            <h2 class="text-xl md:text-2xl font-bold">Aperçu jouable</h2>
-            <div id="previewMeta" class="text-xs text-white/70"></div>
-          </div>
-
-          <div class="soft-border rounded-2xl overflow-hidden relative" style="height: 360px;">
-            <div id="previewPlaceholder" class="h-full flex items-center justify-center px-4">
-              <div class="text-center max-w-md">
-                <div class="text-3xl mb-2">🎮</div>
-                <div class="font-bold">Générez un jeu pour l’afficher ici</div>
-                <p class="text-white/70 text-sm mt-2">Graphismes améliorés • Canvas retina • Responsive</p>
-              </div>
-            </div>
-            <iframe id="previewFrame" class="preview-frame hidden" sandbox="allow-scripts allow-pointer-lock allow-same-origin" allow="autoplay"></iframe>
-            <!-- Overlay for visual feedback when Troll mode is active in preview -->
-            <div id="trollBadge" class="hidden absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shadow-lg transform rotate-3 pointer-events-none">
-                🤡 Troll Edition
-            </div>
-          </div>
-
-          <div class="mt-4 grid grid-cols-2 gap-3">
-            <button id="playButton" class="btn rounded-xl py-2 font-semibold focus-ring" disabled>▶ Jouer</button>
-            <button id="stopButton" class="btn-ghost rounded-xl py-2 font-semibold focus-ring" disabled>⏹ Arrêter</button>
+          <div class="form-group">
+            <label><i class="fas fa-display"></i> Plateforme</label>
+            <select id="platform">
+              <option value="responsive">📱💻 Responsive</option>
+              <option value="mobile">📱 Mobile-first</option>
+              <option value="desktop">💻 Desktop</option>
+            </select>
           </div>
         </div>
 
-        <div class="glass rounded-2xl p-5 md:p-6">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-            <h2 class="text-xl md:text-2xl font-bold">Sorties</h2>
-            <div class="flex flex-wrap gap-2">
-              <button class="tab rounded-full px-3 py-1 text-sm" id="tabPrompt" data-active="true">🧩 Prompt</button>
-              <button class="tab rounded-full px-3 py-1 text-sm" id="tabCode" data-active="false">📄 HTML (démo)</button>
+        <!-- Audio Options -->
+        <div class="form-group">
+          <label><i class="fas fa-volume-high"></i> Audio & Options</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="musicEnabled" checked>
+              <span><i class="fas fa-music"></i> Musique générative</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="soundsEnabled" checked>
+              <span><i class="fas fa-bell"></i> Effets sonores (SFX)</span>
+            </label>
+            <label class="checkbox-item troll-mode">
+              <input type="checkbox" id="trollMode">
+              <span>🤡 Mode Troll (Piège)</span>
+            </label>
+            <p class="troll-description">Rend le jeu frustrant : contrôles inversés, faux bugs, IA tricheuse...</p>
+          </div>
+        </div>
+
+        <!-- Polish Level -->
+        <div class="form-group">
+          <label><i class="fas fa-sparkles"></i> Niveau de polish</label>
+          <div class="range-container">
+            <input type="range" id="polish" min="1" max="3" value="3">
+            <div class="range-label">
+              <span>Rapide</span>
+              <span>Standard</span>
+              <span>Pro</span>
             </div>
           </div>
-
-          <div class="flex flex-col sm:flex-row gap-2 mb-3">
-            <button id="copyButton" class="btn-ghost rounded-xl px-4 py-2 text-sm font-semibold focus-ring" disabled>📋 Copier</button>
-            <button id="downloadButton" class="btn-ghost rounded-xl px-4 py-2 text-sm font-semibold focus-ring" disabled>⬇ Télécharger</button>
-          </div>
-
-          <pre id="output" class="codebox rounded-2xl p-4 overflow-auto max-h-80 text-xs sm:text-sm whitespace-pre-wrap">Générez pour afficher le prompt et le code ici.</pre>
         </div>
-      </section>
-    </main>
 
-    <footer class="mt-10 text-center text-white/60 text-sm pb-8">
-      <div>Conseil : Le "Mode Troll" rendra le jeu volontairement injuste ou bizarre (contrôles inversés, bugs visuels).</div>
-    </footer>
+        <!-- Generate Button -->
+        <button type="submit" class="btn-primary">
+          <i class="fas fa-rocket"></i> Générer Prompt + Jeu
+        </button>
+
+        <div class="buttons-row">
+          <button type="button" id="saveToLocal" class="btn-secondary">
+            <i class="fas fa-save"></i> Sauvegarder
+          </button>
+          <button type="button" id="resetAll" class="btn-secondary">
+            <i class="fas fa-undo"></i> Réinitialiser
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="preview-panel">
+      <div class="preview-header">
+        <h2><i class="fas fa-eye"></i> APERÇU JOUABLE</h2>
+        <span id="previewMeta" class="preview-meta"></span>
+      </div>
+
+      <div class="preview-frame-container">
+        <div class="preview-frame-wrapper">
+          <div id="previewPlaceholder" class="preview-placeholder">
+            <i class="fas fa-gamepad"></i>
+            <p>Générez un jeu pour l'afficher ici</p>
+          </div>
+          <iframe id="previewFrame" class="preview-frame hidden" sandbox="allow-scripts allow-pointer-lock allow-same-origin" allow="autoplay"></iframe>
+          <div id="trollBadge" class="troll-badge hidden">🤡 TROLL EDITION</div>
+        </div>
+
+        <div class="preview-controls">
+          <button id="playButton" class="btn-secondary" disabled>
+            <i class="fas fa-play"></i> Jouer
+          </button>
+          <button id="stopButton" class="btn-secondary" disabled>
+            <i class="fas fa-stop"></i> Arrêter
+          </button>
+        </div>
+      </div>
+
+      <!-- Output Section -->
+      <div class="output-section">
+        <div class="output-tabs">
+          <button id="tabPrompt" class="output-tab active">🧩 Prompt</button>
+          <button id="tabCode" class="output-tab">📄 Code HTML</button>
+        </div>
+
+        <div class="output-actions">
+          <button id="copyButton" class="btn-secondary" disabled>
+            <i class="fas fa-copy"></i> Copier
+          </button>
+          <button id="downloadButton" class="btn-secondary" disabled>
+            <i class="fas fa-download"></i> Télécharger
+          </button>
+        </div>
+
+        <div id="outputCode" class="output-code prompt-view">
+          <pre id="output">Générez un jeu pour afficher le prompt et le code ici...</pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span>Copié dans le presse-papier !</span>
   </div>
 
   <script>
@@ -329,19 +671,19 @@
     };
 
     const ambiances = {
-      kawaii: { name: "Kawaii", colors: ["#FFB6C1", "#FF69B4", "#A855F7", "#22D3EE"], css: { glow: 0.7 } },
-      cyberpunk: { name: "Cyberpunk", colors: ["#00E5FF", "#FF2BD6", "#7C3AED", "#22C55E"], css: { glow: 1.0 } },
-      retro: { name: "Rétro", colors: ["#22C55E", "#F59E0B", "#60A5FA", "#EF4444"], css: { glow: 0.35 } },
-      dark: { name: "Dark", colors: ["#0F172A", "#1F2937", "#94A3B8", "#EF4444"], css: { glow: 0.25 } },
-      nature: { name: "Nature", colors: ["#14532D", "#22C55E", "#A3E635", "#60A5FA"], css: { glow: 0.25 } },
-      fantasy: { name: "Fantasy", colors: ["#4C1D95", "#A855F7", "#F472B6", "#F59E0B"], css: { glow: 0.6 } },
-      scifi: { name: "Sci-Fi", colors: ["#0EA5E9", "#22D3EE", "#60A5FA", "#A855F7"], css: { glow: 0.8 } },
-      minimalist: { name: "Minimaliste", colors: ["#F3F4F6", "#E5E7EB", "#9CA3AF", "#111827"], css: { glow: 0.08 } },
-      funky: { name: "Funky", colors: ["#FB7185", "#FBBF24", "#22C55E", "#60A5FA"], css: { glow: 0.55 } },
-      horror: { name: "Horror", colors: ["#111827", "#7F1D1D", "#EF4444", "#A3A3A3"], css: { glow: 0.35 } }
+      kawaii: { name: "Kawaii", colors: ["#FFB6C1", "#FF69B4", "#FF1493", "#FFE4E1"] },
+      cyberpunk: { name: "Cyberpunk", colors: ["#000000", "#00FFFF", "#FF00FF", "#003939"] },
+      retro: { name: "Rétro", colors: ["#2D5016", "#22C55E", "#F59E0B", "#1F2937"] },
+      dark: { name: "Dark", colors: ["#0F172A", "#1E293B", "#64748B", "#EF4444"] },
+      nature: { name: "Nature", colors: ["#14532D", "#22C55E", "#A3E635", "#60A5FA"] },
+      fantasy: { name: "Fantasy", colors: ["#4C1D95", "#A855F7", "#F472B6", "#F59E0B"] },
+      scifi: { name: "Sci-Fi", colors: ["#0C1929", "#0EA5E9", "#22D3EE", "#60A5FA"] },
+      minimalist: { name: "Minimaliste", colors: ["#FFFFFF", "#F3F4F6", "#9CA3AF", "#111827"] },
+      funky: { name: "Funky", colors: ["#7C2D12", "#FB7185", "#FBBF24", "#22C55E"] },
+      horror: { name: "Horror", colors: ["#0A0A0A", "#7F1D1D", "#EF4444", "#4B5563"] }
     };
 
-    // --- DOM ---
+    // --- DOM Elements ---
     const gameForm = document.getElementById('gameForm');
     const gameTypeSelect = document.getElementById('gameType');
     const ambianceSelect = document.getElementById('ambiance');
@@ -349,7 +691,7 @@
     const polishRange = document.getElementById('polish');
     const musicCheck = document.getElementById('musicEnabled');
     const soundCheck = document.getElementById('soundsEnabled');
-    const trollCheck = document.getElementById('trollMode'); // Checkbox Troll
+    const trollCheck = document.getElementById('trollMode');
     const playButton = document.getElementById('playButton');
     const stopButton = document.getElementById('stopButton');
     const copyButton = document.getElementById('copyButton');
@@ -357,10 +699,12 @@
     const tabPrompt = document.getElementById('tabPrompt');
     const tabCode = document.getElementById('tabCode');
     const output = document.getElementById('output');
+    const outputCode = document.getElementById('outputCode');
     const previewFrame = document.getElementById('previewFrame');
     const previewPlaceholder = document.getElementById('previewPlaceholder');
     const previewMeta = document.getElementById('previewMeta');
     const trollBadge = document.getElementById('trollBadge');
+    const toast = document.getElementById('toast');
 
     // --- State ---
     let currentPrompt = '';
@@ -368,46 +712,41 @@
     let activeTab = 'prompt';
 
     // --- Utilities ---
-    function getGameEmoji(gameType){
+    function getGameEmoji(gameType) {
       const emojis = {
         clicker:'🍪', idleBusiness:'💰', tapTree:'🌳', match3:'🧩', memory:'🧠',
-        whackMole:'🪜', targetPractice:'🎯', simonSays:'🧠', runner:'🦖',
-        spaceShooter:'🚀', platformer:'🎮', flappyBird:'🐦', dodgeEnemies:'🎪',
+        whackMole:'🔨', targetPractice:'🎯', simonSays:'🔴', runner:'🦖',
+        spaceShooter:'🚀', platformer:'🎮', flappyBird:'🐦', dodgeEnemies:'👾',
         warCard:'🃏', slotMachine:'🎰', diceRoller:'🎲', colorMatch:'🌈',
         breakout:'🧱', drawing:'🎨', tetris:'🧩'
       };
       return emojis[gameType] || '🎮';
     }
 
-    function setActiveTab(next){
+    function showToast(message) {
+      toast.querySelector('span').textContent = message || 'Copié dans le presse-papier !';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function setActiveTab(next) {
       activeTab = next;
-      tabPrompt.dataset.active = next === 'prompt' ? 'true' : 'false';
-      tabCode.dataset.active = next === 'code' ? 'true' : 'false';
+      tabPrompt.classList.toggle('active', next === 'prompt');
+      tabCode.classList.toggle('active', next === 'code');
+      outputCode.classList.toggle('prompt-view', next === 'prompt');
       renderOutput();
     }
 
-    function renderOutput(){
+    function renderOutput() {
       if (!currentPrompt && !currentGameCode) {
-        output.textContent = 'Générez pour afficher le prompt et le code ici.';
+        output.textContent = 'Générez un jeu pour afficher le prompt et le code ici...';
         return;
       }
       output.textContent = activeTab === 'prompt' ? currentPrompt : currentGameCode;
     }
 
-    function applyAppAccent(ambianceKey){
-      const a = ambiances[ambianceKey];
-      const body = document.body;
-      body.classList.remove(
-        'accent-kawaii','accent-cyberpunk','accent-retro','accent-dark','accent-nature',
-        'accent-fantasy','accent-scifi','accent-minimalist','accent-funky','accent-horror'
-      );
-      body.classList.add('accent-' + ambianceKey);
-      document.documentElement.style.setProperty('--accent', a.colors[2] || '#7c3aed');
-      document.documentElement.style.setProperty('--accent-2', a.colors[3] || '#22d3ee');
-    }
-
-    // --- Prompt Generator (Modified for Troll Mode) ---
-    function buildPrompt({ gameType, ambianceKey, platform, musicEnabled, soundsEnabled, polish, trollMode }){
+    // --- Prompt Generator ---
+    function buildPrompt({ gameType, ambianceKey, platform, musicEnabled, soundsEnabled, polish, trollMode }) {
       const game = gameTemplates[gameType];
       const amb = ambiances[ambianceKey];
 
@@ -417,40 +756,55 @@
           ? "Desktop : clavier + souris, raccourcis (Espace/Flèches), feedback visuel."
           : "Responsive PC + Mobile : touch + clavier/souris, layout adaptatif, canvas retina.";
 
-      const audioReq = "Audio:\n- Musique générative: " + (musicEnabled ? 'ON' : 'OFF') + "\n- Effets sonores: " + (soundsEnabled ? 'ON' : 'OFF') + "\n- Utiliser Tone.js + Web Audio API. Démarrer l’audio uniquement après une interaction utilisateur.";
+      const audioReq = `Audio:
+- Musique générative: ${musicEnabled ? 'ON' : 'OFF'}
+- Effets sonores: ${soundsEnabled ? 'ON' : 'OFF'}
+- Utiliser Tone.js + Web Audio API. Démarrer l'audio uniquement après une interaction utilisateur.`;
 
       const polishReq = polish >= 3
         ? "Polish PRO: HUD moderne, micro-animations, particules, glow, transitions, feedback haptique (vibration si mobile), save best score."
-        : "Polish standard: UI propre, code fonctionnel.";
+        : polish >= 2
+          ? "Polish STANDARD: UI propre, animations basiques, score visible."
+          : "Polish RAPIDE: Fonctionnel, minimaliste.";
 
-      // Logique Troll
       const trollReq = trollMode 
-        ? "\n😈 MODE TROLL ACTIVÉ (CRITIQUE): Le jeu doit être intentionnellement frustrant et drôle. Exemples obligatoires : \n- Contrôles inversés aléatoirement ou glissants.\n- Hitboxes légèrement décalées.\n- Messages moqueurs quand on perd (ex: 'Tu as essayé ?').\n- Faux bugs visuels (glitch screen).\n- Sons ridicules ou dissonants.\n- Fais en sorte que le joueur puisse gagner, mais difficilement."
+        ? `
+😈 MODE TROLL ACTIVÉ (CRITIQUE): Le jeu doit être intentionnellement frustrant et drôle. Exemples obligatoires :
+- Contrôles inversés aléatoirement ou glissants.
+- Hitboxes légèrement décalées.
+- Messages moqueurs quand on perd (ex: 'Tu as essayé ?', 'C'est tout ?').
+- Faux bugs visuels (glitch screen, texte qui tremble).
+- Sons ridicules ou dissonants.
+- L'IA triche subtilement.
+- Fais en sorte que le joueur puisse gagner, mais difficilement.`
         : "Gameplay : Juste, équilibré et satisfaisant.";
 
-      return [
-        "Tu es un expert en développement de jeux HTML5. Génère un fichier unique et auto-contenu (un seul .html) qui implémente un jeu complet.",
-        "\nCONTRAINTES TECHNIQUES:",
-        "- Un seul fichier HTML (pas d’assets externes sauf librairies CDN connues comme Tone.js).",
-        "- Gameplay via Canvas 2D + UI HTML/CSS moderne.",
-        "- " + platformReq,
-        "- Canvas responsive + devicePixelRatio.",
-        "- Écran: Menu → Jeu → Game Over, bouton Rejouer.",
-        "\nJEU À CRÉER:",
-        "- Template: " + getGameEmoji(gameType) + " " + game.name,
-        "- Description: " + game.description,
-        "- Ambiance: " + amb.name + " (" + amb.colors.join(', ') + ")",
-        trollReq,
-        "\n" + audioReq,
-        "\nNIVEAU DE POLISH:",
-        "- " + polishReq,
-        "\nSORTIE ATTENDUE:",
-        "- Retourne UNIQUEMENT le contenu du fichier .html."
-      ].join('\n');
+      return `Tu es un expert en développement de jeux HTML5. Génère un fichier unique et auto-contenu (un seul .html) qui implémente un jeu complet.
+
+CONTRAINTES TECHNIQUES:
+- Un seul fichier HTML (pas d'assets externes sauf librairies CDN connues comme Tone.js).
+- Gameplay via Canvas 2D + UI HTML/CSS moderne.
+- ${platformReq}
+- Canvas responsive + devicePixelRatio.
+- Écran: Menu → Jeu → Game Over, bouton Rejouer.
+
+JEU À CRÉER:
+- Template: ${getGameEmoji(gameType)} ${game.name}
+- Description: ${game.description}
+- Ambiance: ${amb.name} (palette: ${amb.colors.join(', ')})
+${trollReq}
+
+${audioReq}
+
+NIVEAU DE POLISH:
+- ${polishReq}
+
+SORTIE ATTENDUE:
+- Retourne UNIQUEMENT le contenu du fichier .html, sans explications.`;
     }
 
-    // --- Code Generator (Visual Demo Placeholder) ---
-    function generateGameCode({ gameType, ambianceKey, platform, trollMode }){
+    // --- Code Generator (Demo) ---
+    function generateGameCode({ gameType, ambianceKey, platform, trollMode }) {
       const game = gameTemplates[gameType];
       const amb = ambiances[ambianceKey];
       const titleSuffix = trollMode ? " (Troll Edition 🤡)" : "";
@@ -461,47 +815,145 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-    body{ margin:0; overflow:hidden; background: radial-gradient(circle at center, ${colors[1]}, ${colors[0]}); color:white; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
-    h1 { font-size: 2rem; text-shadow: 0 4px 10px rgba(0,0,0,0.5); text-align:center; }
-    canvas { background: rgba(0,0,0,0.3); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width:100%; }
-    .btn { margin-top:20px; padding:10px 20px; background:white; color:black; border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      overflow: hidden;
+      background: linear-gradient(135deg, ${colors[0]}, ${colors[3] || colors[1]});
+      color: ${colors[2] || '#ffffff'};
+      font-family: 'Rajdhani', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      text-shadow: 0 0 20px ${colors[1]};
+      margin-bottom: 20px;
+      text-align: center;
+      padding: 0 10px;
+    }
+    canvas {
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      border: 2px solid ${colors[1]};
+      box-shadow: 0 0 30px ${colors[1]}40;
+      max-width: 95%;
+    }
+    .btn {
+      margin-top: 20px;
+      padding: 12px 30px;
+      background: ${colors[1]};
+      color: ${colors[0]};
+      border: none;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+    }
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px ${colors[1]};
+    }
+    .info {
+      margin-top: 15px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
   <h1>${title}</h1>
   <canvas id="gameCanvas"></canvas>
-  <button class="btn" onclick="alert('${trollMode ? "Ah ah, tu as cru que ça marcherait ? (Ceci est une démo visuelle)" : "Jeu démo généré !"}')">Start Game</button>
+  <button class="btn" onclick="startGame()">▶ START GAME</button>
+  <p class="info">Ceci est une démo visuelle générée</p>
+  
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = Math.min(window.innerWidth - 40, 600);
-    canvas.height = canvas.width * 0.6;
     
-    // Animation boucle simple pour la démo
+    function resize() {
+      canvas.width = Math.min(window.innerWidth - 40, 600);
+      canvas.height = canvas.width * 0.6;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    
     let t = 0;
-    function loop(){
-      ctx.fillStyle = 'rgba(0,0,0,0.1)';
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = '${colors[2]}';
+    let particles = [];
+    
+    // Créer des particules
+    for(let i = 0; i < 20; i++) {
+      particles.push({
+        x: Math.random() * 600,
+        y: Math.random() * 360,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        size: Math.random() * 8 + 4
+      });
+    }
+    
+    function loop() {
+      ctx.fillStyle = 'rgba(0,0,0,0.15)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Dessiner les particules
+      particles.forEach(p => {
+        ${trollMode ? `
+        // Mode Troll : mouvement erratique
+        p.x += p.vx + Math.sin(t * 5) * 3;
+        p.y += p.vy + Math.cos(t * 3) * 3;
+        ` : `
+        p.x += p.vx;
+        p.y += p.vy;
+        `}
+        
+        if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = '${colors[1]}';
+        ctx.fill();
+        
+        // Glow effect
+        ctx.shadowColor = '${colors[1]}';
+        ctx.shadowBlur = 15;
+      });
+      
+      // Élément central
       ctx.beginPath();
-      // Mouvement erratique si Troll
-      let x = canvas.width/2 + Math.sin(t) * ${trollMode ? 100 : 50};
-      let y = canvas.height/2 + Math.cos(${trollMode ? "t*3" : "t"}) * 50;
-      ctx.arc(x, y, 20, 0, Math.PI*2);
+      const cx = canvas.width / 2 + Math.sin(t) * ${trollMode ? 80 : 30};
+      const cy = canvas.height / 2 + Math.cos(t ${trollMode ? '* 2' : ''}) * ${trollMode ? 50 : 20};
+      ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+      ctx.fillStyle = '${colors[2] || colors[1]}';
       ctx.fill();
-      t += 0.05;
+      ctx.shadowBlur = 25;
+      
+      t += 0.03;
       requestAnimationFrame(loop);
     }
     loop();
+    
+    function startGame() {
+      alert('${trollMode ? "🤡 Ha ha ! Tu pensais vraiment jouer ? (Ceci est une démo visuelle)" : "🎮 Jeu démo généré ! Utilisez le prompt avec un LLM pour obtenir le vrai jeu."}');
+    }
   <\/script>
 </body>
 </html>`;
     }
 
-    // --- Events ---
+    // --- Event Listeners ---
     gameForm.addEventListener('submit', (e) => {
       e.preventDefault();
       
@@ -511,44 +963,36 @@
         platform: platformSelect.value,
         musicEnabled: musicCheck.checked,
         soundsEnabled: soundCheck.checked,
-        polish: polishRange.value,
+        polish: parseInt(polishRange.value),
         trollMode: trollCheck.checked
       };
 
-      // 1. Appliquer l'ambiance à l'UI
-      applyAppAccent(config.ambianceKey);
-      
-      // 2. Générer Prompt
       currentPrompt = buildPrompt(config);
-      
-      // 3. Générer Code Démo
       currentGameCode = generateGameCode(config);
 
-      // 4. Update UI
       setActiveTab('prompt');
       previewMeta.textContent = `${gameTemplates[config.gameType].name} • ${ambiances[config.ambianceKey].name}`;
       
-      // Enable buttons
       playButton.disabled = false;
-      stopButton.disabled = true; // sera actif quand on joue
       copyButton.disabled = false;
       downloadButton.disabled = false;
       
-      // Show/Hide Troll Badge on Preview
-      if(config.trollMode) trollBadge.classList.remove('hidden');
-      else trollBadge.classList.add('hidden');
+      if(config.trollMode) {
+        trollBadge.classList.remove('hidden');
+      } else {
+        trollBadge.classList.add('hidden');
+      }
+
+      showToast('Prompt et code générés !');
     });
 
-    // Gestion Tabs
     tabPrompt.addEventListener('click', () => setActiveTab('prompt'));
     tabCode.addEventListener('click', () => setActiveTab('code'));
 
-    // Gestion Play/Stop
     playButton.addEventListener('click', () => {
       previewPlaceholder.classList.add('hidden');
       previewFrame.classList.remove('hidden');
       
-      // Inject code into iframe
       const doc = previewFrame.contentWindow.document;
       doc.open();
       doc.write(currentGameCode);
@@ -561,16 +1005,16 @@
     stopButton.addEventListener('click', () => {
       previewPlaceholder.classList.remove('hidden');
       previewFrame.classList.add('hidden');
-      previewFrame.src = 'about:blank'; // clear
+      previewFrame.src = 'about:blank';
       
       playButton.disabled = false;
       stopButton.disabled = true;
     });
 
-    // Copier - Fixed to use execCommand for iframe compatibility
     copyButton.addEventListener('click', () => {
       const txt = activeTab === 'prompt' ? currentPrompt : currentGameCode;
       
+      // Fallback copy method
       const textArea = document.createElement("textarea");
       textArea.value = txt;
       textArea.style.position = "fixed";
@@ -580,42 +1024,76 @@
       textArea.select();
       
       try {
-        const successful = document.execCommand('copy');
-        if(successful) {
-            const originalText = copyButton.textContent;
-            copyButton.textContent = "✅ Copié !";
-            setTimeout(() => copyButton.textContent = originalText, 2000);
-        } else {
-             console.error('Fallback copy failed.');
-             copyButton.textContent = "❌ Erreur";
-        }
+        document.execCommand('copy');
+        showToast(activeTab === 'prompt' ? 'Prompt copié !' : 'Code HTML copié !');
       } catch (err) {
-        console.error('Fallback copy error', err);
-        copyButton.textContent = "❌ Erreur";
+        console.error('Copy failed', err);
+        showToast('Erreur lors de la copie');
       }
       
       document.body.removeChild(textArea);
     });
 
-    // Télécharger
     downloadButton.addEventListener('click', () => {
       const blob = new Blob([currentGameCode], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      // Nom du fichier : type_ambiance.html
       const name = `${gameTypeSelect.value}_${ambianceSelect.value}${trollCheck.checked ? '_troll' : ''}.html`;
       a.download = name;
       a.click();
       URL.revokeObjectURL(url);
+      showToast('Fichier téléchargé !');
     });
 
-    // Reset
     document.getElementById('resetAll').addEventListener('click', () => {
       gameForm.reset();
-      applyAppAccent('scifi'); // default accent usually? or keep current
+      currentPrompt = '';
+      currentGameCode = '';
+      renderOutput();
+      previewPlaceholder.classList.remove('hidden');
+      previewFrame.classList.add('hidden');
+      trollBadge.classList.add('hidden');
+      playButton.disabled = true;
+      stopButton.disabled = true;
+      copyButton.disabled = true;
+      downloadButton.disabled = true;
+      previewMeta.textContent = '';
     });
 
+    document.getElementById('saveToLocal').addEventListener('click', () => {
+      const config = {
+        gameType: gameTypeSelect.value,
+        ambiance: ambianceSelect.value,
+        platform: platformSelect.value,
+        music: musicCheck.checked,
+        sounds: soundCheck.checked,
+        polish: polishRange.value,
+        troll: trollCheck.checked
+      };
+      localStorage.setItem('cortech_prompt_config', JSON.stringify(config));
+      showToast('Configuration sauvegardée !');
+    });
+
+    // Load saved config on startup
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('cortech_prompt_config');
+      if (saved) {
+        try {
+          const config = JSON.parse(saved);
+          gameTypeSelect.value = config.gameType || 'clicker';
+          ambianceSelect.value = config.ambiance || 'cyberpunk';
+          platformSelect.value = config.platform || 'responsive';
+          musicCheck.checked = config.music !== false;
+          soundCheck.checked = config.sounds !== false;
+          polishRange.value = config.polish || 3;
+          trollCheck.checked = config.troll || false;
+        } catch(e) {
+          console.log('Could not load saved config');
+        }
+      }
+    });
   </script>
+
 </body>
 </html>
