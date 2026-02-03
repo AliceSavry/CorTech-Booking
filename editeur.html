@@ -458,20 +458,23 @@
             font-family: 'Orbitron', sans-serif;
         }
         .news-image {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
+            max-width: 120px;
+            max-height: 100px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
             border-radius: 6px;
             border: 1px solid var(--c-petrol);
             float: left;
             margin-right: 15px;
             margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
         .news-image:hover {
             transform: scale(1.05);
             border-color: var(--c-neon);
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-            transition: all 0.3s;
         }
         .news-content {
             color: #9ca3af;
