@@ -57,9 +57,7 @@
             gap: 20px;
         }
 
-        /* ========================================
-           CARTE NEWS - STRUCTURE À COPIER/COLLER
-        ======================================== */
+        /* CARTE NEWS */
         .news-card {
             background: linear-gradient(135deg, #001515 0%, #000a0a 100%);
             border: 1px solid var(--c-petrol);
@@ -84,7 +82,6 @@
         }
         .news-card:hover::before { opacity: 1; }
 
-        /* En-tête de la carte */
         .news-card-header {
             display: flex;
             justify-content: space-between;
@@ -94,7 +91,7 @@
             gap: 10px;
         }
 
-        /* Tags de catégorie */
+        /* Tags */
         .news-tag {
             display: inline-block;
             padding: 4px 12px;
@@ -105,21 +102,18 @@
             border-radius: 3px;
             text-transform: uppercase;
         }
-        /* Variantes de couleurs pour les tags */
         .news-tag.event { background: #3d0a50; color: #e879f9; }
         .news-tag.atelier { background: #0a3d20; color: #4ade80; }
         .news-tag.info { background: #0a2d4d; color: #60a5fa; }
         .news-tag.partenariat { background: #4d3a0a; color: #fbbf24; }
         .news-tag.materiel { background: #3d1a0a; color: #fb923c; }
 
-        /* Date */
         .news-date {
             font-size: 0.75rem;
             color: #555;
             font-family: 'Share Tech Mono', monospace;
         }
 
-        /* Titre */
         .news-title {
             font-size: 1.25rem;
             color: white;
@@ -127,14 +121,35 @@
             line-height: 1.3;
         }
 
-        /* Contenu texte */
         .news-content {
             color: #9ca3af;
             line-height: 1.6;
             margin-bottom: 16px;
         }
+        .news-content p { margin-bottom: 8px; }
+        .news-content strong { color: white; }
+        .news-content em { font-style: italic; }
+        .news-content a { color: var(--c-neon); }
+        .news-content ul, .news-content ol { margin: 12px 0; padding-left: 24px; }
+        .news-content li { margin: 4px 0; }
+        .news-content blockquote {
+            border-left: 3px solid var(--c-neon);
+            margin: 12px 0;
+            padding: 8px 16px;
+            background: rgba(0, 255, 255, 0.05);
+            font-style: italic;
+        }
+        .news-content h1, .news-content h2, .news-content h3 {
+            color: white;
+            margin: 16px 0 8px 0;
+        }
+        .news-content code {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--c-neon);
+        }
 
-        /* Métadonnées (icônes + infos) */
         .news-meta {
             display: flex;
             flex-wrap: wrap;
@@ -149,7 +164,6 @@
         }
         .news-meta-item i { font-size: 0.8rem; }
 
-        /* Image optionnelle */
         .news-image {
             width: 100%;
             max-height: 200px;
@@ -159,7 +173,6 @@
             border: 1px solid var(--c-petrol);
         }
 
-        /* Lien/bouton optionnel */
         .news-link {
             display: inline-flex;
             align-items: center;
@@ -179,7 +192,6 @@
             border-color: var(--c-neon);
         }
 
-        /* Séparateur "épinglé" pour news importantes */
         .news-card.pinned {
             border-color: var(--c-neon);
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
@@ -221,7 +233,6 @@
             50% { opacity: 0.6; transform: scale(1.05); }
         }
 
-        /* Footer */
         .news-footer {
             text-align: center;
             padding: 24px;
@@ -231,7 +242,6 @@
             margin-top: 20px;
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
@@ -239,388 +249,59 @@
 </head>
 <body>
 
-    <!-- ================================
-         EN-TÊTE DE LA PAGE NEWS
-    ================================= -->
     <header class="news-header">
         <h1><i class="fas fa-satellite-dish"></i> ACTUALITÉS DU CLUB</h1>
         <p>Les dernières nouvelles de l'univers Cor-Tech</p>
     </header>
 
-    <!-- ================================
-         CONTAINER DES NEWS
-         
-         POUR AJOUTER UNE NEWS :
-         1. Copiez un bloc <article class="news-card">...</article>
-         2. Collez-le en haut (pour qu'il soit en premier)
-         3. Modifiez le contenu
-         
-         TAGS DISPONIBLES :
-         - news-tag event     → Violet (événements)
-         - news-tag atelier   → Vert (ateliers/formations)
-         - news-tag info      → Bleu (informations)
-         - news-tag partenariat → Jaune (partenariats)
-         - news-tag materiel  → Orange (nouveau matériel)
-         - news-tag (sans classe) → Cyan (par défaut)
-         
-         OPTION ÉPINGLÉ :
-         Ajoutez la classe "pinned" à news-card pour mettre en avant
-    ================================= -->
-    <!-- ================================
-         CONTAINER DES NEWS
-         
-         ╔════════════════════════════════════════════════════════════════╗
-         ║                    COMMENT CRÉER UNE NEWS ?                    ║
-         ╠════════════════════════════════════════════════════════════════╣
-         ║                                                                ║
-         ║  🚀 MÉTHODE FACILE (recommandée) :                            ║
-         ║  ─────────────────────────────────                            ║
-         ║  1. Allez sur : http://cor-tech.fr/editeur.html               ║
-         ║  2. Remplissez le formulaire (prévisualisation en direct)     ║
-         ║  3. Cliquez sur "COPIER LE CODE"                              ║
-         ║  4. Collez le code ici (entre les balises news-container)     ║
-         ║  5. Supprimez le bloc "no-news" ci-dessous si c'est la        ║
-         ║     première news                                              ║
-         ║                                                                ║
-         ║  📝 L'éditeur supporte :                                      ║
-         ║     - Markdown (gras, italique, listes, liens...)            ║
-         ║     - 6 catégories colorées                                   ║
-         ║     - 40+ icônes                                              ║
-         ║     - Images                                                   ║
-         ║     - Métadonnées (date, lieu, etc.)                          ║
-         ║     - Option "épinglé" pour les news importantes              ║
-         ║                                                                ║
-         ╚════════════════════════════════════════════════════════════════╝
-         
-         RAPPEL DES TAGS DISPONIBLES :
-         - news-tag event     → Violet (événements)
-         - news-tag atelier   → Vert (ateliers/formations)
-         - news-tag info      → Bleu (informations)
-         - news-tag partenariat → Jaune (partenariats)
-         - news-tag materiel  → Orange (nouveau matériel)
-         - news-tag (sans classe) → Cyan (par défaut)
-         
-    ================================= -->
+    <!-- 
+    ╔══════════════════════════════════════════════════════════════════════╗
+    ║                      COMMENT AJOUTER UNE NEWS ?                      ║
+    ╠══════════════════════════════════════════════════════════════════════╣
+    ║                                                                      ║
+    ║  🚀 MÉTHODE FACILE :                                                ║
+    ║  ───────────────────                                                ║
+    ║  1. Allez sur : http://cor-tech.fr/news-editor.html                 ║
+    ║     (ou accès secret via triple-clic sur le point du footer)        ║
+    ║                                                                      ║
+    ║  2. Remplissez le formulaire (prévisualisation en direct)           ║
+    ║                                                                      ║
+    ║  3. Cliquez sur "COPIER LE CODE"                                    ║
+    ║                                                                      ║
+    ║  4. Collez le code ICI, juste après <div class="news-container">    ║
+    ║                                                                      ║
+    ║  5. Supprimez le bloc <div class="no-news">...</div>                ║
+    ║     quand vous avez au moins une news                               ║
+    ║                                                                      ║
+    ║  ⚠️  IMPORTANT : Collez UNIQUEMENT le bloc <article>...</article>   ║
+    ║      PAS toute une page HTML !                                       ║
+    ║                                                                      ║
+    ╚══════════════════════════════════════════════════════════════════════╝
+    -->
+
     <div class="news-container">
 
-        <!-- 
-        ╔════════════════════════════════════════════════════════════════╗
-        ║  COLLEZ VOS NEWS ICI (les plus récentes en haut)               ║
-        ╚════════════════════════════════════════════════════════════════╝
-        -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             COLLEZ VOS ARTICLES ICI (les plus récents en haut)
+             
+             Exemple de ce que vous devez coller :
+             
+             <article class="news-card">
+                 <div class="news-card-header">
+                     <span class="news-tag"><i class="fas fa-newspaper"></i> NEWS</span>
+                     <span class="news-date">15 Juin 2025</span>
+                 </div>
+                 <h2 class="news-title">Mon titre</h2>
+                 <div class="news-content">
+                     <p>Mon contenu...</p>
+                 </div>
+             </article>
+             
+        ═══════════════════════════════════════════════════════════════ -->
 
-        <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News - COR-TECH</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --c-neon: #00FFFF;
-            --c-petrol: #003939;
-            --c-cyan-dark: #007879;
-            --c-text-cyan: #00b6b6;
-        }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            background-color: #050505;
-            font-family: 'Rajdhani', sans-serif;
-            color: #e5e7eb;
-            padding: 0;
-            min-height: 100vh;
-        }
-
-        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
-        .font-tech { font-family: 'Share Tech Mono', monospace; }
-
-        /* Header */
-        .news-header {
-            background: var(--c-petrol);
-            padding: 24px;
-            border-bottom: 2px solid var(--c-cyan-dark);
-        }
-        .news-header h1 {
-            color: white;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .news-header h1 i { color: var(--c-neon); }
-        .news-header p {
-            color: var(--c-text-cyan);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            margin-top: 8px;
-        }
-
-        /* Container des news */
-        .news-container {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* ========================================
-           CARTE NEWS - STRUCTURE À COPIER/COLLER
-        ======================================== */
-        .news-card {
-            background: linear-gradient(135deg, #001515 0%, #000a0a 100%);
-            border: 1px solid var(--c-petrol);
-            border-radius: 8px;
-            padding: 20px;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        .news-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 4px; height: 100%;
-            background: var(--c-neon);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .news-card:hover {
-            border-color: var(--c-cyan-dark);
-            transform: translateX(5px);
-        }
-        .news-card:hover::before { opacity: 1; }
-
-        /* En-tête de la carte */
-        .news-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        /* Tags de catégorie */
-        .news-tag {
-            display: inline-block;
-            padding: 4px 12px;
-            background: var(--c-petrol);
-            color: var(--c-neon);
-            font-size: 0.7rem;
-            font-family: 'Share Tech Mono', monospace;
-            border-radius: 3px;
-            text-transform: uppercase;
-        }
-        /* Variantes de couleurs pour les tags */
-        .news-tag.event { background: #3d0a50; color: #e879f9; }
-        .news-tag.atelier { background: #0a3d20; color: #4ade80; }
-        .news-tag.info { background: #0a2d4d; color: #60a5fa; }
-        .news-tag.partenariat { background: #4d3a0a; color: #fbbf24; }
-        .news-tag.materiel { background: #3d1a0a; color: #fb923c; }
-
-        /* Date */
-        .news-date {
-            font-size: 0.75rem;
-            color: #555;
-            font-family: 'Share Tech Mono', monospace;
-        }
-
-        /* Titre */
-        .news-title {
-            font-size: 1.25rem;
-            color: white;
-            margin-bottom: 12px;
-            line-height: 1.3;
-        }
-
-        /* Contenu texte */
-        .news-content {
-            color: #9ca3af;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-
-        /* Métadonnées (icônes + infos) */
-        .news-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .news-meta-item {
-            color: var(--c-text-cyan);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .news-meta-item i { font-size: 0.8rem; }
-
-        /* Image optionnelle */
-        .news-image {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            border: 1px solid var(--c-petrol);
-        }
-
-        /* Lien/bouton optionnel */
-        .news-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--c-neon);
-            text-decoration: none;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            padding: 8px 16px;
-            border: 1px solid var(--c-cyan-dark);
-            border-radius: 4px;
-            transition: all 0.3s;
-            margin-top: 12px;
-        }
-        .news-link:hover {
-            background: var(--c-petrol);
-            border-color: var(--c-neon);
-        }
-
-        /* Séparateur "épinglé" pour news importantes */
-        .news-card.pinned {
-            border-color: var(--c-neon);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
-        }
-        .news-card.pinned::after {
-            content: '📌';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.2rem;
-        }
-
-        /* Message aucune news */
-        .no-news {
-            text-align: center;
-            padding: 60px 20px;
-            color: #555;
-        }
-        .no-news i {
-            font-size: 4rem;
-            color: var(--c-petrol);
-            margin-bottom: 20px;
-            display: block;
-            animation: pulse 2s infinite;
-        }
-        .no-news p {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            color: #666;
-            margin-bottom: 10px;
-        }
-        .no-news span {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--c-cyan-dark);
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.05); }
-        }
-
-        /* Footer */
-        .news-footer {
-            text-align: center;
-            padding: 24px;
-            color: #555;
-            font-size: 0.8rem;
-            border-top: 1px solid #222;
-            margin-top: 20px;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
-    </style>
-</head>
-<body>
-
-    <!-- ================================
-         EN-TÊTE DE LA PAGE NEWS
-    ================================= -->
-    <header class="news-header">
-        <h1><i class="fas fa-satellite-dish"></i> ACTUALITÉS DU CLUB</h1>
-        <p>Les dernières nouvelles de l'univers Cor-Tech</p>
-    </header>
-
-    <!-- ================================
-         CONTAINER DES NEWS
-         
-         POUR AJOUTER UNE NEWS :
-         1. Copiez un bloc <article class="news-card">...</article>
-         2. Collez-le en haut (pour qu'il soit en premier)
-         3. Modifiez le contenu
-         
-         TAGS DISPONIBLES :
-         - news-tag event     → Violet (événements)
-         - news-tag atelier   → Vert (ateliers/formations)
-         - news-tag info      → Bleu (informations)
-         - news-tag partenariat → Jaune (partenariats)
-         - news-tag materiel  → Orange (nouveau matériel)
-         - news-tag (sans classe) → Cyan (par défaut)
-         
-         OPTION ÉPINGLÉ :
-         Ajoutez la classe "pinned" à news-card pour mettre en avant
-    ================================= -->
-    <!-- ================================
-         CONTAINER DES NEWS
-         
-         ╔════════════════════════════════════════════════════════════════╗
-         ║                    COMMENT CRÉER UNE NEWS ?                    ║
-         ╠════════════════════════════════════════════════════════════════╣
-         ║                                                                ║
-         ║  🚀 MÉTHODE FACILE (recommandée) :                            ║
-         ║  ─────────────────────────────────                            ║
-         ║  1. Allez sur : http://cor-tech.fr/editeur.html               ║
-         ║  2. Remplissez le formulaire (prévisualisation en direct)     ║
-         ║  3. Cliquez sur "COPIER LE CODE"                              ║
-         ║  4. Collez le code ici (entre les balises news-container)     ║
-         ║  5. Supprimez le bloc "no-news" ci-dessous si c'est la        ║
-         ║     première news                                              ║
-         ║                                                                ║
-         ║  📝 L'éditeur supporte :                                      ║
-         ║     - Markdown (gras, italique, listes, liens...)            ║
-         ║     - 6 catégories colorées                                   ║
-         ║     - 40+ icônes                                              ║
-         ║     - Images                                                   ║
-         ║     - Métadonnées (date, lieu, etc.)                          ║
-         ║     - Option "épinglé" pour les news importantes              ║
-         ║                                                                ║
-         ╚════════════════════════════════════════════════════════════════╝
-         
-         RAPPEL DES TAGS DISPONIBLES :
-         - news-tag event     → Violet (événements)
-         - news-tag atelier   → Vert (ateliers/formations)
-         - news-tag info      → Bleu (informations)
-         - news-tag partenariat → Jaune (partenariats)
-         - news-tag materiel  → Orange (nouveau matériel)
-         - news-tag (sans classe) → Cyan (par défaut)
-         
-    ================================= -->
-    <div class="news-container">
-
-        <!-- 
-        ╔════════════════════════════════════════════════════════════════╗
-        ║  COLLEZ VOS NEWS ICI (les plus récentes en haut)               ║
-        ╚════════════════════════════════════════════════════════════════╝
-        -->
-
-        <!-- Message affiché quand il n'y a pas de news -->
+        <!-- Message affiché quand il n'y a pas de news (à supprimer quand vous ajoutez une news) -->
         <div class="no-news">
             <i class="fas fa-satellite-dish"></i>
             <p>Aucune actualité pour le moment...</p>
@@ -629,154 +310,6 @@
 
     </div>
 
-    <!-- 
-    ╔════════════════════════════════════════════════════════════════════╗
-    ║                         MODÈLES MANUELS                            ║
-    ║                                                                    ║
-    ║   💡 ASTUCE : Utilisez plutôt l'éditeur visuel !                  ║
-    ║   👉 http://cor-tech.fr/editeur.html                              ║
-    ║                                                                    ║
-    ║   Les modèles ci-dessous sont pour une utilisation manuelle       ║
-    ║   si vous préférez coder directement.                             ║
-    ╠════════════════════════════════════════════════════════════════════╣
-    
-    ══════════════ MODÈLE SIMPLE ══════════════
-    
-    <article class="news-card">
-        <div class="news-card-header">
-            <span class="news-tag"><i class="fas fa-newspaper"></i> CATÉGORIE</span>
-            <span class="news-date">JJ MOIS AAAA</span>
-        </div>
-        <h2 class="news-title">Titre de votre news</h2>
-        <p class="news-content">
-            Description de votre actualité ici.
-        </p>
-        <div class="news-meta">
-            <span class="news-meta-item"><i class="fas fa-info"></i> Info</span>
-        </div>
-    </article>
-    
-    ══════════════ MODÈLE ÉPINGLÉ (important) ══════════════
-    
-    <article class="news-card pinned">
-        <div class="news-card-header">
-            <span class="news-tag event"><i class="fas fa-star"></i> ÉVÉNEMENT</span>
-            <span class="news-date">JJ MOIS AAAA</span>
-        </div>
-        <h2 class="news-title">🎮 Titre important</h2>
-        <p class="news-content">
-            Description de l'événement important.
-        </p>
-        <div class="news-meta">
-            <span class="news-meta-item"><i class="fas fa-calendar"></i> Date</span>
-            <span class="news-meta-item"><i class="fas fa-users"></i> Participants</span>
-        </div>
-        <a href="#" class="news-link"><i class="fas fa-arrow-right"></i> En savoir plus</a>
-    </article>
-    
-    ══════════════ MODÈLE AVEC IMAGE ══════════════
-    
-    <article class="news-card">
-        <div class="news-card-header">
-            <span class="news-tag materiel"><i class="fas fa-cube"></i> MATÉRIEL</span>
-            <span class="news-date">JJ MOIS AAAA</span>
-        </div>
-        <h2 class="news-title">Titre avec image</h2>
-        <img src="images/votre-image.jpg" alt="Description" class="news-image">
-        <p class="news-content">
-            Description avec une image.
-        </p>
-        <div class="news-meta">
-            <span class="news-meta-item"><i class="fas fa-info"></i> Info</span>
-        </div>
-    </article>
-    
-    ╚════════════════════════════════════════════════════════════════════╝
-    -->
-
-    <!-- FOOTER -->
-    <footer class="news-footer">
-        <p>COR-TECH © 2025 — Actualités du club</p>
-    </footer>
-
-</body>
-</html>
-
-        <!-- Message affiché quand il n'y a pas de news -->
-        <div class="no-news">
-            <i class="fas fa-satellite-dish"></i>
-            <p>Aucune actualité pour le moment...</p>
-            <span>Revenez bientôt !</span>
-        </div>
-
-    </div>
-
-    <!-- 
-    ╔════════════════════════════════════════════════════════════════════╗
-    ║                         MODÈLES MANUELS                            ║
-    ║                                                                    ║
-    ║   💡 ASTUCE : Utilisez plutôt l'éditeur visuel !                  ║
-    ║   👉 http://cor-tech.fr/editeur.html                              ║
-    ║                                                                    ║
-    ║   Les modèles ci-dessous sont pour une utilisation manuelle       ║
-    ║   si vous préférez coder directement.                             ║
-    ╠════════════════════════════════════════════════════════════════════╣
-    
-    ══════════════ MODÈLE SIMPLE ══════════════
-    
-    <article class="news-card">
-        <div class="news-card-header">
-            <span class="news-tag"><i class="fas fa-newspaper"></i> CATÉGORIE</span>
-            <span class="news-date">JJ MOIS AAAA</span>
-        </div>
-        <h2 class="news-title">Titre de votre news</h2>
-        <p class="news-content">
-            Description de votre actualité ici.
-        </p>
-        <div class="news-meta">
-            <span class="news-meta-item"><i class="fas fa-info"></i> Info</span>
-        </div>
-    </article>
-    
-    ══════════════ MODÈLE ÉPINGLÉ (important) ══════════════
-    
-    <article class="news-card pinned">
-        <div class="news-card-header">
-            <span class="news-tag event"><i class="fas fa-star"></i> ÉVÉNEMENT</span>
-            <span class="news-date">JJ MOIS AAAA</span>
-        </div>
-        <h2 class="news-title">🎮 Titre important</h2>
-        <p class="news-content">
-            Description de l'événement important.
-        </p>
-        <div class="news-meta">
-            <span class="news-meta-item"><i class="fas fa-calendar"></i> Date</span>
-            <span class="news-meta-item"><i class="fas fa-users"></i> Participants</span>
-        </div>
-        <a href="#" class="news-link"><i class="fas fa-arrow-right"></i> En savoir plus</a>
-    </article>
-    
-    ══════════════ MODÈLE AVEC IMAGE ══════════════
-    
-    <article class="news-card">
-        <div class="news-card-header">
-            <span class="news-tag materiel"><i class="fas fa-cube"></i> MATÉRIEL</span>
-            <span class="news-date">JJ MOIS AAAA</span>
-        </div>
-        <h2 class="news-title">Titre avec image</h2>
-        <img src="images/votre-image.jpg" alt="Description" class="news-image">
-        <p class="news-content">
-            Description avec une image.
-        </p>
-        <div class="news-meta">
-            <span class="news-meta-item"><i class="fas fa-info"></i> Info</span>
-        </div>
-    </article>
-    
-    ╚════════════════════════════════════════════════════════════════════╝
-    -->
-
-    <!-- FOOTER -->
     <footer class="news-footer">
         <p>COR-TECH © 2025 — Actualités du club</p>
     </footer>
