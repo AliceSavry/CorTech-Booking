@@ -1350,21 +1350,70 @@ Utilisez le Markdown :
             const code = document.getElementById('code-output').textContent;
             
             if (code.includes('Remplissez le formulaire')) {
+                alert('⚠️ Veuillez d\'abord remplir le formulaire !');
                 return;
             }
 
-            navigator.clipboard.writeText(code).then(() => {
-                showToast();
-            }).catch(err => {
-                // Fallback pour les anciens navigateurs
-                const textarea = document.createElement('textarea');
-                textarea.value = code;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showToast();
-            });
+            // Méthode 1: API Clipboard moderne (HTTPS requis)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(() => {
+                    showToast();
+                }).catch(err => {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopy(code);
+                });
+            } else {
+                // Méthode 2: Fallback pour HTTP ou anciens navigateurs
+                fallbackCopy(code);
+            }
+        }
+
+        // Fallback pour copier (fonctionne en HTTP)
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            textarea.style.top = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast();
+                } else {
+                    showManualCopyDialog(text);
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showManualCopyDialog(text);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        // Dialog pour copie manuelle si tout échoue
+        function showManualCopyDialog(text) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            modal.innerHTML = `
+                <div style="background:#111;border:2px solid #00FFFF;border-radius:8px;padding:20px;max-width:600px;width:100%;max-height:80vh;display:flex;flex-direction:column;">
+                    <h3 style="color:#00FFFF;margin:0 0 15px 0;font-family:Orbitron,sans-serif;">📋 Copiez manuellement</h3>
+                    <p style="color:#888;margin:0 0 15px 0;font-size:0.9rem;">Sélectionnez tout (Ctrl+A) puis copiez (Ctrl+C) :</p>
+                    <textarea id="manual-copy-area" style="flex:1;min-height:200px;background:#000;color:#4ade80;border:1px solid #333;border-radius:4px;padding:10px;font-family:'Share Tech Mono',monospace;font-size:0.8rem;resize:none;">${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                    <button onclick="this.parentElement.parentElement.remove()" style="margin-top:15px;padding:10px 20px;background:#00FFFF;color:black;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Fermer</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Sélectionner automatiquement le texte
+            setTimeout(() => {
+                const area = document.getElementById('manual-copy-area');
+                area.focus();
+                area.select();
+            }, 100);
         }
 
         // Afficher le toast
