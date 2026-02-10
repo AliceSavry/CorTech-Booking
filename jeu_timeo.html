@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Le Monde Bancal de Jean-Pierre</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #87CEEB; font-family: 'Comic Sans MS', cursive, sans-serif; touch-action: none; }
+        #ui { position: absolute; top: 10px; left: 10px; color: white; text-shadow: 2px 2px 0 #000; pointer-events: none; z-index: 20; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
+        
+        /* Inventaire Style */
+        #inventory { 
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            display: flex; gap: 10px; background: rgba(0,0,0,0.5); padding: 10px; 
+            border-radius: 15px; border: 2px solid rgba(255,255,255,0.3); pointer-events: auto; z-index: 100;
+        }
+        .inv-slot { 
+            width: 50px; height: 50px; background: rgba(255,255,255,0.1); 
+            border: 2px solid transparent; border-radius: 8px; display: flex; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            color: white; font-size: 10px; cursor: pointer; position: relative;
+        }
+        .inv-slot.active { border-color: #ff0; background: rgba(255,255,255,0.3); }
+        .inv-count { position: absolute; bottom: 2px; right: 4px; font-weight: bold; font-size: 12px; }
+        .inv-icon { font-size: 20px; }
+
+        .touch-controls { position: absolute; bottom: 100px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; pointer-events: none; z-index: 40; }
+        .joystick-area { width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; position: relative; pointer-events: auto; }
+        .joystick-stick { width: 40px; height: 40px; background: rgba(255,255,255,0.5); border-radius: 50%; position: absolute; top: 30px; left: 30px; }
+        .action-buttons { display: flex; flex-direction: column; gap: 10px; pointer-events: auto; }
+        .btn-action { width: 50px; height: 50px; background: rgba(0,0,0,0.5); border: 2px solid white; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; user-select: none; }
+        
+        #instructions { position: absolute; top: 10px; right: 10px; color: white; font-size: 10px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px; text-align: right; pointer-events: none; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        <h1 class="text-xl md:text-2xl font-bold">Bancal-Craft</h1>
+        <div class="text-lg">Score: <span id="score">0</span></div>
+    </div>
+
+    <div id="inventory">
+        <div class="inv-slot active" onclick="selectSlot(0)" id="slot-0">
+            <span class="inv-icon">🌱</span>
+            <span class="inv-count">∞</span>
+            <span class="text-[8px]">TERRE</span>
+        </div>
+        <div class="inv-slot" onclick="selectSlot(1)" id="slot-1">
+            <span class="inv-icon">🪵</span>
+            <span class="inv-count" id="count-wood">0</span>
+            <span class="text-[8px]">BOIS</span>
+        </div>
+        <div class="inv-slot" onclick="selectSlot(2)" id="slot-2">
+            <span class="inv-icon">🍃</span>
+            <span class="inv-count" id="count-leaves">0</span>
+            <span class="text-[8px]">FEUILLE</span>
+        </div>
+    </div>
+
+    <div id="crosshair"></div>
+    
+    <div id="instructions" class="hidden md:block">
+        [Z,Q,S,D] : Bouger | [Espace] : Sauter<br>
+        [1,2,3] : Choisir objet<br>
+        [Clic G] : Poser | [Clic D] : Détruire
+    </div>
+
+    <div class="touch-controls md:hidden">
+        <div id="joystick" class="joystick-area">
+            <div id="stick" class="joystick-stick"></div>
+        </div>
+        <div class="action-buttons">
+            <div id="btn-jump" class="btn-action">⬆️</div>
+            <div id="btn-place" class="btn-action">📦</div>
+            <div id="btn-break" class="btn-action">🪓</div>
+        </div>
+    </div>
+
+    <script>
+        // --- ÉTAT DU JEU ---
+        let score = 0;
+        let isLocked = false;
+        const blocks = []; 
+        const moveState = { forward: 0, backward: 0, left: 0, right: 0, jump: false };
+        
+        // Inventaire
+        let selectedSlot = 0;
+        const inventory = {
+            wood: 0,
+            leaves: 0
+        };
+
+        const blockTypes = [
+            { name: 'terre', color: 0x8b4513, icon: '🌱' },
+            { name: 'wood', color: 0x5d4037, icon: '🪵' },
+            { name: 'leaves', color: 0x2e7d32, icon: '🍃' }
+        ];
+
+        function selectSlot(index) {
+            selectedSlot = index;
+            document.querySelectorAll('.inv-slot').forEach((s, i) => {
+                s.classList.toggle('active', i === index);
+            });
+            playTone(800, 'sine', 0.05, 0.05);
+        }
+
+        function updateUI() {
+            document.getElementById('count-wood').innerText = inventory.wood;
+            document.getElementById('count-leaves').innerText = inventory.leaves;
+            document.getElementById('score').innerText = score;
+        }
+
+        // --- AUDIO ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration, volume = 0.1) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + duration);
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // --- THREE.JS SETUP ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB);
+        scene.fog = new THREE.Fog(0x87CEEB, 1, 80);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 1);
+        scene.add(light);
+        const sunLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        sunLight.position.set(10, 20, 10);
+        scene.add(sunLight);
+
+        scene.add(camera);
+
+        // --- SOL INFINI ---
+        const groundGeo = new THREE.PlaneGeometry(2000, 2000);
+        const canvasG = document.createElement('canvas');
+        canvasG.width = 64; canvasG.height = 64;
+        const ctxG = canvasG.getContext('2d');
+        ctxG.fillStyle = '#228b22'; ctxG.fillRect(0, 0, 64, 64);
+        ctxG.strokeStyle = '#1e7b1e'; ctxG.lineWidth = 2; ctxG.strokeRect(0, 0, 64, 64);
+        const texture = new THREE.CanvasTexture(canvasG);
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(400, 400);
+        const ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ map: texture }));
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
+
+        // --- ARBRES ---
+        function createTree(x, z) {
+            const treeGroup = new THREE.Group();
+            treeGroup.userData.isTree = true;
+            
+            const trunkHeight = 3 + Math.random() * 2;
+            const trunkGeo = new THREE.BoxGeometry(0.8, trunkHeight, 0.8);
+            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5d4037 });
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.y = trunkHeight / 2;
+            trunk.userData.parentTree = treeGroup;
+            trunk.userData.type = 'wood';
+            treeGroup.add(trunk);
+            blocks.push(trunk);
+
+            const leafMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32 });
+            for(let i = 0; i < 3; i++) {
+                const size = 3 - i;
+                const leafGeo = new THREE.BoxGeometry(size, 1.2, size);
+                const leaves = new THREE.Mesh(leafGeo, leafMat);
+                leaves.position.y = trunkHeight + (i * 0.8);
+                leaves.userData.parentTree = treeGroup;
+                leaves.userData.type = 'leaves';
+                treeGroup.add(leaves);
+                blocks.push(leaves);
+            }
+
+            treeGroup.position.set(x, 0, z);
+            scene.add(treeGroup);
+        }
+
+        for(let i = 0; i < 50; i++) {
+            const rx = (Math.random() - 0.5) * 150;
+            const rz = (Math.random() - 0.5) * 150;
+            if(Math.abs(rx) > 5 || Math.abs(rz) > 5) createTree(rx, rz);
+        }
+
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        camera.position.set(0, 2, 5);
+
+        // --- INTERACTIONS ---
+        function addBlock(pos) {
+            const type = blockTypes[selectedSlot];
+            
+            // Vérifier les ressources
+            if (type.name !== 'terre') {
+                if (inventory[type.name] <= 0) {
+                    playTone(100, 'sine', 0.1); // Son d'erreur
+                    return;
+                }
+                inventory[type.name]--;
+            }
+
+            const cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: type.color }));
+            cube.position.set(Math.round(pos.x), Math.round(pos.y + 0.5), Math.round(pos.z));
+            cube.userData.type = type.name;
+            scene.add(cube);
+            blocks.push(cube);
+            
+            score++;
+            updateUI();
+            playTone(400, 'sine', 0.1);
+        }
+
+        function removeBlockOrTree(obj) {
+            if (obj === ground) return;
+
+            if (obj.userData.parentTree) {
+                const tree = obj.userData.parentTree;
+                // On gagne des ressources en abattant l'arbre
+                inventory.wood += 3;
+                inventory.leaves += 5;
+                
+                tree.children.forEach(child => {
+                    const idx = blocks.indexOf(child);
+                    if (idx > -1) blocks.splice(idx, 1);
+                });
+                scene.remove(tree);
+                score += 5;
+                playTone(80, 'square', 0.4);
+            } else {
+                // Si c'est un bloc posé, on récupère la ressource
+                if (obj.userData.type && inventory[obj.userData.type] !== undefined) {
+                    inventory[obj.userData.type]++;
+                }
+                scene.remove(obj);
+                const index = blocks.indexOf(obj);
+                if(index > -1) blocks.splice(index, 1);
+                score = Math.max(0, score - 1);
+                playTone(150, 'square', 0.2);
+            }
+            
+            updateUI();
+        }
+
+        const raycaster = new THREE.Raycaster();
+        const center = new THREE.Vector2(0, 0);
+
+        function performAction(type) {
+            raycaster.setFromCamera(center, camera);
+            const intersects = raycaster.intersectObjects([...blocks, ground]);
+            if (intersects.length > 0) {
+                const intersect = intersects[0];
+                if (type === 'add') {
+                    addBlock(intersect.point.clone().add(intersect.face.normal.multiplyScalar(0.5)));
+                } else {
+                    removeBlockOrTree(intersect.object);
+                }
+            }
+        }
+
+        // Événements
+        document.addEventListener('mousedown', (e) => {
+            if (!isLocked) { document.body.requestPointerLock(); return; }
+            if (e.button === 0) performAction('add');
+            if (e.button === 2) performAction('remove');
+        });
+
+        document.addEventListener('pointerlockchange', () => { isLocked = document.pointerLockElement === document.body; });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isLocked) {
+                camera.rotation.y -= e.movementX * 0.002;
+                camera.rotation.x -= e.movementY * 0.002;
+                camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Digit1') selectSlot(0);
+            if (e.code === 'Digit2') selectSlot(1);
+            if (e.code === 'Digit3') selectSlot(2);
+            handleKey(e.code, 1);
+        });
+        window.addEventListener('keyup', (e) => handleKey(e.code, 0));
+
+        const handleKey = (code, val) => {
+            switch(code) {
+                case 'KeyW': case 'ArrowUp': moveState.forward = val; break;
+                case 'KeyS': case 'ArrowDown': moveState.backward = val; break;
+                case 'KeyA': case 'ArrowLeft': moveState.left = val; break;
+                case 'KeyD': case 'ArrowRight': moveState.right = val; break;
+                case 'Space': moveState.jump = !!val; break;
+            }
+        };
+
+        // Contrôles Mobiles
+        const stick = document.getElementById('stick');
+        const joystick = document.getElementById('joystick');
+        joystick.addEventListener('touchstart', handleJoystick);
+        joystick.addEventListener('touchmove', handleJoystick);
+        joystick.addEventListener('touchend', () => {
+            stick.style.transform = `translate(0px, 0px)`;
+            moveState.forward = moveState.backward = moveState.left = moveState.right = 0;
+        });
+
+        function handleJoystick(e) {
+            e.preventDefault();
+            const rect = joystick.getBoundingClientRect();
+            const touch = e.touches[0];
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            let dx = touch.pageX - centerX;
+            let dy = touch.pageY - centerY;
+            const dist = Math.min(Math.sqrt(dx*dx + dy*dy), 35);
+            const angle = Math.atan2(dy, dx);
+            dx = Math.cos(angle) * dist; dy = Math.sin(angle) * dist;
+            stick.style.transform = `translate(${dx}px, ${dy}px)`;
+            moveState.left = dx < -10 ? -dx/35 : 0;
+            moveState.right = dx > 10 ? dx/35 : 0;
+            moveState.forward = dy < -10 ? -dy/35 : 0;
+            moveState.backward = dy > 10 ? dy/35 : 0;
+        }
+
+        document.getElementById('btn-jump').addEventListener('touchstart', (e) => { e.preventDefault(); moveState.jump = true; });
+        document.getElementById('btn-jump').addEventListener('touchend', () => moveState.jump = false);
+        document.getElementById('btn-place').addEventListener('touchstart', (e) => { e.preventDefault(); performAction('add'); });
+        document.getElementById('btn-break').addEventListener('touchstart', (e) => { e.preventDefault(); performAction('remove'); });
+
+        // --- LOOP ---
+        let lastTime = performance.now();
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = performance.now();
+            const delta = (time - lastTime) / 1000;
+
+            velocity.x -= velocity.x * 10.0 * delta;
+            velocity.z -= velocity.z * 10.0 * delta;
+            velocity.y -= 9.8 * 2.5 * delta;
+
+            direction.z = moveState.forward - moveState.backward;
+            direction.x = moveState.right - moveState.left;
+
+            const speed = 120.0;
+            if (moveState.forward || moveState.backward) velocity.z -= direction.z * speed * delta;
+            if (moveState.left || moveState.right) velocity.x -= direction.x * speed * delta;
+
+            camera.translateX(-velocity.x * delta);
+            camera.translateZ(velocity.z * delta);
+            camera.position.y += velocity.y * delta;
+
+            if (camera.position.y < 2) {
+                velocity.y = 0; camera.position.y = 2;
+                if (moveState.jump) { velocity.y = 12; playTone(600, 'triangle', 0.2); }
+            }
+
+            ground.position.set(camera.position.x, 0, camera.position.z);
+            texture.offset.x = camera.position.x / 50;
+            texture.offset.y = -camera.position.z / 50;
+
+            renderer.render(scene, camera);
+            lastTime = time;
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.onload = animate;
+        window.addEventListener('contextmenu', e => e.preventDefault());
+    </script>
+</body>
+</html>
