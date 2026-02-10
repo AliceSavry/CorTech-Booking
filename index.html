@@ -60,6 +60,7 @@
             overflow-y: auto; overflow-x: hidden;
             touch-action: pan-y;
         }
+        /* Scanlines simples */
         .crt-monitor::before {
             content: " "; display: block; position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
@@ -84,6 +85,29 @@
         }
         .game-item:hover { background: rgba(0, 255, 255, 0.1); color: #fff; text-shadow: 0 0 8px #00FFFF; padding-left: 20px; }
         .game-item i { margin-right: 15px; font-size: 1.2rem; }
+
+        /* LABO LUDIK - Jeux des enfants */
+        .labo-section .game-item {
+            color: #ff6b9d;
+            border-bottom-color: #3d1a3d;
+        }
+        .labo-section .game-item:hover {
+            background: rgba(255, 107, 157, 0.1);
+            color: #ffaad4;
+            text-shadow: 0 0 8px #ff6b9d;
+        }
+        .labo-section .game-item i {
+            color: #ff6b9d;
+        }
+        .labo-section .game-item small {
+            margin-left: auto;
+            font-size: 0.65rem;
+            color: #885577;
+            font-style: italic;
+        }
+        .labo-section .game-item:hover small {
+            color: #ffaad4;
+        }
 
         #game-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -110,6 +134,13 @@
 
         .blink { animation: blinker 1.5s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
+
+        /* Animation shake pour mot de passe incorrect */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #000; }
@@ -178,6 +209,19 @@
             background: #000;
         }
 
+        /* LABO LUDIK IFRAME */
+        .labo-iframe-container {
+            width: 100%;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+        .labo-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #050505;
+        }
+
         @media (max-width: 1024px) {
             html, body { overflow: auto; height: auto; touch-action: auto; } 
             .main-container { flex-direction: column; width: 100%; height: auto; }
@@ -232,6 +276,7 @@
                 <p class="text-gray-400 font-tech text-xs border-b border-gray-700 pb-2">CLIQUEZ POUR JOUER</p>
             </div>
 
+            <!-- JEUX ARCADE -->
             <div class="space-y-1 relative z-20">
                 <div class="game-item" onclick="openGame('troll.html', 'TROLL')"><i class="fas fa-dove"></i> <span>TROLL</span></div>
                 <div class="game-item" onclick="openGame('Flappy.html', 'FLAPPY COR-TECH')"><i class="fas fa-dove"></i> <span>FLAPPY COR-TECH</span></div>
@@ -242,6 +287,56 @@
                 <div class="game-item" onclick="openGame('course.html', 'RACING')"><i class="fas fa-car"></i> <span>RACING</span></div>
                 <div class="game-item" onclick="openGame('sinapse.html', 'SINAPSE')"><i class="fas fa-brain"></i> <span>SINAPSE</span></div>
                 <div class="game-item" onclick="openGame('reflexe kawaii.html', 'REFLEXE')"><i class="fas fa-bolt"></i> <span>REFLEXE</span></div>
+            </div>
+
+            <!-- ========================================
+                 LABO LUDIK - Jeux créés par les enfants
+                 
+                 Pour ajouter un jeu :
+                 1. Copiez cette ligne :
+                    <div class="game-item labo-item" onclick="openGame('labo/nom-du-jeu.html', 'NOM DU JEU - Prénom')"><i class="fas fa-child"></i> <span>NOM DU JEU</span> <small>par Prénom</small></div>
+                 
+                 2. Modifiez :
+                    - 'labo/nom-du-jeu.html' → chemin vers le fichier du jeu
+                    - 'NOM DU JEU - Prénom' → titre dans la modal
+                    - 'NOM DU JEU' → nom affiché dans la liste
+                    - 'Prénom' → prénom de l'enfant créateur
+            ======================================== -->
+            
+            <div class="mt-6 mb-3 relative z-20">
+                <div class="flex items-center gap-2 text-[#ff6b9d] border-t border-b border-[#3d1a3d] py-2">
+                    <i class="fas fa-flask text-sm"></i>
+                    <span class="font-pixel text-[8px] tracking-wider">LABO LUDIK</span>
+                    <i class="fas fa-child text-xs ml-1"></i>
+                </div>
+                <p class="text-[#885577] text-[9px] font-tech mt-1 italic">Créations des jeunes makers</p>
+            </div>
+
+            <div class="space-y-1 relative z-20 labo-section">
+                <!-- 
+                ╔════════════════════════════════════════════════════════════════╗
+                ║  JEUX DES ENFANTS - Ajoutez les jeux ici !                     ║
+                ╠════════════════════════════════════════════════════════════════╣
+                ║                                                                ║
+                ║  Exemple :                                                     ║
+                ║  <div class="game-item labo-item" onclick="openGame(          ║
+                ║      'labo/space-aventure.html', 'SPACE AVENTURE - Lucas')">  ║
+                ║      <i class="fas fa-rocket"></i>                             ║
+                ║      <span>SPACE AVENTURE</span>                               ║
+                ║      <small>par Lucas</small>                                  ║
+                ║  </div>                                                        ║
+                ║                                                                ║
+                ╚════════════════════════════════════════════════════════════════╝
+                -->
+
+                <!-- Message si pas encore de jeux -->
+                <div id="labo-empty" class="text-center py-4 text-[#553355] text-xs font-tech italic">
+                    <i class="fas fa-hourglass-half mr-2"></i>Jeux en préparation...
+                </div>
+
+                <!-- AJOUTEZ LES JEUX DES ENFANTS ICI ↓ -->
+                
+
             </div>
 
             <div class="mt-8 text-center opacity-50 relative z-20">
@@ -260,6 +355,10 @@
             <button class="tab-btn" onclick="switchTab('news')">
                 <i class="fas fa-newspaper"></i>
                 <span>NEWS</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('labo')">
+                <i class="fas fa-flask"></i>
+                <span>LABO LUDIK</span>
             </button>
             <button class="tab-btn" onclick="switchTab('prompt')">
                 <i class="fas fa-magic"></i>
@@ -365,6 +464,11 @@
                 <footer class="text-center text-[#007879] text-sm pt-8 border-t border-[#003939] pb-8">
                     <p>&copy; 2025 Association Cor-Tech.</p>
                     <p class="mt-2"><a href="mentions.html" class="hover:text-[#00FFFF]">Mentions Légales</a></p>
+                    
+                    <!-- Accès secret éditeur - Triple clic sur le point -->
+                    <p class="mt-6 opacity-30 hover:opacity-50 transition-opacity duration-1000">
+                        <span id="secret-trigger" class="cursor-default select-none" style="color: #0a0a0a;">●</span>
+                    </p>
                 </footer>
             </div>
         </div>
@@ -376,6 +480,13 @@
             </div>
         </div>
 
+        <!-- TAB: LABO LUDIK -->
+        <div id="tab-labo" class="tab-content">
+            <div class="labo-iframe-container">
+                <iframe src="labo-ludik.html" class="labo-iframe" title="Labo Ludik - Créations des enfants"></iframe>
+            </div>
+        </div>
+
         <!-- TAB: PROMPT GENERATOR -->
         <div id="tab-prompt" class="tab-content">
             <div class="prompt-iframe-container">
@@ -383,6 +494,32 @@
             </div>
         </div>
     </main>
+</div>
+
+<!-- Modal mot de passe secret -->
+<div id="secret-modal" class="fixed inset-0 bg-black/95 z-[9999] hidden items-center justify-center backdrop-blur-sm">
+    <div class="bg-[#0a0a0a] border border-[#003939] rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl">
+        <div class="text-center mb-4">
+            <i class="fas fa-lock text-[#003939] text-3xl mb-2"></i>
+            <h3 class="text-[#007879] font-tech text-sm">ZONE RESTREINTE</h3>
+        </div>
+        <input 
+            type="password" 
+            id="secret-password" 
+            placeholder="Mot de passe..."
+            class="w-full bg-black border border-[#003939] rounded px-4 py-3 text-white font-tech text-center focus:outline-none focus:border-[#00FFFF] transition"
+            onkeypress="if(event.key==='Enter')checkSecretPassword()"
+        >
+        <div id="secret-error" class="text-red-500 text-xs text-center mt-2 hidden font-tech">Accès refusé</div>
+        <div class="flex gap-3 mt-4">
+            <button onclick="closeSecretModal()" class="flex-1 py-2 border border-[#333] text-[#666] rounded font-tech text-sm hover:border-[#555] hover:text-[#888] transition">
+                Annuler
+            </button>
+            <button onclick="checkSecretPassword()" class="flex-1 py-2 bg-[#003939] text-[#00FFFF] rounded font-tech text-sm hover:bg-[#004a4a] transition">
+                Entrer
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -435,6 +572,68 @@
         modal.style.display = 'none';
         iframe.src = '';
     }
+
+    // ========== ACCÈS SECRET ÉDITEUR ==========
+    let secretClickCount = 0;
+    let secretClickTimer = null;
+
+    document.getElementById('secret-trigger').addEventListener('click', function() {
+        secretClickCount++;
+        
+        if (secretClickTimer) clearTimeout(secretClickTimer);
+        
+        // Reset après 1 seconde d'inactivité
+        secretClickTimer = setTimeout(() => {
+            secretClickCount = 0;
+        }, 1000);
+        
+        // Triple clic détecté
+        if (secretClickCount >= 3) {
+            secretClickCount = 0;
+            openSecretModal();
+        }
+    });
+
+    function openSecretModal() {
+        const modal = document.getElementById('secret-modal');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.getElementById('secret-password').value = '';
+        document.getElementById('secret-error').classList.add('hidden');
+        document.getElementById('secret-password').focus();
+    }
+
+    function closeSecretModal() {
+        const modal = document.getElementById('secret-modal');
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+    }
+
+    function checkSecretPassword() {
+        const password = document.getElementById('secret-password').value;
+        const correctPassword = 'P1r@t&moi!!44360';
+        
+        if (password === correctPassword) {
+            closeSecretModal();
+            window.location.href = 'news-editor.html';
+        } else {
+            document.getElementById('secret-error').classList.remove('hidden');
+            document.getElementById('secret-password').value = '';
+            document.getElementById('secret-password').focus();
+            
+            // Shake effect
+            const input = document.getElementById('secret-password');
+            input.style.animation = 'shake 0.5s';
+            setTimeout(() => { input.style.animation = ''; }, 500);
+        }
+    }
+
+    // Fermer modal avec Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeSecretModal();
+        }
+    });
 
 </script>
 
