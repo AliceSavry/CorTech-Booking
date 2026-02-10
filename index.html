@@ -86,29 +86,6 @@
         .game-item:hover { background: rgba(0, 255, 255, 0.1); color: #fff; text-shadow: 0 0 8px #00FFFF; padding-left: 20px; }
         .game-item i { margin-right: 15px; font-size: 1.2rem; }
 
-        /* LABO LUDIK - Jeux des enfants */
-        .labo-section .game-item {
-            color: #ff6b9d;
-            border-bottom-color: #3d1a3d;
-        }
-        .labo-section .game-item:hover {
-            background: rgba(255, 107, 157, 0.1);
-            color: #ffaad4;
-            text-shadow: 0 0 8px #ff6b9d;
-        }
-        .labo-section .game-item i {
-            color: #ff6b9d;
-        }
-        .labo-section .game-item small {
-            margin-left: auto;
-            font-size: 0.65rem;
-            color: #885577;
-            font-style: italic;
-        }
-        .labo-section .game-item:hover small {
-            color: #ffaad4;
-        }
-
         #game-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.95); z-index: 9999;
@@ -287,56 +264,6 @@
                 <div class="game-item" onclick="openGame('course.html', 'RACING')"><i class="fas fa-car"></i> <span>RACING</span></div>
                 <div class="game-item" onclick="openGame('sinapse.html', 'SINAPSE')"><i class="fas fa-brain"></i> <span>SINAPSE</span></div>
                 <div class="game-item" onclick="openGame('reflexe kawaii.html', 'REFLEXE')"><i class="fas fa-bolt"></i> <span>REFLEXE</span></div>
-            </div>
-
-            <!-- ========================================
-                 LABO LUDIK - Jeux créés par les enfants
-                 
-                 Pour ajouter un jeu :
-                 1. Copiez cette ligne :
-                    <div class="game-item labo-item" onclick="openGame('labo/nom-du-jeu.html', 'NOM DU JEU - Prénom')"><i class="fas fa-child"></i> <span>NOM DU JEU</span> <small>par Prénom</small></div>
-                 
-                 2. Modifiez :
-                    - 'labo/nom-du-jeu.html' → chemin vers le fichier du jeu
-                    - 'NOM DU JEU - Prénom' → titre dans la modal
-                    - 'NOM DU JEU' → nom affiché dans la liste
-                    - 'Prénom' → prénom de l'enfant créateur
-            ======================================== -->
-            
-            <div class="mt-6 mb-3 relative z-20">
-                <div class="flex items-center gap-2 text-[#ff6b9d] border-t border-b border-[#3d1a3d] py-2">
-                    <i class="fas fa-flask text-sm"></i>
-                    <span class="font-pixel text-[8px] tracking-wider">LABO LUDIK</span>
-                    <i class="fas fa-child text-xs ml-1"></i>
-                </div>
-                <p class="text-[#885577] text-[9px] font-tech mt-1 italic">Créations des jeunes makers</p>
-            </div>
-
-            <div class="space-y-1 relative z-20 labo-section">
-                <!-- 
-                ╔════════════════════════════════════════════════════════════════╗
-                ║  JEUX DES ENFANTS - Ajoutez les jeux ici !                     ║
-                ╠════════════════════════════════════════════════════════════════╣
-                ║                                                                ║
-                ║  Exemple :                                                     ║
-                ║  <div class="game-item labo-item" onclick="openGame(          ║
-                ║      'labo/space-aventure.html', 'SPACE AVENTURE - Lucas')">  ║
-                ║      <i class="fas fa-rocket"></i>                             ║
-                ║      <span>SPACE AVENTURE</span>                               ║
-                ║      <small>par Lucas</small>                                  ║
-                ║  </div>                                                        ║
-                ║                                                                ║
-                ╚════════════════════════════════════════════════════════════════╝
-                -->
-
-                <!-- Message si pas encore de jeux -->
-                <div id="labo-empty" class="text-center py-4 text-[#553355] text-xs font-tech italic">
-                    <i class="fas fa-hourglass-half mr-2"></i>Jeux en préparation...
-                </div>
-
-                <!-- AJOUTEZ LES JEUX DES ENFANTS ICI ↓ -->
-                
-
             </div>
 
             <div class="mt-8 text-center opacity-50 relative z-20">
