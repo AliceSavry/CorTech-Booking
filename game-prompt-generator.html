@@ -9,15 +9,15 @@
   
   <style>
     :root {
-      --c-neon: #00FFFF;
-      --c-black: #000000;
-      --c-bg: #050505;
-      --c-petrol: #003939;
-      --c-cyan-dark: #007879;
-      --c-text-cyan: #00b6b6;
-      --c-panel: #0a0a0a;
-      --c-panel-light: #111111;
-      --c-border: #003939;
+      --c-neon: #a78bfa;
+      --c-violet: #7c3aed;
+      --c-violet-dark: #1e1033;
+      --c-violet-darker: #0f0a1a;
+      --c-violet-light: #c4b5fd;
+      --c-text: #e5e7eb;
+      --c-bg: #050508;
+      --c-panel: #0a0a12;
+      --c-border: #2e1f4d;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,7 +25,7 @@
     body {
       background-color: var(--c-bg);
       font-family: 'Rajdhani', sans-serif;
-      color: #e5e7eb;
+      color: var(--c-text);
       min-height: 100vh;
     }
 
@@ -34,9 +34,9 @@
 
     /* Header */
     .generator-header {
-      background: var(--c-petrol);
+      background: linear-gradient(135deg, var(--c-violet-dark) 0%, #1a0f2e 100%);
       padding: 20px 24px;
-      border-bottom: 2px solid var(--c-neon);
+      border-bottom: 2px solid var(--c-violet);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -52,9 +52,9 @@
     }
     .generator-header h1 i { color: var(--c-neon); }
     .header-badge {
-      background: rgba(0, 255, 255, 0.1);
-      border: 1px solid var(--c-cyan-dark);
-      color: var(--c-text-cyan);
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid var(--c-border);
+      color: var(--c-violet-light);
       padding: 6px 12px;
       border-radius: 4px;
       font-family: 'Share Tech Mono', monospace;
@@ -93,7 +93,7 @@
       align-items: center;
       gap: 10px;
     }
-    .section-title i { color: var(--c-cyan-dark); }
+    .section-title i { color: var(--c-violet); }
 
     /* Form groups */
     .form-group {
@@ -101,7 +101,7 @@
     }
     .form-group label {
       display: block;
-      color: var(--c-text-cyan);
+      color: var(--c-violet-light);
       font-family: 'Share Tech Mono', monospace;
       font-size: 0.75rem;
       margin-bottom: 8px;
@@ -112,7 +112,7 @@
     select {
       width: 100%;
       padding: 12px 15px;
-      background: var(--c-panel-light);
+      background: var(--c-violet-darker);
       border: 1px solid var(--c-border);
       border-radius: 6px;
       color: white;
@@ -124,7 +124,7 @@
     select:focus {
       outline: none;
       border-color: var(--c-neon);
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+      box-shadow: 0 0 15px rgba(167, 139, 250, 0.2);
     }
     select option {
       background: var(--c-panel);
@@ -134,7 +134,7 @@
 
     /* Checkboxes */
     .checkbox-group {
-      background: var(--c-panel-light);
+      background: var(--c-violet-darker);
       border: 1px solid var(--c-border);
       border-radius: 6px;
       padding: 15px;
@@ -151,7 +151,7 @@
     .checkbox-item input[type="checkbox"] {
       width: 18px;
       height: 18px;
-      accent-color: var(--c-neon);
+      accent-color: var(--c-violet);
       cursor: pointer;
     }
     .checkbox-item span {
@@ -178,7 +178,7 @@
 
     /* Range slider */
     .range-container {
-      background: var(--c-panel-light);
+      background: var(--c-violet-darker);
       border: 1px solid var(--c-border);
       border-radius: 6px;
       padding: 15px;
@@ -212,7 +212,7 @@
     .btn-primary {
       width: 100%;
       padding: 14px 20px;
-      background: linear-gradient(135deg, var(--c-petrol), var(--c-cyan-dark));
+      background: linear-gradient(135deg, var(--c-violet-dark), var(--c-violet));
       border: 1px solid var(--c-neon);
       border-radius: 6px;
       color: white;
@@ -229,8 +229,8 @@
       letter-spacing: 1px;
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, var(--c-cyan-dark), var(--c-petrol));
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+      background: linear-gradient(135deg, var(--c-violet), var(--c-violet-dark));
+      box-shadow: 0 0 25px rgba(167, 139, 250, 0.4);
       transform: translateY(-2px);
     }
     .btn-primary:disabled {
@@ -244,7 +244,7 @@
       background: transparent;
       border: 1px solid var(--c-border);
       border-radius: 4px;
-      color: var(--c-text-cyan);
+      color: var(--c-violet-light);
       font-family: 'Share Tech Mono', monospace;
       font-size: 0.8rem;
       cursor: pointer;
@@ -256,7 +256,7 @@
     .btn-secondary:hover {
       border-color: var(--c-neon);
       color: var(--c-neon);
-      background: rgba(0, 255, 255, 0.05);
+      background: rgba(167, 139, 250, 0.05);
     }
     .btn-secondary:disabled {
       opacity: 0.4;
@@ -286,7 +286,7 @@
     .preview-meta {
       font-family: 'Share Tech Mono', monospace;
       font-size: 0.7rem;
-      color: var(--c-text-cyan);
+      color: var(--c-violet-light);
     }
 
     .preview-frame-container {
@@ -316,7 +316,7 @@
     .preview-placeholder i {
       font-size: 3rem;
       margin-bottom: 15px;
-      color: var(--c-petrol);
+      color: var(--c-violet-dark);
     }
     .preview-placeholder p {
       font-family: 'Share Tech Mono', monospace;
@@ -374,11 +374,11 @@
       transition: all 0.3s;
     }
     .output-tab:hover {
-      border-color: var(--c-cyan-dark);
-      color: var(--c-text-cyan);
+      border-color: var(--c-violet);
+      color: var(--c-violet-light);
     }
     .output-tab.active {
-      background: var(--c-petrol);
+      background: var(--c-violet-dark);
       border-color: var(--c-neon);
       color: var(--c-neon);
     }
@@ -437,7 +437,8 @@
     /* Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: var(--c-panel); }
-    ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--c-violet-dark); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--c-violet); }
 
     /* Responsive */
     @media (max-width: 1024px) {
