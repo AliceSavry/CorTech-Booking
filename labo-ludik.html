@@ -34,9 +34,9 @@
 
         /* Header */
         .labo-header {
-            background: linear-gradient(135deg, #1a0a1a 0%, #2d1a2d 100%);
+            background: linear-gradient(135deg, #0a1a05 0%, #1a2e0a 100%);
             padding: 30px 24px;
-            border-bottom: 3px solid var(--c-pink);
+            border-bottom: 3px solid var(--c-lime);
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -46,23 +46,23 @@
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: 
-                radial-gradient(circle at 20% 50%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 20% 50%, rgba(132, 204, 22, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
             pointer-events: none;
         }
         .labo-header h1 {
-            color: var(--c-pink);
+            color: var(--c-lime);
             font-size: 2rem;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 15px;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+            text-shadow: 0 0 20px rgba(132, 204, 22, 0.5);
             position: relative;
             z-index: 1;
         }
         .labo-header h1 i { 
-            color: var(--c-pink-light);
+            color: var(--c-lime-light);
             animation: bubble 2s ease-in-out infinite;
         }
         @keyframes bubble {
@@ -70,7 +70,7 @@
             50% { transform: translateY(-5px) rotate(5deg); }
         }
         .labo-header p {
-            color: var(--c-pink-light);
+            color: var(--c-lime-light);
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.9rem;
             margin-top: 10px;
@@ -82,8 +82,8 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 107, 157, 0.1);
-            border: 1px solid var(--c-pink-dark);
+            background: rgba(132, 204, 22, 0.1);
+            border: 1px solid var(--c-lime-dark);
             padding: 8px 16px;
             border-radius: 20px;
             margin-top: 15px;
@@ -99,8 +99,8 @@
 
         /* Carte de jeu */
         .game-card {
-            background: linear-gradient(135deg, #1a0a1a 0%, #0a0a0a 100%);
-            border: 2px solid var(--c-pink-dark);
+            background: linear-gradient(135deg, #0a1a05 0%, #0a0a0a 100%);
+            border: 2px solid var(--c-lime-dark);
             border-radius: 16px;
             padding: 0;
             overflow: hidden;
@@ -109,16 +109,16 @@
             cursor: pointer;
         }
         .game-card:hover {
-            border-color: var(--c-pink);
+            border-color: var(--c-lime);
             transform: translateY(-5px);
-            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.2);
+            box-shadow: 0 10px 40px rgba(132, 204, 22, 0.2);
         }
         .game-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 4px;
-            background: linear-gradient(90deg, var(--c-pink), var(--c-neon), var(--c-pink));
+            background: linear-gradient(90deg, var(--c-lime), var(--c-neon), var(--c-lime));
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -127,24 +127,24 @@
         .game-card-image {
             width: 100%;
             height: 160px;
-            background: linear-gradient(135deg, #2d1a2d 0%, #1a0a1a 100%);
+            background: linear-gradient(135deg, #1a2e0a 0%, #0a1a05 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid var(--c-pink-dark);
+            border-bottom: 1px solid var(--c-lime-dark);
             position: relative;
             overflow: hidden;
         }
         .game-card-image i {
             font-size: 4rem;
-            color: var(--c-pink);
+            color: var(--c-lime);
             opacity: 0.5;
             transition: all 0.3s;
         }
         .game-card:hover .game-card-image i {
             opacity: 1;
             transform: scale(1.1);
-            text-shadow: 0 0 30px var(--c-pink);
+            text-shadow: 0 0 30px var(--c-lime);
         }
         .game-card-image img {
             width: 100%;
@@ -166,14 +166,14 @@
             gap: 10px;
         }
         .game-card-title i {
-            color: var(--c-pink);
+            color: var(--c-lime);
             font-size: 0.9rem;
         }
 
         .game-card-author {
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.8rem;
-            color: var(--c-pink-light);
+            color: var(--c-lime-light);
             margin-bottom: 12px;
             display: flex;
             align-items: center;
@@ -194,9 +194,9 @@
             gap: 8px;
         }
         .game-tag {
-            background: rgba(255, 107, 157, 0.1);
-            border: 1px solid var(--c-pink-dark);
-            color: var(--c-pink-light);
+            background: rgba(132, 204, 22, 0.1);
+            border: 1px solid var(--c-lime-dark);
+            color: var(--c-lime-light);
             padding: 4px 10px;
             border-radius: 12px;
             font-size: 0.7rem;
@@ -210,10 +210,10 @@
             gap: 10px;
             margin-top: 15px;
             padding: 12px;
-            background: linear-gradient(135deg, var(--c-pink-dark), #2d1a2d);
-            border: 1px solid var(--c-pink);
+            background: linear-gradient(135deg, var(--c-lime-dark), #1a2e0a);
+            border: 1px solid var(--c-lime);
             border-radius: 8px;
-            color: var(--c-pink-light);
+            color: var(--c-lime-light);
             font-family: 'Orbitron', sans-serif;
             font-size: 0.8rem;
             font-weight: bold;
@@ -221,9 +221,9 @@
             transition: all 0.3s;
         }
         .game-card:hover .game-card-play {
-            background: var(--c-pink);
+            background: var(--c-lime);
             color: #000;
-            box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+            box-shadow: 0 0 20px rgba(132, 204, 22, 0.5);
         }
 
         /* Message aucun jeu */
@@ -235,7 +235,7 @@
         }
         .no-games i {
             font-size: 5rem;
-            color: var(--c-pink-dark);
+            color: var(--c-lime-dark);
             margin-bottom: 25px;
             display: block;
             animation: float 3s ease-in-out infinite;
@@ -247,7 +247,7 @@
         .no-games h2 {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.5rem;
-            color: var(--c-pink);
+            color: var(--c-lime);
             margin-bottom: 15px;
         }
         .no-games p {
@@ -261,25 +261,25 @@
         .no-games .hint {
             margin-top: 30px;
             padding: 20px;
-            background: rgba(255, 107, 157, 0.05);
-            border: 1px dashed var(--c-pink-dark);
+            background: rgba(132, 204, 22, 0.05);
+            border: 1px dashed var(--c-lime-dark);
             border-radius: 12px;
             display: inline-block;
         }
         .no-games .hint p {
-            color: var(--c-pink-light);
+            color: var(--c-lime-light);
             font-size: 0.8rem;
         }
 
         /* Section "Comment participer" */
         .participate-section {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 100%);
-            border-top: 1px solid var(--c-pink-dark);
+            background: linear-gradient(135deg, #0a0a0a 0%, #0a1a05 100%);
+            border-top: 1px solid var(--c-lime-dark);
             padding: 40px 30px;
             text-align: center;
         }
         .participate-section h2 {
-            color: var(--c-pink);
+            color: var(--c-lime);
             font-size: 1.3rem;
             margin-bottom: 20px;
             display: flex;
@@ -296,8 +296,8 @@
             margin: 0 auto;
         }
         .participate-step {
-            background: rgba(255, 107, 157, 0.05);
-            border: 1px solid var(--c-pink-dark);
+            background: rgba(132, 204, 22, 0.05);
+            border: 1px solid var(--c-lime-dark);
             border-radius: 12px;
             padding: 20px;
             flex: 1;
@@ -307,7 +307,7 @@
         .participate-step-number {
             width: 40px;
             height: 40px;
-            background: var(--c-pink);
+            background: var(--c-lime);
             color: #000;
             border-radius: 50%;
             display: flex;
@@ -334,10 +334,10 @@
             padding: 24px;
             color: #555;
             font-size: 0.8rem;
-            border-top: 1px solid var(--c-pink-dark);
+            border-top: 1px solid var(--c-lime-dark);
         }
         .labo-footer a {
-            color: var(--c-pink);
+            color: var(--c-lime);
             text-decoration: none;
         }
         .labo-footer a:hover {
@@ -347,8 +347,8 @@
         /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: var(--c-pink-dark); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--c-pink); }
+        ::-webkit-scrollbar-thumb { background: var(--c-lime-dark); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--c-lime); }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -602,62 +602,6 @@
             </div>
         </article>
 
-        
-        <!-- EXEMPLES DE CARTES (à décommenter quand vous avez des jeux) 
-        
-        <article class="game-card" onclick="window.top.openGame('labo/space-aventure.html', 'SPACE AVENTURE - Lucas')">
-            <div class="game-card-image">
-                <i class="fas fa-rocket"></i>
-            </div>
-            <div class="game-card-content">
-                <h2 class="game-card-title">
-                    <i class="fas fa-star"></i> Space Aventure
-                </h2>
-                <p class="game-card-author">
-                    <i class="fas fa-child"></i> par Lucas, 11 ans
-                </p>
-                <p class="game-card-description">
-                    Pilote ton vaisseau spatial et évite les astéroïdes ! 
-                    Combien de temps peux-tu survivre dans l'espace ?
-                </p>
-                <div class="game-card-tags">
-                    <span class="game-tag">Espace</span>
-                    <span class="game-tag">Arcade</span>
-                    <span class="game-tag">Esquive</span>
-                </div>
-                <div class="game-card-play">
-                    <i class="fas fa-play"></i> Jouer
-                </div>
-            </div>
-        </article>
-
-        <article class="game-card" onclick="window.top.openGame('labo/dragon-quest.html', 'DRAGON QUEST - Emma')">
-            <div class="game-card-image">
-                <i class="fas fa-dragon"></i>
-            </div>
-            <div class="game-card-content">
-                <h2 class="game-card-title">
-                    <i class="fas fa-fire"></i> Dragon Quest
-                </h2>
-                <p class="game-card-author">
-                    <i class="fas fa-child"></i> par Emma, 9 ans
-                </p>
-                <p class="game-card-description">
-                    Aide le petit dragon à retrouver son trésor ! 
-                    Un jeu d'aventure magique et coloré.
-                </p>
-                <div class="game-card-tags">
-                    <span class="game-tag">Aventure</span>
-                    <span class="game-tag">Fantasy</span>
-                </div>
-                <div class="game-card-play">
-                    <i class="fas fa-play"></i> Jouer
-                </div>
-            </div>
-        </article>
-
-        -->
-
     </div>
 
     <!-- ================================
@@ -672,7 +616,7 @@
             <div class="participate-step">
                 <div class="participate-step-number">1</div>
                 <h3><i class="fas fa-user-plus"></i> Rejoins le club</h3>
-                <p>Inscris-toi au Labo Ludik et participe aux ateliers de création de jeux vidéo !</p>
+                <p>Inscris-toi à Cor-Tech et participe aux ateliers de création de jeux vidéo !</p>
             </div>
             <div class="participate-step">
                 <div class="participate-step-number">2</div>
