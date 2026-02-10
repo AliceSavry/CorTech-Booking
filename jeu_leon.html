@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Springfield Massacre - Horror Dindindun Edition</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #ff0000;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            border: 4px solid #4a0000;
+            box-shadow: 0 0 20px #ff0000;
+        }
+
+        canvas {
+            display: block;
+            background: #050505;
+            cursor: crosshair;
+        }
+
+        #ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            text-shadow: 2px 2px #000;
+        }
+
+        #menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 40px;
+            border: 2px solid #ff0000;
+            z-index: 10;
+            min-width: 300px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #ff0000;
+            animation: flicker 0.1s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        button {
+            background: #600;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #f00;
+            box-shadow: 0 0 15px #f00;
+        }
+
+        #score-board {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="ui-overlay">
+        <div>DISTANCE: <span id="dist-val">0</span>m</div>
+        <div>PASSÉS: <span id="kill-val">0</span></div>
+    </div>
+
+    <div id="menu">
+        <h1 id="menu-title">DINDINDUN<br>MASSACRE</h1>
+        <p>Maintenez CLIC ou ESPACE pour voler.<br>Le dindon a faim de vengeance...</p>
+        <button id="start-btn">ENTRER DANS L'HORREUR</button>
+        <div id="score-board">
+            MEILLEUR SCORE: <span id="high-score">0</span>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const menu = document.getElementById('menu');
+    const menuTitle = document.getElementById('menu-title');
+    const startBtn = document.getElementById('start-btn');
+    const distElement = document.getElementById('dist-val');
+    const killElement = document.getElementById('kill-val');
+    const highScoreElement = document.getElementById('high-score');
+
+    // Configuration
+    canvas.width = 800;
+    canvas.height = 500;
+
+    let gameActive = false;
+    let score = 0;
+    let kills = 0;
+    let highScore = localStorage.getItem('springfieldHighScore') || 0;
+    highScoreElement.innerText = highScore;
+
+    // ÉQUILIBRAGE
+    const gravity = 0.22;
+    const lift = -0.52;
+    const baseSpeed = 3.2;
+    const speedIncr = 1500;
+    
+    // Joueur (Le Dindindun)
+    const player = {
+        x: 150,
+        y: 250,
+        vy: 0,
+        size: 32, // Un peu plus gros pour le dindon
+    };
+
+    let particles = [];
+    let obstacles = [];
+    let frameCount = 0;
+
+    // Entrées
+    let isPressing = false;
+    window.addEventListener('mousedown', () => isPressing = true);
+    window.addEventListener('mouseup', () => isPressing = false);
+    window.addEventListener('touchstart', (e) => { e.preventDefault(); isPressing = true; }, {passive: false});
+    window.addEventListener('touchend', () => isPressing = false);
+    window.addEventListener('keydown', (e) => { if(e.code === 'Space') isPressing = true; });
+    window.addEventListener('keyup', (e) => { if(e.code === 'Space') isPressing = false; });
+
+    class Obstacle {
+        constructor() {
+            this.width = 45 + Math.random() * 35; 
+            this.height = 70 + Math.random() * 160;
+            this.x = canvas.width;
+            this.y = Math.random() > 0.5 ? 0 : canvas.height - this.height;
+            this.speed = baseSpeed + (score / speedIncr);
+        }
+
+        draw() {
+            ctx.fillStyle = '#3a0000';
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.strokeStyle = '#600';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(this.x, this.y, this.width, this.height);
+            
+            ctx.fillStyle = '#f00';
+            const eyeY = this.y === 0 ? this.height - 30 : this.y + 30;
+            ctx.beginPath();
+            ctx.arc(this.x + 15, eyeY, 5, 0, Math.PI * 2);
+            ctx.arc(this.x + this.width - 15, eyeY, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        update() {
+            this.x -= this.speed;
+        }
+    }
+
+    class Blood {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.size = Math.random() * 7;
+            this.vx = (Math.random() - 0.5) * 10;
+            this.vy = (Math.random() - 0.5) * 10;
+            this.alpha = 1;
+        }
+
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.alpha;
+            ctx.fillStyle = '#b00';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.alpha -= 0.02;
+        }
+    }
+
+    function init() {
+        player.y = 250;
+        player.vy = 0;
+        score = 0;
+        kills = 0;
+        obstacles = [];
+        particles = [];
+        frameCount = 0;
+        gameActive = true;
+        menu.style.display = 'none';
+        animate();
+    }
+
+    function createExplosion(x, y) {
+        for(let i=0; i<30; i++) {
+            particles.push(new Blood(x, y));
+        }
+    }
+
+    function gameOver() {
+        gameActive = false;
+        const currentScore = Math.floor(score/10);
+        if (currentScore > highScore) {
+            highScore = currentScore;
+            localStorage.setItem('springfieldHighScore', highScore);
+            highScoreElement.innerText = highScore;
+        }
+        menu.style.display = 'block';
+        menuTitle.innerText = "FIN DU REPAS";
+        startBtn.innerText = "RENAÎTRE";
+    }
+
+    function drawPlayer() {
+        ctx.save();
+        const angle = player.vy * 0.08;
+        ctx.translate(player.x + player.size/2, player.y + player.size/2);
+        ctx.rotate(angle);
+        
+        // Corps du dindon (Dindindun)
+        ctx.fillStyle = '#5d4037'; // Marron plume
+        ctx.beginPath();
+        ctx.ellipse(0, 0, player.size/2, player.size/2.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Queue plumes (sanglantes)
+        ctx.fillStyle = '#3e2723';
+        for(let i=0; i<5; i++) {
+            ctx.rotate(0.2);
+            ctx.fillRect(-player.size/1.2, -player.size/4, 15, 5);
+            ctx.fillStyle = '#800'; // Sang sur les plumes
+            ctx.fillRect(-player.size/1.2 - 2, -player.size/4, 5, 5);
+        }
+
+        // Tête
+        ctx.fillStyle = '#5d4037';
+        ctx.beginPath();
+        ctx.arc(player.size/2.5, -5, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Caroncule (le truc rouge qui pend)
+        ctx.fillStyle = '#d32f2f';
+        ctx.beginPath();
+        ctx.arc(player.size/2 + 5, 2, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bec
+        ctx.fillStyle = '#ffb300';
+        ctx.beginPath();
+        ctx.moveTo(player.size/2 + 8, -8);
+        ctx.lineTo(player.size/2 + 15, -5);
+        ctx.lineTo(player.size/2 + 8, -2);
+        ctx.fill();
+
+        // Œil d'horreur
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(player.size/2.2, -7, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff'; // Point de folie
+        ctx.fillRect(player.size/2.2, -8, 1, 1);
+
+        ctx.restore();
+    }
+
+    function animate() {
+        if (!gameActive) return;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (isPressing) {
+            player.vy += lift;
+        }
+        player.vy += gravity;
+        player.y += player.vy;
+
+        if (player.y < 0 || player.y + player.size > canvas.height) {
+            createExplosion(player.x + player.size/2, player.y + player.size/2);
+            gameOver();
+        }
+
+        drawPlayer();
+
+        const spawnRate = Math.max(35, 70 - Math.floor(score/400));
+        if (frameCount % spawnRate === 0) {
+            obstacles.push(new Obstacle());
+        }
+
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+            obstacles[i].update();
+            obstacles[i].draw();
+
+            if (player.x + 5 < obstacles[i].x + obstacles[i].width &&
+                player.x + player.size - 5 > obstacles[i].x &&
+                player.y + 5 < obstacles[i].y + obstacles[i].height &&
+                player.y + player.size - 5 > obstacles[i].y) {
+                createExplosion(player.x + player.size/2, player.y + player.size/2);
+                gameOver();
+            }
+
+            if (obstacles[i].x + obstacles[i].width < 0) {
+                obstacles.splice(i, 1);
+                kills++;
+            }
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].update();
+            particles[i].draw();
+            if (particles[i].alpha <= 0) particles.splice(i, 1);
+        }
+
+        score++;
+        distElement.innerText = Math.floor(score / 10);
+        killElement.innerText = kills;
+
+        frameCount++;
+        requestAnimationFrame(animate);
+    }
+
+    startBtn.addEventListener('click', init);
+
+    ctx.fillStyle = '#050000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#800';
+    ctx.font = '20px Courier New';
+    ctx.textAlign = 'center';
+    ctx.fillText("GLOU-GLOU... LA MORT ARRIVE", canvas.width/2, canvas.height/2);
+
+</script>
+</body>
+</html>

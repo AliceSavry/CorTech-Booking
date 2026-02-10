@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Éveil Agricole</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #2d5a27;
+            overflow-x: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background: linear-gradient(to bottom, #87ceeb 0%, #a8e063 100%);
+            transition: background 5s ease;
+            padding: 20px;
+        }
+
+        .night-mode {
+            background: linear-gradient(to bottom, #1a1a2e 0%, #16213e 100%) !important;
+        }
+
+        .farm-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 24px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            max-width: 95vw;
+        }
+
+        @media (max-width: 1024px) {
+            .farm-grid { grid-template-columns: repeat(6, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .farm-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        @media (max-width: 480px) {
+            .farm-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .plot {
+            width: 65px;
+            height: 65px;
+            background: #5d4037;
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s, background 0.3s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #3e2723;
+        }
+
+        .plot:hover {
+            transform: scale(1.08);
+            background: #6d4c41;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            z-index: 10;
+        }
+
+        .plot.dry { border-color: #8d6e63; }
+        .plot.wet { border-color: #03a9f4; box-shadow: inset 0 0 10px rgba(3, 169, 244, 0.5); }
+
+        .crop {
+            font-size: 32px;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
+        }
+
+        .status-icon {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 1rem;
+            z-index: 20;
+            background: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+        .growth-bar {
+            position: absolute;
+            bottom: 4px;
+            left: 10%;
+            height: 4px;
+            background: #4caf50;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .floating-text {
+            position: absolute;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            pointer-events: none;
+            animation: floatUp 1s forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-60px); opacity: 0; }
+        }
+
+        .ui-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 25px;
+            border-radius: 25px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            min-width: 320px;
+        }
+
+        .xp-container {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #xp-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffeb3b, #fbc02d);
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bonus-section {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            display: flex;
+            gap: 12px;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .unlock-badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            background: #e0e0e0;
+            color: #777;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .unlocked {
+            background: #4caf50;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .bonus-btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 0 #e68a00;
+            font-size: 0.9rem;
+        }
+
+        .bonus-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #e68a00;
+        }
+
+        .bonus-btn:disabled {
+            background: #bdc3c7;
+            box-shadow: 0 4px 0 #95a5a6;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+
+        #level-up-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 0 100px rgba(255, 215, 0, 0.5);
+            z-index: 1000;
+            text-align: center;
+            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #level-up-overlay.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .guide-box {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            max-width: 500px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="level-up-overlay">
+    <h2 class="text-4xl font-bold text-yellow-500 mb-2">NIVEAU SUPÉRIEUR !</h2>
+    <p class="text-2xl text-gray-700">Niveau <span id="new-level-val">2</span></p>
+    <p class="text-green-600 font-bold mt-2">+ <span id="reward-val">50</span> 💰</p>
+</div>
+
+<div id="game-container">
+    <div class="ui-panel">
+        <div class="flex justify-between items-center w-full font-bold text-lg">
+            <div class="flex items-center">💰 <span id="money" class="ml-1">0</span></div>
+            <div class="flex items-center text-yellow-600">⭐ Niv. <span id="level" class="ml-1">1</span></div>
+            <div class="flex items-center">⏰ <span id="time" class="ml-1">08:00</span></div>
+        </div>
+        <div class="xp-container">
+            <div id="xp-bar"></div>
+        </div>
+        <div class="text-xs text-center text-gray-500 font-bold">XP: <span id="current-xp">0</span> / <span id="next-xp">10</span></div>
+    </div>
+
+    <div class="farm-grid" id="farm">
+        <!-- Parcelles générées par JS -->
+    </div>
+
+    <div class="bonus-section" id="unlocks-bar">
+        <div id="badge-gloves" class="unlock-badge">🧤 Gants (lvl 3)</div>
+        <div id="badge-well" class="unlock-badge">⛲ Puits (lvl 7)</div>
+        <div id="badge-scarecrow" class="unlock-badge">🐦 Épouvantail (lvl 15)</div>
+        <div id="badge-master" class="unlock-badge">👑 Maître (lvl 30)</div>
+    </div>
+
+    <div class="mt-6 flex flex-wrap justify-center gap-3">
+        <button id="btn-water" class="bonus-btn" onclick="buyBonus('water')">🚿 Arrosoir Auto (50💰)</button>
+        <button id="btn-fertilizer" class="bonus-btn" onclick="buyBonus('fertilizer')">🧪 Super Engrais x2 (150💰)</button>
+        <button id="btn-expansion" class="bonus-btn" onclick="buyBonus('expansion')">🚜 Terrain fertile (200💰)</button>
+    </div>
+
+    <div class="guide-box">
+        💡 <b>Astuce :</b> 🌾🌽🍅 aiment le soleil (Jour x1.5). 🎃🍈🍉 préfèrent la lune (Nuit x1.5). 
+        ⚠️ Certaines plantes ne poussent pas sans eau !
+    </div>
+
+    <div id="msg-box" class="mt-4 text-white font-bold text-lg h-8 drop-shadow-md text-center"></div>
+</div>
+
+<script>
+    const CONFIG = {
+        gridSize: 48,
+        crops: [
+            { 
+                name: 'Blé', emoji: '🌾', growthTime: 5000, value: 10, minLevel: 1, 
+                pref: 'day', needsWater: false 
+            },
+            { 
+                name: 'Carotte', emoji: '🥕', growthTime: 8000, value: 25, minLevel: 2, 
+                pref: 'none', needsWater: true 
+            },
+            { 
+                name: 'Maïs', emoji: '🌽', growthTime: 12000, value: 55, minLevel: 5, 
+                pref: 'day', needsWater: true 
+            },
+            { 
+                name: 'Tomate', emoji: '🍅', growthTime: 15000, value: 85, minLevel: 8, 
+                pref: 'day', needsWater: true 
+            },
+            { 
+                name: 'Citrouille', emoji: '🎃', growthTime: 20000, value: 130, minLevel: 12, 
+                pref: 'night', needsWater: true 
+            },
+            { 
+                name: 'Melon', emoji: '🍈', growthTime: 28000, value: 210, minLevel: 18, 
+                pref: 'night', needsWater: true 
+            },
+            { 
+                name: 'Pastèque', emoji: '🍉', growthTime: 35000, value: 300, minLevel: 25, 
+                pref: 'night', needsWater: true 
+            }
+        ]
+    };
+
+    let state = {
+        money: 50,
+        score: 0,
+        level: 1,
+        hour: 8,
+        minute: 0,
+        isNight: false,
+        bonuses: {
+            water: false,
+            fertilizer: 1,
+            expansion: false
+        },
+        unlocks: {
+            gloves: false,
+            well: false,
+            scarecrow: false,
+            master: false
+        }
+    };
+
+    let audioCtx;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    
+    function playSound(freq, type = 'sine', duration = 0.1) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const farmEl = document.getElementById('farm');
+    const plots = [];
+
+    function createGrid() {
+        farmEl.innerHTML = '';
+        plots.length = 0;
+        for (let i = 0; i < CONFIG.gridSize; i++) {
+            const plot = {
+                id: i,
+                crop: null,
+                status: 'empty',
+                growth: 0,
+                isWet: false,
+                element: document.createElement('div')
+            };
+
+            plot.element.className = 'plot dry';
+            plot.element.onclick = () => { initAudio(); handlePlotClick(plot); };
+            
+            const cropSpan = document.createElement('span');
+            cropSpan.className = 'crop';
+            plot.element.appendChild(cropSpan);
+
+            const bar = document.createElement('div');
+            bar.className = 'growth-bar';
+            plot.element.appendChild(bar);
+
+            farmEl.appendChild(plot.element);
+            plots.push(plot);
+        }
+    }
+
+    function handlePlotClick(plot) {
+        if (plot.status === 'empty') {
+            const cost = state.unlocks.gloves ? 3 : 5;
+            if (state.money >= cost) plantCrop(plot, cost);
+            else showMessage(`Pas assez d'argent ! (${cost}💰)`);
+        } else if (plot.status === 'growing') {
+            waterPlot(plot);
+        } else if (plot.status === 'ready') {
+            harvestCrop(plot);
+        }
+    }
+
+    function plantCrop(plot, cost) {
+        updateMoney(-cost);
+        const available = CONFIG.crops.filter(c => state.level >= c.minLevel);
+        const randomCrop = available[Math.floor(Math.random() * available.length)];
+        
+        plot.crop = {...randomCrop};
+        plot.status = 'growing';
+        plot.growth = 0;
+        plot.element.querySelector('.crop').innerText = '🌱';
+        
+        if (state.unlocks.scarecrow && Math.random() < 0.10) {
+            plot.growth = 100;
+            showFloatingText(plot.element, "✨ INSTANT !");
+        }
+        playSound(200, 'square');
+        createParticles(plot.element, '#795548');
+    }
+
+    function waterPlot(plot) {
+        if (!plot.isWet) {
+            plot.isWet = true;
+            plot.element.classList.remove('dry');
+            plot.element.classList.add('wet');
+            if (state.unlocks.well) {
+                plot.growth = Math.min(99, plot.growth + 15);
+                showFloatingText(plot.element, "💧 +15%");
+            }
+            playSound(600, 'sine');
+            createParticles(plot.element, '#2196f3');
+        }
+    }
+
+    function getXPForLevel(lvl) { return Math.floor(5 * lvl * (lvl + 1)); }
+
+    function harvestCrop(plot) {
+        let earnings = plot.crop.value * state.bonuses.fertilizer;
+        if (state.unlocks.master) earnings = Math.floor(earnings * 1.2);
+        updateMoney(earnings);
+        state.score += 1;
+        checkLevelUp();
+        showFloatingText(plot.element, `+${earnings}💰`);
+        checkUnlocks();
+        resetPlot(plot);
+        playSound(800, 'triangle', 0.2);
+        createParticles(plot.element, '#ffeb3b');
+    }
+
+    function checkLevelUp() {
+        const nextXP = getXPForLevel(state.level);
+        if (state.score >= nextXP) {
+            state.level++;
+            const reward = 50 * state.level;
+            updateMoney(reward);
+            const overlay = document.getElementById('level-up-overlay');
+            document.getElementById('new-level-val').innerText = state.level;
+            document.getElementById('reward-val').innerText = reward;
+            overlay.classList.add('active');
+            playSound(1200, 'sine', 0.8);
+            setTimeout(() => overlay.classList.remove('active'), 3000);
+            checkLevelUp();
+        }
+    }
+
+    function checkUnlocks() {
+        const check = (id, lvl, msg, key) => {
+            if (state.level >= lvl && !state.unlocks[key]) {
+                state.unlocks[key] = true;
+                document.getElementById(id).classList.add('unlocked');
+                showMessage(msg);
+            }
+        };
+        check('badge-gloves', 3, "🧤 Gants activés !", 'gloves');
+        check('badge-well', 7, "⛲ Puits activé !", 'well');
+        check('badge-scarecrow', 15, "🐦 Épouvantail activé !", 'scarecrow');
+        check('badge-master', 30, "👑 Maître Fermier !", 'master');
+    }
+
+    function resetPlot(plot) {
+        plot.crop = null; plot.status = 'empty'; plot.growth = 0; plot.isWet = false;
+        plot.element.querySelector('.crop').innerText = '';
+        plot.element.querySelector('.growth-bar').style.width = '0%';
+        plot.element.className = 'plot dry';
+        const icon = plot.element.querySelector('.status-icon');
+        if (icon) icon.remove();
+    }
+
+    setInterval(() => {
+        plots.forEach(plot => {
+            if (plot.status === 'growing') {
+                let multiplier = 1.0;
+                let status = null;
+
+                // Condition Eau
+                if (plot.crop.needsWater && !plot.isWet) {
+                    multiplier = 0; 
+                    status = '💧';
+                } else {
+                    // Condition Lumière
+                    if (plot.crop.pref === 'day' && !state.isNight) multiplier = 1.5;
+                    else if (plot.crop.pref === 'day' && state.isNight) {
+                        multiplier = 0.5;
+                        status = '☀️';
+                    }
+                    else if (plot.crop.pref === 'night' && state.isNight) multiplier = 1.5;
+                    else if (plot.crop.pref === 'night' && !state.isNight) {
+                        multiplier = 0.5;
+                        status = '🌙';
+                    }
+                    
+                    if (plot.isWet) multiplier *= 1.5;
+                    if (state.bonuses.expansion) multiplier *= 1.25;
+                }
+
+                // Gérer icône d'alerte
+                let iconEl = plot.element.querySelector('.status-icon');
+                if (status) {
+                    if (!iconEl) {
+                        iconEl = document.createElement('div');
+                        iconEl.className = 'status-icon';
+                        plot.element.appendChild(iconEl);
+                    }
+                    iconEl.innerText = status;
+                } else if (iconEl) {
+                    iconEl.remove();
+                }
+
+                plot.growth += (multiplier * 100) / (plot.crop.growthTime / 100);
+                
+                if (plot.growth >= 100) {
+                    plot.growth = 100;
+                    plot.status = 'ready';
+                    plot.element.querySelector('.crop').innerText = plot.crop.emoji;
+                    if (iconEl) iconEl.remove();
+                }
+                plot.element.querySelector('.growth-bar').style.width = plot.growth + '%';
+            }
+        });
+
+        state.minute += 2;
+        if (state.minute >= 60) { state.minute = 0; state.hour++; }
+        if (state.hour >= 24) state.hour = 0;
+        updateUI();
+    }, 100);
+
+    function updateUI() {
+        document.getElementById('money').innerText = state.money;
+        document.getElementById('level').innerText = state.level;
+        document.getElementById('current-xp').innerText = state.score;
+        const nextXP = getXPForLevel(state.level);
+        const prevXP = getXPForLevel(state.level - 1);
+        document.getElementById('next-xp').innerText = nextXP;
+        const percent = Math.max(0, Math.min(100, ((state.score - prevXP) / (nextXP - prevXP)) * 100));
+        document.getElementById('xp-bar').style.width = percent + '%';
+        document.getElementById('time').innerText = `${state.hour.toString().padStart(2, '0')}:${state.minute.toString().padStart(2, '0')}`;
+
+        document.getElementById('btn-water').disabled = state.bonuses.water || state.money < 50;
+        document.getElementById('btn-fertilizer').disabled = state.bonuses.fertilizer > 1 || state.money < 150;
+        document.getElementById('btn-expansion').disabled = state.bonuses.expansion || state.money < 200;
+
+        const container = document.getElementById('game-container');
+        state.isNight = (state.hour >= 20 || state.hour < 6);
+        if (state.isNight) container.classList.add('night-mode');
+        else container.classList.remove('night-mode');
+    }
+
+    function updateMoney(a) { state.money += a; }
+    function buyBonus(t) {
+        initAudio();
+        const b = { water: [50, "Arrosage auto ! 🚿"], fertilizer: [150, "Ventes x2 ! 🧪"], expansion: [200, "Croissance +25% ! 🚜"] };
+        if (state.money >= b[t][0]) {
+            if (t === 'fertilizer') state.bonuses.fertilizer = 2;
+            else state.bonuses[t] = true;
+            updateMoney(-b[t][0]); showMessage(b[t][1]); playSound(1000);
+        }
+    }
+
+    function showMessage(t) {
+        const box = document.getElementById('msg-box');
+        box.innerText = t;
+        setTimeout(() => { if(box.innerText === t) box.innerText = ''; }, 4000);
+    }
+
+    function showFloatingText(p, t) {
+        const el = document.createElement('div'); el.className = 'floating-text'; el.innerText = t;
+        p.appendChild(el); setTimeout(() => el.remove(), 1000);
+    }
+
+    function createParticles(parent, color) {
+        for (let i = 0; i < 6; i++) {
+            const p = document.createElement('div'); p.className = 'particle';
+            p.style.width = '4px'; p.style.height = '4px'; p.style.background = color;
+            p.style.left = '50%'; p.style.top = '50%';
+            const angle = Math.random() * Math.PI * 2; const v = 1 + Math.random() * 2;
+            const vx = Math.cos(angle) * v; const vy = Math.sin(angle) * v;
+            parent.appendChild(p);
+            let px = 0; let py = 0; let op = 1;
+            const m = setInterval(() => {
+                px += vx; py += vy; op -= 0.05;
+                p.style.transform = `translate(${px}px, ${py}px)`; p.style.opacity = op;
+                if (op <= 0) { clearInterval(m); p.remove(); }
+            }, 30);
+        }
+    }
+    createGrid();
+</script>
+
+</body>
+</html>
