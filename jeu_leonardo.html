@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Voxel Horror Dash - Hardcore Mode</title>
+    <style>
+        :root {
+            --blood: #880000;
+            --dirt: #2a1d15;
+            --sky: #020205;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            touch-action: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            background-color: var(--sky);
+            border: 4px solid #1a1a1a;
+            overflow: hidden;
+            image-rendering: pixelated;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            color: #ccc;
+            pointer-events: none;
+            text-transform: uppercase;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #score-display {
+            font-size: 20px;
+            color: var(--blood);
+            text-shadow: 2px 2px black;
+        }
+
+        #energy-bar-container {
+            width: 100px;
+            height: 10px;
+            background: #222;
+            border: 1px solid #444;
+            margin-top: 5px;
+        }
+
+        #energy-bar {
+            width: 100%;
+            height: 100%;
+            background: #f00;
+            transition: width 0.1s;
+        }
+
+        #menu {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 5px;
+            color: var(--blood);
+            text-shadow: 4px 4px #000;
+        }
+
+        .btn {
+            padding: 12px 35px;
+            font-size: 18px;
+            background: #000;
+            color: var(--blood);
+            border: 2px solid var(--blood);
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: var(--blood);
+            color: white;
+        }
+
+        .hidden { display: none !important; }
+
+        .glitch-active { animation: glitch 0.1s infinite; }
+        @keyframes glitch {
+            0% { transform: translate(3px, 0); filter: hue-rotate(90deg) brightness(1.5); }
+            50% { transform: translate(-3px, -2px) invert(0.2); }
+            100% { transform: translate(0, 2px); }
+        }
+
+        #screamer {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="screamer">
+             <svg width="250" height="250" viewBox="0 0 100 100">
+                <rect width="100" height="100" fill="#000"/>
+                <circle cx="50" cy="50" r="45" fill="#150000" />
+                <rect x="25" y="30" width="15" height="15" fill="red" />
+                <rect x="60" y="30" width="15" height="15" fill="red" />
+                <path d="M15 70 Q50 100 85 70 L85 85 Q50 110 15 85 Z" fill="white" />
+             </svg>
+        </div>
+
+        <div id="ui">
+            <div id="score-display">DISTANCE: 0m</div>
+            <div>
+                STAMINA
+                <div id="energy-bar-container"><div id="energy-bar"></div></div>
+            </div>
+        </div>
+
+        <div id="menu">
+            <h1>MODE CAUCHEMAR</h1>
+            <p>La survie n'est plus une option, seulement un délai.</p>
+            <button class="btn" id="start-btn">SOUFFRIR</button>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score-display');
+        const energyBar = document.getElementById('energy-bar');
+        const menu = document.getElementById('menu');
+        const startBtn = document.getElementById('start-btn');
+        const container = document.getElementById('game-container');
+        const screamerDiv = document.getElementById('screamer');
+
+        let audioCtx;
+        function playSound(freq, type, duration, vol) {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const GRAVITY = 0.8;
+        const JUMP_FORCE = -11;
+        const GROUND_Y = 350;
+        const PLAYER_SIZE = 32;
+        const BLOCK_SIZE = 40;
+        
+        let gameActive = false;
+        let score = 0;
+        let gameSpeed = 7;
+        let frameCount = 0;
+        let obstacles = [];
+        let particles = [];
+        let shake = 0;
+
+        const player = {
+            x: 100,
+            y: GROUND_Y - PLAYER_SIZE,
+            width: PLAYER_SIZE,
+            height: PLAYER_SIZE,
+            dy: 0,
+            rot: 0,
+            onPlatform: false,
+            energy: 100,
+            jumps: 0,
+            scaleX: 1,
+            scaleY: 1,
+
+            jump() {
+                if (this.energy >= 33) {
+                    this.dy = JUMP_FORCE;
+                    this.onPlatform = false;
+                    this.energy -= 33;
+                    this.scaleX = 0.6;
+                    this.scaleY = 1.4;
+                    playSound(150 + (this.jumps * 50), 'square', 0.1, 0.1);
+                    createDust(this.x + this.width/2, this.y + this.height, '#f00');
+                    this.jumps++;
+                }
+            },
+
+            update() {
+                if (!this.onPlatform) {
+                    this.dy += GRAVITY;
+                    this.y += this.dy;
+                }
+
+                // Recharge stamina
+                if (this.energy < 100) this.energy += 0.5;
+                energyBar.style.width = this.energy + '%';
+
+                this.scaleX += (1 - this.scaleX) * 0.15;
+                this.scaleY += (1 - this.scaleY) * 0.15;
+
+                if (this.y > GROUND_Y - this.height) {
+                    if(this.dy > 5) {
+                        this.scaleX = 1.3;
+                        this.scaleY = 0.7;
+                        shake = 4;
+                        createDust(this.x + this.width/2, GROUND_Y, '#500');
+                    }
+                    this.y = GROUND_Y - this.height;
+                    this.dy = 0;
+                    this.onPlatform = false;
+                    this.jumps = 0;
+                    this.rot = Math.round(this.rot / (Math.PI/2)) * (Math.PI/2);
+                } else if (!this.onPlatform) {
+                    this.rot += 0.25;
+                }
+            },
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x + this.width/2, this.y + this.height/2);
+                ctx.scale(this.scaleX, this.scaleY);
+                ctx.rotate(this.rot);
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#f00';
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                ctx.fillStyle = '#f00';
+                ctx.fillRect(-8, -10, 5, 5);
+                ctx.fillRect(3, -10, 5, 5);
+                ctx.restore();
+            }
+        };
+
+        class Obstacle {
+            constructor(x, type, stack = 1) {
+                this.x = x;
+                this.type = type; // 0: Block, 1: Spike, 2: Ceiling, 3: Fireball
+                this.width = type === 3 ? 20 : BLOCK_SIZE;
+                this.stack = stack;
+                this.yBase = type === 3 ? 100 + Math.random() * 200 : GROUND_Y;
+                this.height = type === 0 ? BLOCK_SIZE * stack : (type === 3 ? 20 : 45);
+                
+                this.angle = Math.random() * Math.PI * 2;
+                this.amplitude = type === 0 ? 40 + Math.random() * 40 : 0;
+                this.speed = 0.04 + Math.random() * 0.05;
+                this.yOffset = 0;
+                this.isTrap = type === 0 && Math.random() > 0.7;
+                this.trapTriggered = false;
+                this.trapTimer = 0;
+            }
+
+            update() { 
+                this.x -= (this.type === 3 ? gameSpeed * 1.5 : gameSpeed); 
+                if(this.type === 0) {
+                    this.angle += this.speed;
+                    this.yOffset = Math.sin(this.angle) * this.amplitude;
+                    
+                    if(this.trapTriggered) {
+                        this.trapTimer++;
+                        if(this.trapTimer > 25) {
+                            this.yOffset += (this.trapTimer - 25) * 2; // Falls
+                        }
+                    }
+                }
+            }
+
+            draw() {
+                const currentY = this.yBase + this.yOffset;
+                ctx.save();
+                if(this.type === 0) {
+                    for(let i=0; i<this.stack; i++) {
+                        let yPos = currentY - (i + 1) * BLOCK_SIZE;
+                        ctx.fillStyle = this.isTrap ? '#400' : '#111';
+                        ctx.fillRect(this.x, yPos, BLOCK_SIZE, BLOCK_SIZE);
+                        ctx.strokeStyle = this.isTrap ? '#f00' : '#333';
+                        ctx.strokeRect(this.x, yPos, BLOCK_SIZE, BLOCK_SIZE);
+                        if(this.isTrap) {
+                            ctx.fillStyle = 'red';
+                            ctx.fillRect(this.x + 5, yPos + 5, 5, 5);
+                        }
+                    }
+                } else if(this.type === 1) { // Spike
+                    ctx.fillStyle = '#200';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, GROUND_Y);
+                    ctx.lineTo(this.x + 20, GROUND_Y - this.height);
+                    ctx.lineTo(this.x + 40, GROUND_Y);
+                    ctx.fill();
+                } else if(this.type === 3) { // Fireball
+                    ctx.fillStyle = '#f50';
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = 'red';
+                    ctx.fillRect(this.x, currentY, 20, 20);
+                }
+                ctx.restore();
+            }
+
+            getTop() { return (this.yBase + this.yOffset) - this.height; }
+        }
+
+        function createDust(x, y, color) {
+            for(let i=0; i<6; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: (Math.random() - 1) * 4,
+                    life: 1,
+                    size: Math.random() * 5 + 2,
+                    color: color
+                });
+            }
+        }
+
+        function checkCollisions() {
+            let foundPlatform = false;
+            obstacles.forEach((obs) => {
+                const pBase = player.y + player.height;
+                const pTop = player.y;
+
+                if (obs.type === 0) {
+                    const oTop = obs.getTop();
+                    if (player.x + player.width > obs.x + 5 && player.x < obs.x + obs.width - 5) {
+                        if (player.dy >= 0 && pBase >= oTop - 5 && pBase <= oTop + 30) {
+                            player.y = oTop - player.height;
+                            player.dy = 0;
+                            player.onPlatform = true;
+                            player.jumps = 0;
+                            foundPlatform = true;
+                            if(obs.isTrap) obs.trapTriggered = true;
+                        } 
+                    }
+                    if (player.x + player.width > obs.x + 2 && player.x < obs.x + obs.width - 2) {
+                        if (pBase > oTop + 10 && pTop < (obs.yBase + obs.yOffset) - 5) gameOver();
+                    }
+                } else if (obs.type === 1) {
+                    if (player.x + player.width - 12 > obs.x && player.x + 12 < obs.x + obs.width) {
+                        if (pBase > GROUND_Y - obs.height + 5) gameOver();
+                    }
+                } else if (obs.type === 3) {
+                    if (player.x < obs.x + 20 && player.x + player.width > obs.x &&
+                        player.y < obs.yBase + 20 && player.y + player.height > obs.yBase) gameOver();
+                }
+            });
+            if (!foundPlatform && player.y < GROUND_Y - player.height) player.onPlatform = false;
+        }
+
+        function gameLoop() {
+            ctx.save();
+            if(shake > 0) {
+                ctx.translate(Math.random()*shake - shake/2, Math.random()*shake - shake/2);
+                shake *= 0.9;
+            }
+
+            ctx.fillStyle = '#020205';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Ground
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, GROUND_Y, canvas.width, 50);
+
+            if (gameActive) {
+                player.update();
+                frameCount++;
+                gameSpeed += 0.0018; // Faster acceleration
+                score += 0.15;
+                scoreElement.innerText = `DISTANCE: ${Math.floor(score)}m`;
+
+                if(frameCount % 600 === 0) triggerScreamer();
+
+                // Spawning Logic
+                if (frameCount % Math.floor(Math.max(15, 60 - gameSpeed)) === 0) {
+                    const r = Math.random();
+                    if(r > 0.9) obstacles.push(new Obstacle(canvas.width + 50, 3)); // Fireball
+                    else if(r > 0.5) obstacles.push(new Obstacle(canvas.width + 50, 0, Math.floor(Math.random()*3)+1)); // Blocks
+                    else obstacles.push(new Obstacle(canvas.width + 50, 1)); // Spike
+                }
+
+                checkCollisions();
+
+                obstacles.forEach((obs, i) => {
+                    obs.update();
+                    obs.draw();
+                    if (obs.x < -100) obstacles.splice(i, 1);
+                });
+
+                particles.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= 0.025;
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.life;
+                    ctx.fillRect(p.x, p.y, p.size, p.size);
+                    ctx.globalAlpha = 1;
+                    if(p.life <= 0) particles.splice(i, 1);
+                });
+            }
+
+            player.draw();
+            ctx.restore();
+
+            // Fog / Vignette Dynamic
+            const fogIntensity = Math.min(0.95, 0.7 + (score / 5000));
+            const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 30, canvas.width/2, canvas.height/2, 400);
+            grad.addColorStop(0, 'transparent');
+            grad.addColorStop(1, `rgba(0,0,0,${fogIntensity})`);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0,0, canvas.width, canvas.height);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function triggerScreamer() {
+            screamerDiv.style.display = 'flex';
+            playSound(40, 'sawtooth', 0.3, 0.3);
+            shake = 25;
+            setTimeout(() => { screamerDiv.style.display = 'none'; }, 80);
+        }
+
+        function gameOver() {
+            if(!gameActive) return;
+            gameActive = false;
+            shake = 20;
+            playSound(30, 'square', 1, 0.4);
+            container.classList.add('glitch-active');
+            setTimeout(() => {
+                menu.classList.remove('hidden');
+                container.classList.remove('glitch-active');
+                obstacles = [];
+                particles = [];
+                frameCount = 0;
+                player.y = GROUND_Y - PLAYER_SIZE;
+                player.dy = 0;
+                player.energy = 100;
+                player.onPlatform = false;
+            }, 1000);
+        }
+
+        startBtn.addEventListener('click', () => {
+            gameActive = true;
+            score = 0;
+            gameSpeed = 7;
+            menu.classList.add('hidden');
+        });
+
+        const handleAction = (e) => {
+            if(gameActive) {
+                if(e) e.preventDefault();
+                player.jump();
+            }
+        };
+
+        window.addEventListener('keydown', (e) => { if(e.code === 'Space' || e.code === 'ArrowUp') handleAction(); });
+        canvas.addEventListener('mousedown', handleAction);
+        canvas.addEventListener('touchstart', handleAction);
+
+        canvas.width = 800;
+        canvas.height = 400;
+        gameLoop();
+    </script>
+</body>
+</html>
