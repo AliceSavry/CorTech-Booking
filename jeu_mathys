@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FS 2026 : Dark Harvest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;900&display=swap');
+
+        body {
+            margin: 0;
+            background-color: #050505; /* Légèrement plus clair que le noir pur pour le contraste */
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .vcr-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .glitch-text {
+            font-family: 'Creepster', cursive;
+            text-shadow: 2px 0 #ff0000, -2px 0 #00ff00;
+            animation: glitch 1s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        canvas {
+            display: block;
+            filter: contrast(1.2) brightness(1) saturate(1.5);
+        }
+
+        .blood-panel {
+            background: rgba(25, 5, 5, 0.95);
+            border: 2px solid #991b1b;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        .horror-button {
+            background: #7f1d1d;
+            border: 1px solid #f87171;
+            transition: all 0.2s;
+        }
+
+        .horror-button:hover {
+            background: #b91c1c;
+            box-shadow: 0 0 20px #ef4444;
+            transform: translateY(-2px);
+        }
+
+        #jump-scare {
+            position: fixed;
+            inset: 0;
+            background: black;
+            display: none;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 8rem;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="vcr-overlay"></div>
+    <div id="jump-scare" class="glitch-text">VOUS APPARTENEZ À LA TERRE</div>
+
+    <!-- HUD -->
+    <div class="fixed top-6 left-6 right-6 flex justify-between items-start pointer-events-none z-50">
+        <div class="blood-panel p-5 rounded-lg flex flex-col gap-2 pointer-events-auto">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl font-black glitch-text text-red-600">FS 2026 : DARK HARVEST</span>
+            </div>
+            <div class="flex gap-6 mt-2 font-mono text-sm">
+                <div class="bg-black/40 px-2 py-1 rounded">💰 <span id="money-display" class="text-yellow-400 font-bold">500</span></div>
+                <div class="bg-black/40 px-2 py-1 rounded">⚡ <span id="energy-display" class="text-red-400 font-bold">100</span>%</div>
+                <div class="bg-black/40 px-2 py-1 rounded">💀 CORRUPTION: <span id="corruption-display" class="text-purple-400">0</span>%</div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-3 pointer-events-auto items-end">
+            <button onclick="nextDay()" class="horror-button text-white px-8 py-4 rounded-lg font-black uppercase tracking-widest shadow-lg">
+                TERMINER LE JOUR
+            </button>
+            <div class="bg-red-950/90 px-4 py-2 text-xs uppercase font-bold tracking-tighter text-red-200 border border-red-500 rounded">
+                Mental : <span id="sanity-display">STABLE</span>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Barre d'outils -->
+    <div class="fixed bottom-10 left-1/2 -translate-x-1/2 flex gap-4 p-4 blood-panel rounded-xl z-50 pointer-events-auto">
+        <div id="tool-hoe" onclick="selectTool('hoe')" class="w-16 h-16 flex items-center justify-center text-2xl border-2 border-red-900 rounded-lg cursor-pointer hover:bg-red-800 transition bg-red-800" title="Labourer">🚜</div>
+        <div id="tool-seeds" onclick="selectTool('seeds')" class="w-16 h-16 flex items-center justify-center text-2xl border-2 border-red-900 rounded-lg cursor-pointer hover:bg-red-800 transition" title="Semer">🌱</div>
+        <div id="tool-water" onclick="selectTool('water')" class="w-16 h-16 flex items-center justify-center text-2xl border-2 border-red-900 rounded-lg cursor-pointer hover:bg-red-800 transition" title="Arroser">🩸</div>
+        <div id="tool-reap" onclick="selectTool('reap')" class="w-16 h-16 flex items-center justify-center text-2xl border-2 border-red-900 rounded-lg cursor-pointer hover:bg-red-800 transition" title="Récolter">🧺</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playHorrorSound(freq, type, dur, vol, slide = true) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                if(slide) osc.frequency.exponentialRampToValueAtTime(freq / 2, audioCtx.currentTime + dur);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e) {}
+        }
+
+        const gridSize = 10;
+        const isoW = 52; // Un peu plus grand pour la lisibilité
+        const isoH = 26;
+
+        let money = 500;
+        let energy = 100;
+        let corruption = 0;
+        let selectedTool = 'hoe';
+        let grid = [];
+        let mouseX = 0, mouseY = 0;
+        let shake = 0;
+
+        // COULEURS OPTIMISÉES POUR LE CONTRASTE
+        const COLORS = {
+            bg: '#050505',
+            grass: '#1a2e1a',        // Vert plus visible
+            grassCorrupted: '#2d0a0a', 
+            plowed: '#5c4033',      // Marron clair bien distinct
+            wet: '#7f1d1d',         // Rouge sang vif pour l'arrosage
+            border: 'rgba(255, 0, 0, 0.2)',
+            highlight: 'rgba(255, 255, 255, 0.6)', // Blanc brillant pour la sélection
+            skin: '#c2a394',
+            skinDark: '#6b4f42',
+            eyeWhite: '#ffffff'
+        };
+
+        function initGrid() {
+            for(let i=0; i<gridSize; i++) {
+                grid[i] = [];
+                for(let j=0; j<gridSize; j++) {
+                    grid[i][j] = { state: 'grass', water: 0, growth: 0, corrupted: false };
+                }
+            }
+        }
+
+        function toIso(x, y) {
+            return {
+                x: (x - y) * isoW + canvas.width / 2,
+                y: (x + y) * isoH + canvas.height / 3.5
+            };
+        }
+
+        function fromIso(mx, my) {
+            let screenX = mx - canvas.width / 2;
+            let screenY = my - canvas.height / 3.5;
+            let gx = (screenX / isoW + screenY / isoH) / 2;
+            let gy = (screenY / isoH - screenX / isoW) / 2;
+            return { x: Math.floor(gx), y: Math.floor(gy) };
+        }
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        function drawAbomination(ctx, x, y, growth) {
+            const time = Date.now() * 0.002;
+            const sway = Math.sin(time + x) * (growth * 2);
+            
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(sway * 0.02);
+
+            const size = 22;
+            const armHeight = (growth / 3) * size * 2.2;
+
+            // Bras
+            ctx.fillStyle = COLORS.skinDark;
+            ctx.fillRect(-size/4, -armHeight, size/2, armHeight);
+            
+            // Détails bras (lumière)
+            ctx.fillStyle = COLORS.skin;
+            ctx.fillRect(-size/4, -armHeight, 2, armHeight);
+
+            if (growth >= 1.5) {
+                // Paume
+                ctx.beginPath();
+                ctx.arc(0, -armHeight, size/2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Doigts
+                ctx.strokeStyle = COLORS.skin;
+                ctx.lineWidth = 3;
+                for (let i = 0; i < 5; i++) {
+                    const fingerAngle = (i * Math.PI / 4) - Math.PI / 1.6;
+                    const fingerSway = growth >= 3 ? Math.sin(time * 4 + i) * 6 : 0;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -armHeight);
+                    const fx = Math.cos(fingerAngle) * (size * 0.8);
+                    const fy = -armHeight + Math.sin(fingerAngle) * (size * 0.8) + fingerSway;
+                    ctx.lineTo(fx, fy);
+                    ctx.stroke();
+                }
+            }
+
+            if (growth >= 3) {
+                const eyeY = -armHeight;
+                ctx.fillStyle = COLORS.eyeWhite;
+                ctx.beginPath();
+                ctx.ellipse(0, eyeY, size/2.5, size/4, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                const dx = mouseX - (x + canvas.width/2);
+                const dy = mouseY - (y + canvas.height/3.5);
+                const angle = Math.atan2(dy, dx);
+                const dist = 3;
+
+                ctx.fillStyle = "#000";
+                ctx.beginPath();
+                ctx.arc(Math.cos(angle) * dist, eyeY + Math.sin(angle) * dist, size/6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function draw() {
+            const sx = (Math.random() - 0.5) * shake;
+            const sy = (Math.random() - 0.5) * shake;
+            ctx.save();
+            ctx.translate(sx, sy);
+
+            // Fond
+            ctx.fillStyle = COLORS.bg;
+            ctx.fillRect(-500, -500, canvas.width + 1000, canvas.height + 1000);
+            
+            const hovered = fromIso(mouseX, mouseY);
+
+            for(let i=0; i<gridSize; i++) {
+                for(let j=0; j<gridSize; j++) {
+                    const pos = toIso(i, j);
+                    const cell = grid[i][j];
+                    const isHovered = (hovered.x === i && hovered.y === j);
+
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
+                    ctx.lineTo(pos.x + isoW, pos.y + isoH);
+                    ctx.lineTo(pos.x, pos.y + isoH * 2);
+                    ctx.lineTo(pos.x - isoW, pos.y + isoH);
+                    ctx.closePath();
+
+                    let baseColor = COLORS.grass;
+                    if(cell.state === 'grass') {
+                        baseColor = cell.corrupted ? COLORS.grassCorrupted : COLORS.grass;
+                    } else {
+                        baseColor = cell.water > 0 ? COLORS.wet : COLORS.plowed;
+                    }
+
+                    ctx.fillStyle = baseColor;
+                    ctx.fill();
+
+                    // Bordure de tuile (Contrastée)
+                    ctx.strokeStyle = isHovered ? COLORS.highlight : COLORS.border;
+                    ctx.lineWidth = isHovered ? 3 : 1;
+                    ctx.stroke();
+
+                    // Rendu plante
+                    if(cell.state === 'seeded') {
+                        drawAbomination(ctx, pos.x, pos.y + isoH, cell.growth);
+                    }
+                }
+            }
+
+            ctx.restore();
+            
+            shake = Math.max(0, (corruption / 100) * 6);
+            requestAnimationFrame(draw);
+        }
+
+        canvas.addEventListener('mousemove', e => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        canvas.addEventListener('click', e => {
+            if(energy <= 0) return;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+
+            const gridPos = fromIso(e.clientX, e.clientY);
+            if(gridPos.x < 0 || gridPos.x >= gridSize || gridPos.y < 0 || gridPos.y >= gridSize) return;
+
+            const cell = grid[gridPos.x][gridPos.y];
+            
+            switch(selectedTool) {
+                case 'hoe':
+                    if(cell.state === 'grass') {
+                        cell.state = 'plowed';
+                        energy -= 4;
+                        playHorrorSound(80, 'square', 0.1, 0.08);
+                    }
+                    break;
+                case 'seeds':
+                    if(cell.state === 'plowed') {
+                        cell.state = 'seeded';
+                        cell.growth = 0.5;
+                        energy -= 2;
+                        playHorrorSound(220, 'sine', 0.2, 0.04);
+                    }
+                    break;
+                case 'water':
+                    if((cell.state === 'plowed' || cell.state === 'seeded') && cell.water < 1) {
+                        cell.water = 1;
+                        energy -= 3;
+                        playHorrorSound(150, 'sawtooth', 0.4, 0.05);
+                    }
+                    break;
+                case 'reap':
+                    if(cell.state === 'seeded' && cell.growth >= 3) {
+                        cell.state = 'plowed';
+                        cell.growth = 0;
+                        cell.water = 0;
+                        money += 150 + (corruption * 4);
+                        energy -= 8;
+                        corruption += 5;
+                        playHorrorSound(50, 'sawtooth', 0.2, 0.3);
+                    }
+                    break;
+            }
+            updateUI();
+        });
+
+        function selectTool(tool) {
+            selectedTool = tool;
+            document.querySelectorAll('div[id^="tool-"]').forEach(s => s.classList.remove('bg-red-800'));
+            document.getElementById('tool-' + tool).classList.add('bg-red-800');
+        }
+
+        function nextDay() {
+            if(corruption > 90 && Math.random() > 0.2) {
+                triggerJumpScare();
+                return;
+            }
+
+            energy = 100;
+            corruption += 4;
+            
+            for(let i=0; i<gridSize; i++) {
+                for(let j=0; j<gridSize; j++) {
+                    const cell = grid[i][j];
+                    if(cell.state === 'seeded' && cell.water > 0) {
+                        cell.growth += 1;
+                        if(cell.growth > 3) cell.growth = 3;
+                    }
+                    cell.water = 0;
+                    if(Math.random() < corruption/180) cell.corrupted = true;
+                }
+            }
+
+            playHorrorSound(20, 'sine', 4, 0.6);
+            updateUI();
+        }
+
+        function triggerJumpScare() {
+            const js = document.getElementById('jump-scare');
+            js.style.display = 'flex';
+            playHorrorSound(60, 'sawtooth', 1.0, 1.0);
+            setTimeout(() => location.reload(), 1500);
+        }
+
+        function updateUI() {
+            document.getElementById('money-display').innerText = money;
+            document.getElementById('energy-display').innerText = Math.floor(energy);
+            document.getElementById('corruption-display').innerText = corruption;
+            
+            const sanity = document.getElementById('sanity-display');
+            if(corruption < 30) {
+                sanity.innerText = "STABLE";
+                sanity.style.color = "#4ade80";
+            } else if(corruption < 65) {
+                sanity.innerText = "DÉGRADÉ";
+                sanity.style.color = "orange";
+            } else {
+                sanity.innerText = "AGONIE";
+                sanity.style.color = "red";
+                sanity.classList.add('glitch-text');
+            }
+        }
+
+        initGrid();
+        updateUI();
+        draw();
+    </script>
+</body>
+</html>
