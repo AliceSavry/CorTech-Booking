@@ -2,640 +2,541 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <title>COR-TECH | Arcade & Infos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labo Ludik - COR-TECH</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
-        :root { 
+        :root {
             --c-neon: #00FFFF;
-            --c-black: #000000;
             --c-petrol: #003939;
             --c-cyan-dark: #007879;
             --c-text-cyan: #00b6b6;
+            --c-pink: #ff6b9d;
+            --c-pink-dark: #3d1a3d;
+            --c-pink-light: #ffaad4;
         }
 
-        html, body {
-            height: 100%; margin: 0; padding: 0; 
-            background-color: var(--c-black);
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #050505;
             font-family: 'Rajdhani', sans-serif;
             color: #e5e7eb;
-            overflow: hidden; 
-            touch-action: manipulation; 
+            padding: 0;
+            min-height: 100vh;
         }
 
-        h1, h2 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
-        h3, h4, .font-tech { font-family: 'Share Tech Mono', monospace; }
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+        .font-tech { font-family: 'Share Tech Mono', monospace; }
         .font-pixel { font-family: 'Press Start 2P', cursive; }
-        .text-neon { color: var(--c-neon); text-shadow: 0 0 8px rgba(0, 255, 255, 0.6); }
-        .border-neon { border: 1px solid var(--c-neon); box-shadow: 0 0 10px rgba(0, 255, 255, 0.15); }
 
-        .main-container { display: flex; width: 100vw; height: 100vh; }
-
-        .left-panel {
-            width: 33.33%; height: 100%;
-            background-color: #111;
-            border-right: 10px solid #222;
-            display: flex; flex-direction: column;
-            padding: 20px;
-            box-shadow: inset -5px 0 20px rgba(0,0,0,0.8);
-            position: relative; z-index: 20;
-        }
-
-        .crt-monitor {
-            flex-grow: 1;
-            background-color: #001a1a;
-            border-radius: 20px;
-            border: 4px solid #333;
-            box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
-            padding: 20px;
+        /* Header */
+        .labo-header {
+            background: linear-gradient(135deg, #1a0a1a 0%, #2d1a2d 100%);
+            padding: 30px 24px;
+            border-bottom: 3px solid var(--c-pink);
+            text-align: center;
             position: relative;
-            overflow-y: auto; overflow-x: hidden;
-            touch-action: pan-y;
+            overflow: hidden;
         }
-        /* Scanlines simples */
-        .crt-monitor::before {
-            content: " "; display: block; position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none; z-index: 10;
+        .labo-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
         }
-
-        .right-panel {
-            width: 66.66%; height: 100%;
-            background-color: #050505;
-            overflow-y: auto; padding: 0;
-            touch-action: pan-y;
-            display: flex; flex-direction: column;
-        }
-
-        .game-item {
-            display: flex; align-items: center; padding: 15px 10px;
-            border-bottom: 1px dashed #005555; cursor: pointer;
-            transition: all 0.2s; font-family: 'Share Tech Mono', monospace;
-            color: #00b6b6; position: relative; z-index: 20;
-        }
-        .game-item:hover { background: rgba(0, 255, 255, 0.1); color: #fff; text-shadow: 0 0 8px #00FFFF; padding-left: 20px; }
-        .game-item i { margin-right: 15px; font-size: 1.2rem; }
-
-        /* LABO LUDIK - Jeux des enfants */
-        .labo-section .game-item {
-            color: #ff6b9d;
-            border-bottom-color: #3d1a3d;
-        }
-        .labo-section .game-item:hover {
-            background: rgba(255, 107, 157, 0.1);
-            color: #ffaad4;
-            text-shadow: 0 0 8px #ff6b9d;
-        }
-        .labo-section .game-item i {
-            color: #ff6b9d;
-        }
-        .labo-section .game-item small {
-            margin-left: auto;
-            font-size: 0.65rem;
-            color: #885577;
-            font-style: italic;
-        }
-        .labo-section .game-item:hover small {
-            color: #ffaad4;
-        }
-
-        #game-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.95); z-index: 9999;
-            flex-direction: column; justify-content: center; align-items: center;
-            backdrop-filter: blur(10px);
-        }
-        .modal-container {
-            width: 90vw; height: 85vh; max-width: 1200px;
-            background: #000; border: 4px solid var(--c-neon);
-            border-radius: 10px; box-shadow: 0 0 50px var(--c-neon);
-            display: flex; flex-direction: column; position: relative;
-        }
-        .modal-header {
-            height: 50px; background: var(--c-petrol);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; border-bottom: 2px solid var(--c-neon);
-        }
-        .close-btn {
-            background: red; color: white; border: none; padding: 5px 15px;
-            font-weight: bold; cursor: pointer; font-family: 'Orbitron';
-        }
-        .game-iframe { width: 100%; height: 100%; border: none; background: #000; touch-action: manipulation; }
-
-        .blink { animation: blinker 1.5s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-
-        /* Animation shake pour mot de passe incorrect */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--c-cyan-dark); border-radius: 4px; }
-
-        /* TABS NAVIGATION */
-        .tabs-nav {
-            display: flex;
-            background: #0a0a0a;
-            border-bottom: 2px solid var(--c-petrol);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 16px 10px;
-            background: transparent;
-            border: none;
-            color: #666;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
+        .labo-header h1 {
+            color: var(--c-pink);
+            font-size: 2rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 15px;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+        .labo-header h1 i { 
+            color: var(--c-pink-light);
+            animation: bubble 2s ease-in-out infinite;
+        }
+        @keyframes bubble {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+        .labo-header p {
+            color: var(--c-pink-light);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            opacity: 0.8;
+            position: relative;
+            z-index: 1;
+        }
+        .labo-header .subtitle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 107, 157, 0.1);
+            border: 1px solid var(--c-pink-dark);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 15px;
+        }
+
+        /* Container des jeux */
+        .games-container {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        /* Carte de jeu */
+        .game-card {
+            background: linear-gradient(135deg, #1a0a1a 0%, #0a0a0a 100%);
+            border: 2px solid var(--c-pink-dark);
+            border-radius: 16px;
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+        .game-card:hover {
+            border-color: var(--c-pink);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.2);
+        }
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--c-pink), var(--c-neon), var(--c-pink));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .game-card:hover::before { opacity: 1; }
+
+        .game-card-image {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, #2d1a2d 0%, #1a0a1a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--c-pink-dark);
+            position: relative;
+            overflow: hidden;
+        }
+        .game-card-image i {
+            font-size: 4rem;
+            color: var(--c-pink);
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+        .game-card:hover .game-card-image i {
+            opacity: 1;
+            transform: scale(1.1);
+            text-shadow: 0 0 30px var(--c-pink);
+        }
+        .game-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .game-card-content {
+            padding: 20px;
+        }
+
+        .game-card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: white;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .game-card-title i {
+            color: var(--c-pink);
+            font-size: 0.9rem;
+        }
+
+        .game-card-author {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--c-pink-light);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
-        .tab-btn:hover { color: var(--c-text-cyan); background: rgba(0,255,255,0.05); }
-        .tab-btn.active {
-            color: var(--c-neon);
-            border-bottom-color: var(--c-neon);
-            background: rgba(0,255,255,0.1);
-            text-shadow: 0 0 10px var(--c-neon);
-        }
-        .tab-btn i { font-size: 1rem; }
+        .game-card-author i { font-size: 0.75rem; }
 
-        .tab-content { display: none; flex: 1; overflow-y: auto; }
-        .tab-content.active { display: block; }
-
-        /* NEWS IFRAME */
-        .news-iframe-container {
-            width: 100%;
-            height: calc(100vh - 60px);
-            overflow: hidden;
-        }
-        .news-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #050505;
+        .game-card-description {
+            color: #888;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
         }
 
-        /* PROMPT GENERATOR IFRAME */
-        .prompt-iframe-container {
-            width: 100%;
-            height: calc(100vh - 60px);
-            overflow: hidden;
+        .game-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        .prompt-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #000;
-        }
-
-        /* LABO LUDIK IFRAME */
-        .labo-iframe-container {
-            width: 100%;
-            height: calc(100vh - 60px);
-            overflow: hidden;
-        }
-        .labo-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #050505;
+        .game-tag {
+            background: rgba(255, 107, 157, 0.1);
+            border: 1px solid var(--c-pink-dark);
+            color: var(--c-pink-light);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-family: 'Share Tech Mono', monospace;
         }
 
-        @media (max-width: 1024px) {
-            html, body { overflow: auto; height: auto; touch-action: auto; } 
-            .main-container { flex-direction: column; width: 100%; height: auto; }
-            .left-panel { 
-                width: 100%; height: auto; min-height: auto;
-                border-right: none; border-bottom: 4px solid var(--c-neon); 
-                padding: 10px;
-            }
-            .crt-monitor { height: 400px; margin-bottom: 10px; }
-            .right-panel { width: 100%; height: auto; overflow: visible; }
-            .modal-container { width: 100%; height: 100%; border: none; border-radius: 0; }
-            .modal-header { padding: 5px 10px; }
-            .tab-btn { font-size: 0.6rem; padding: 12px 5px; }
-            .tab-btn span { display: none; }
-            .tab-btn i { font-size: 1.2rem; }
+        .game-card-play {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--c-pink-dark), #2d1a2d);
+            border: 1px solid var(--c-pink);
+            border-radius: 8px;
+            color: var(--c-pink-light);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        .game-card:hover .game-card-play {
+            background: var(--c-pink);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+        }
+
+        /* Message aucun jeu */
+        .no-games {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: #555;
+        }
+        .no-games i {
+            font-size: 5rem;
+            color: var(--c-pink-dark);
+            margin-bottom: 25px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .no-games h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--c-pink);
+            margin-bottom: 15px;
+        }
+        .no-games p {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: #666;
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .no-games .hint {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 107, 157, 0.05);
+            border: 1px dashed var(--c-pink-dark);
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .no-games .hint p {
+            color: var(--c-pink-light);
+            font-size: 0.8rem;
+        }
+
+        /* Section "Comment participer" */
+        .participate-section {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 100%);
+            border-top: 1px solid var(--c-pink-dark);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .participate-section h2 {
+            color: var(--c-pink);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .participate-steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .participate-step {
+            background: rgba(255, 107, 157, 0.05);
+            border: 1px solid var(--c-pink-dark);
+            border-radius: 12px;
+            padding: 20px;
+            flex: 1;
+            min-width: 200px;
+            max-width: 250px;
+        }
+        .participate-step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--c-pink);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+        .participate-step h3 {
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .participate-step p {
+            color: #888;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .labo-footer {
+            text-align: center;
+            padding: 24px;
+            color: #555;
+            font-size: 0.8rem;
+            border-top: 1px solid var(--c-pink-dark);
+        }
+        .labo-footer a {
+            color: var(--c-pink);
+            text-decoration: none;
+        }
+        .labo-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: var(--c-pink-dark); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--c-pink); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .labo-header h1 { font-size: 1.4rem; }
+            .games-container { padding: 20px; gap: 16px; }
+            .participate-steps { flex-direction: column; align-items: center; }
+            .participate-step { max-width: 100%; }
         }
     </style>
 </head>
 <body>
 
-<div id="game-modal">
-    <div class="modal-container">
-        <div class="modal-header">
-            <h2 id="modal-title" class="text-white font-pixel text-xs">JEU EN COURS...</h2>
-            <button onclick="closeGame()" class="close-btn">FERMER X</button>
+    <!-- ================================
+         EN-TÊTE LABO LUDIK
+    ================================= -->
+    <header class="labo-header">
+        <h1>
+            <i class="fas fa-flask"></i>
+            LABO LUDIK
+            <i class="fas fa-gamepad"></i>
+        </h1>
+        <p>Les créations ludiques des jeunes makers de Cor-Tech</p>
+        <div class="subtitle">
+            <i class="fas fa-child"></i>
+            <span class="font-tech">Jeux créés par les enfants du club</span>
+            <i class="fas fa-star"></i>
         </div>
-        <iframe id="game-frame" class="game-iframe" src=""></iframe>
+    </header>
+
+    <!-- ================================
+         CONTAINER DES JEUX
+         
+         ╔════════════════════════════════════════════════════════════════╗
+         ║                  COMMENT AJOUTER UN JEU ?                      ║
+         ╠════════════════════════════════════════════════════════════════╣
+         ║                                                                ║
+         ║  1. Copiez le modèle de carte ci-dessous                      ║
+         ║  2. Modifiez les informations :                                ║
+         ║     - onclick="window.top.openGame(...)" → URL du jeu         ║
+         ║     - Icône, titre, auteur, description, tags                 ║
+         ║  3. Supprimez le bloc "no-games" quand vous ajoutez un jeu    ║
+         ║                                                                ║
+         ║  MODÈLE :                                                      ║
+         ║  <article class="game-card" onclick="window.top.openGame(     ║
+         ║      'labo/mon-jeu.html', 'MON JEU - Prénom')">               ║
+         ║      <div class="game-card-image">                            ║
+         ║          <i class="fas fa-rocket"></i>                        ║
+         ║      </div>                                                    ║
+         ║      <div class="game-card-content">                          ║
+         ║          <h2 class="game-card-title">                         ║
+         ║              <i class="fas fa-star"></i> Mon Super Jeu        ║
+         ║          </h2>                                                 ║
+         ║          <p class="game-card-author">                         ║
+         ║              <i class="fas fa-child"></i> par Prénom, 10 ans  ║
+         ║          </p>                                                  ║
+         ║          <p class="game-card-description">                    ║
+         ║              Description du jeu...                            ║
+         ║          </p>                                                  ║
+         ║          <div class="game-card-tags">                         ║
+         ║              <span class="game-tag">Arcade</span>             ║
+         ║              <span class="game-tag">Action</span>             ║
+         ║          </div>                                                ║
+         ║          <div class="game-card-play">                         ║
+         ║              <i class="fas fa-play"></i> Jouer                ║
+         ║          </div>                                                ║
+         ║      </div>                                                    ║
+         ║  </article>                                                    ║
+         ║                                                                ║
+         ╚════════════════════════════════════════════════════════════════╝
+    ================================= -->
+    <div class="games-container">
+
+        <!-- 
+        ╔════════════════════════════════════════════════════════════════╗
+        ║  AJOUTEZ LES JEUX DES ENFANTS ICI                              ║
+        ╚════════════════════════════════════════════════════════════════╝
+        -->
+
+        <!-- Message affiché quand il n'y a pas de jeux -->
+        <div class="no-games">
+            <i class="fas fa-rocket"></i>
+            <h2>Bientôt des jeux incroyables !</h2>
+            <p>
+                Les jeunes makers de Cor-Tech préparent leurs créations... 
+                Revenez bientôt pour découvrir leurs jeux !
+            </p>
+            <div class="hint">
+                <p><i class="fas fa-lightbulb"></i> Tu veux créer ton propre jeu ? Rejoins le club !</p>
+            </div>
+        </div>
+
+        <!-- EXEMPLES DE CARTES (à décommenter quand vous avez des jeux) 
+        
+        <article class="game-card" onclick="window.top.openGame('labo/space-aventure.html', 'SPACE AVENTURE - Lucas')">
+            <div class="game-card-image">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="game-card-content">
+                <h2 class="game-card-title">
+                    <i class="fas fa-star"></i> Space Aventure
+                </h2>
+                <p class="game-card-author">
+                    <i class="fas fa-child"></i> par Lucas, 11 ans
+                </p>
+                <p class="game-card-description">
+                    Pilote ton vaisseau spatial et évite les astéroïdes ! 
+                    Combien de temps peux-tu survivre dans l'espace ?
+                </p>
+                <div class="game-card-tags">
+                    <span class="game-tag">Espace</span>
+                    <span class="game-tag">Arcade</span>
+                    <span class="game-tag">Esquive</span>
+                </div>
+                <div class="game-card-play">
+                    <i class="fas fa-play"></i> Jouer
+                </div>
+            </div>
+        </article>
+
+        <article class="game-card" onclick="window.top.openGame('labo/dragon-quest.html', 'DRAGON QUEST - Emma')">
+            <div class="game-card-image">
+                <i class="fas fa-dragon"></i>
+            </div>
+            <div class="game-card-content">
+                <h2 class="game-card-title">
+                    <i class="fas fa-fire"></i> Dragon Quest
+                </h2>
+                <p class="game-card-author">
+                    <i class="fas fa-child"></i> par Emma, 9 ans
+                </p>
+                <p class="game-card-description">
+                    Aide le petit dragon à retrouver son trésor ! 
+                    Un jeu d'aventure magique et coloré.
+                </p>
+                <div class="game-card-tags">
+                    <span class="game-tag">Aventure</span>
+                    <span class="game-tag">Fantasy</span>
+                </div>
+                <div class="game-card-play">
+                    <i class="fas fa-play"></i> Jouer
+                </div>
+            </div>
+        </article>
+
+        -->
+
     </div>
-</div>
 
-<div class="main-container">
-
-    <aside class="left-panel">
-        <div class="text-center mb-6 relative z-30">
-            <img src="images/Logo_Cor-Tech.png" 
-                 alt="COR-TECH" 
-                 class="w-32 mx-auto drop-shadow-[0_0_15px_#00FFFF]"
-                 onerror="this.style.display='none'; document.getElementById('backup-logo').style.display='block';">
-            
-            <div id="backup-logo" class="hidden text-center border-2 border-[#00FFFF] p-2 rounded mt-2 bg-black">
-                <h1 class="font-pixel text-neon text-xl">COR-TECH</h1>
+    <!-- ================================
+         SECTION "COMMENT PARTICIPER"
+    ================================= -->
+    <section class="participate-section">
+        <h2>
+            <i class="fas fa-hand-sparkles"></i>
+            Comment créer ton jeu ?
+        </h2>
+        <div class="participate-steps">
+            <div class="participate-step">
+                <div class="participate-step-number">1</div>
+                <h3><i class="fas fa-user-plus"></i> Rejoins le club</h3>
+                <p>Inscris-toi à Cor-Tech et participe aux ateliers de création de jeux vidéo !</p>
+            </div>
+            <div class="participate-step">
+                <div class="participate-step-number">2</div>
+                <h3><i class="fas fa-lightbulb"></i> Imagine ton jeu</h3>
+                <p>Invente une idée de jeu : un héros, un univers, des défis à relever...</p>
+            </div>
+            <div class="participate-step">
+                <div class="participate-step-number">3</div>
+                <h3><i class="fas fa-code"></i> Crée avec nous</h3>
+                <p>Apprends à coder et donne vie à ton jeu avec l'aide des animateurs !</p>
+            </div>
+            <div class="participate-step">
+                <div class="participate-step-number">4</div>
+                <h3><i class="fas fa-trophy"></i> Partage ta création</h3>
+                <p>Ton jeu sera publié ici pour que tout le monde puisse y jouer !</p>
             </div>
         </div>
+    </section>
 
-        <div class="crt-monitor custom-scroll">
-            <div class="text-center mb-6 relative z-20">
-                <h3 class="font-pixel text-[10px] text-[#00b6b6] mb-2">SYSTEM READY...</h3>
-                <h2 class="font-pixel text-sm text-[#00FFFF] blink">INSERT COIN</h2>
-            </div>
-
-            <div class="text-center mb-4 relative z-20">
-                <p class="text-gray-400 font-tech text-xs border-b border-gray-700 pb-2">CLIQUEZ POUR JOUER</p>
-            </div>
-
-            <!-- JEUX ARCADE -->
-            <div class="space-y-1 relative z-20">
-                <div class="game-item" onclick="openGame('troll.html', 'TROLL')"><i class="fas fa-dove"></i> <span>TROLL</span></div>
-                <div class="game-item" onclick="openGame('Flappy.html', 'FLAPPY COR-TECH')"><i class="fas fa-dove"></i> <span>FLAPPY COR-TECH</span></div>
-                <div class="game-item" onclick="openGame('tetris 8bit fx.html', 'TETRIS')"><i class="fas fa-cubes"></i> <span>TETRIS 8-BIT</span></div>
-                <div class="game-item" onclick="openGame('https://folgoas.github.io/candydeche/', 'DELICES SUCRES')"><i class="fas fa-gem"></i> <span>DÉLICES SUCRÉS</span></div>
-                <div class="game-item" onclick="openGame('air hockey.html', 'HOCKEY')"><i class="fas fa-circle"></i> <span>AIR HOCKEY</span></div>
-                <div class="game-item" onclick="openGame('casse brick.html', 'BRIQUES')"><i class="fas fa-th"></i> <span>CASSE BRIQUES</span></div>
-                <div class="game-item" onclick="openGame('course.html', 'RACING')"><i class="fas fa-car"></i> <span>RACING</span></div>
-                <div class="game-item" onclick="openGame('sinapse.html', 'SINAPSE')"><i class="fas fa-brain"></i> <span>SINAPSE</span></div>
-                <div class="game-item" onclick="openGame('reflexe kawaii.html', 'REFLEXE')"><i class="fas fa-bolt"></i> <span>REFLEXE</span></div>
-            </div>
-
-            <!-- ========================================
-                 LABO LUDIK - Jeux créés par les enfants
-                 
-                 Pour ajouter un jeu :
-                 1. Copiez cette ligne :
-                    <div class="game-item labo-item" onclick="openGame('labo/nom-du-jeu.html', 'NOM DU JEU - Prénom')"><i class="fas fa-child"></i> <span>NOM DU JEU</span> <small>par Prénom</small></div>
-                 
-                 2. Modifiez :
-                    - 'labo/nom-du-jeu.html' → chemin vers le fichier du jeu
-                    - 'NOM DU JEU - Prénom' → titre dans la modal
-                    - 'NOM DU JEU' → nom affiché dans la liste
-                    - 'Prénom' → prénom de l'enfant créateur
-            ======================================== -->
-            
-            <div class="mt-6 mb-3 relative z-20">
-                <div class="flex items-center gap-2 text-[#ff6b9d] border-t border-b border-[#3d1a3d] py-2">
-                    <i class="fas fa-flask text-sm"></i>
-                    <span class="font-pixel text-[8px] tracking-wider">LABO LUDIK</span>
-                    <i class="fas fa-child text-xs ml-1"></i>
-                </div>
-                <p class="text-[#885577] text-[9px] font-tech mt-1 italic">Créations des jeunes makers</p>
-            </div>
-
-            <div class="space-y-1 relative z-20 labo-section">
-                <!-- 
-                ╔════════════════════════════════════════════════════════════════╗
-                ║  JEUX DES ENFANTS - Ajoutez les jeux ici !                     ║
-                ╠════════════════════════════════════════════════════════════════╣
-                ║                                                                ║
-                ║  Exemple :                                                     ║
-                ║  <div class="game-item labo-item" onclick="openGame(          ║
-                ║      'labo/space-aventure.html', 'SPACE AVENTURE - Lucas')">  ║
-                ║      <i class="fas fa-rocket"></i>                             ║
-                ║      <span>SPACE AVENTURE</span>                               ║
-                ║      <small>par Lucas</small>                                  ║
-                ║  </div>                                                        ║
-                ║                                                                ║
-                ╚════════════════════════════════════════════════════════════════╝
-                -->
-
-                <!-- Message si pas encore de jeux -->
-                <div id="labo-empty" class="text-center py-4 text-[#553355] text-xs font-tech italic">
-                    <i class="fas fa-hourglass-half mr-2"></i>Jeux en préparation...
-                </div>
-
-                <!-- AJOUTEZ LES JEUX DES ENFANTS ICI ↓ -->
-                
-
-            </div>
-
-            <div class="mt-8 text-center opacity-50 relative z-20">
-                <p class="font-pixel text-[8px] text-[#00b6b6]">COR-TECH OS V5.1</p>
-            </div>
-        </div>
-    </aside>
-
-    <main class="right-panel">
-        <!-- NAVIGATION ONGLETS -->
-        <nav class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab('infos')">
-                <i class="fas fa-info-circle"></i>
-                <span>INFOS</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('news')">
-                <i class="fas fa-newspaper"></i>
-                <span>NEWS</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('labo')">
-                <i class="fas fa-flask"></i>
-                <span>LABO LUDIK</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('prompt')">
-                <i class="fas fa-magic"></i>
-                <span>PROMPT AI</span>
-            </button>
-        </nav>
-
-        <!-- TAB: INFOS -->
-        <div id="tab-infos" class="tab-content active">
-            <header class="bg-[#003939] p-6 border-b border-[#007879] bg-opacity-95 backdrop-blur shadow-lg">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <h2 class="text-3xl font-bold text-white mb-1">L'ASSOCIATION <span class="text-neon">NUMÉRIQUE</span></h2>
-                        <p class="text-[#00b6b6] font-tech text-sm">« Cordemais, branchée sur la tech du futur. »</p>
-                    </div>
-                    <div>
-                        <a href="mailto:contact@cor-tech.fr?subject=Demande%20d'informations" class="bg-[#00FFFF] hover:bg-white text-black font-bold py-3 px-6 rounded font-tech shadow-[0_0_15px_rgba(0,255,255,0.4)] transition inline-flex items-center gap-2">
-                            <i class="fas fa-paper-plane"></i> NOUS REJOINDRE
-                        </a>
-                    </div>
-                </div>
-            </header>
-
-            <div class="p-8 lg:p-12 space-y-12">
-                <section>
-                    <h3 class="text-2xl text-white mb-4 border-l-4 border-[#00FFFF] pl-4 flex items-center">
-                        <i class="fas fa-info-circle mr-3 text-[#007879]"></i> QUI SOMMES-NOUS ?
-                    </h3>
-                    <div class="bg-[#001010] p-6 rounded border border-[#003939] text-gray-300 leading-relaxed shadow-lg">
-                        <p class="mb-4 text-lg"><strong>Cor-Tech</strong> est la petite sœur rebelle et créative de Micromédia. Née à Cordemais, c'est une entité indépendante dédiée aux passionnés de technologie.</p>
-                        <p><i class="fas fa-quote-left text-[#00FFFF] opacity-50 mr-2"></i>Notre ambition ? Faire tomber les barrières du numérique, reconnecter les générations.</p>
-                    </div>
-                </section>
-
-                <section>
-                    <h3 class="text-2xl text-white mb-6 border-l-4 border-[#00FFFF] pl-4">NOS ATELIERS</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
-                            <i class="fas fa-robot text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
-                            <h4 class="text-lg text-white font-bold">Intelligence Artificielle</h4>
-                            <p class="text-[#00b6b6] text-sm">Comprendre les outils qui changent le monde.</p>
-                        </div>
-                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
-                            <i class="fas fa-cube text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
-                            <h4 class="text-lg text-white font-bold">Impression 3D</h4>
-                            <p class="text-[#00b6b6] text-sm">De la modélisation à l'impression.</p>
-                        </div>
-                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
-                            <i class="fas fa-gamepad text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
-                            <h4 class="text-lg text-white font-bold">Jeu Vidéo & E-Sport</h4>
-                            <p class="text-[#00b6b6] text-sm">Tournois, streaming et analyse.</p>
-                        </div>
-                        <div class="bg-[#000] p-5 rounded border border-[#007879] hover:border-[#00FFFF] transition group">
-                            <i class="fas fa-pen-nib text-3xl text-[#00FFFF] mb-3 group-hover:scale-110 transition"></i>
-                            <h4 class="text-lg text-white font-bold">Création Graphique</h4>
-                            <p class="text-[#00b6b6] text-sm">Design pour réseaux sociaux et affiches.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-6">
-                        <div class="bg-[#003939] p-6 rounded border border-[#007879]">
-                            <h4 class="text-white font-bold mb-3"><i class="fas fa-map-marker-alt mr-2 text-[#00FFFF]"></i> ADRESSE</h4>
-                            <p class="text-gray-300">Médiathèque Jacques Fairand<br>Avenue des 4 vents, 44360 CORDEMAIS.</p>
-                        </div>
-                        <div class="bg-[#003939] p-6 rounded border border-[#007879]">
-                            <h4 class="text-white font-bold mb-4 flex items-center"><i class="fas fa-clock mr-2 text-[#00FFFF]"></i> HORAIRES</h4>
-                            <p class="text-[#00b6b6] font-tech text-xs mb-2 border-b border-[#007879] pb-1">PÉRIODE SCOLAIRE</p>
-                            <ul class="text-gray-300 space-y-1 text-sm mb-4">
-                                <li class="flex justify-between border-b border-[#005555] pb-1"><span>Mardi</span> <span>9h-12h / 13h30-18h</span></li>
-                                <li class="flex justify-between border-b border-[#005555] pb-1"><span>Mercredi</span> <span>10h-12h / 13h30-18h</span></li>
-                                <li class="flex justify-between border-b border-[#005555] pb-1"><span>Jeudi</span> <span>9h-12h / 13h30-18h</span></li>
-                            </ul>
-                            <p class="text-[#00b6b6] font-tech text-xs mb-2 border-b border-[#007879] pb-1">VACANCES SCOLAIRES</p>
-                            <ul class="text-gray-300 space-y-1 text-sm">
-                                <li class="flex justify-between"><span>Lun - Ven</span> <span>14h00 - 18h00</span></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="space-y-6">
-                        <div class="border-neon rounded bg-black p-6 relative overflow-hidden">
-                            <h3 class="text-xl font-bold text-white mb-4 font-tech">TARIFS 2025</h3>
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-end border-b border-gray-800 pb-2"><span class="text-[#00b6b6]">Adulte</span><span class="text-2xl font-bold text-white">30 €</span></div>
-                                <div class="flex justify-between items-end border-b border-gray-800 pb-2"><span class="text-[#00b6b6]">Enfant (-18)</span><span class="text-2xl font-bold text-white">15 €</span></div>
-                                <div class="flex justify-between items-end"><span class="text-[#00b6b6]">Asso</span><span class="text-2xl font-bold text-white">160 €</span></div>
-                            </div>
-                        </div>
-                        <div class="bg-[#003939] p-6 rounded border border-[#007879]">
-                            <h3 class="text-xl font-bold text-white mb-4 font-tech">LE BUREAU</h3>
-                            <ul class="space-y-3 text-sm">
-                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-[#00FFFF] rounded-full"></div><div><strong class="text-white block font-sans">Alice SAVRY</strong> <span class="text-[#00b6b6]">Présidente</span></div></li>
-                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Simon CANEVET</strong> <span class="text-gray-400">Vice-Président</span></div></li>
-                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Sébastien SAVRY</strong> <span class="text-gray-400">Trésorier</span></div></li>
-                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gray-400 rounded-full"></div><div><strong class="text-white block font-sans">Aurélien AUDOUIS</strong> <span class="text-gray-400">Secrétaire</span></div></li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-
-                <footer class="text-center text-[#007879] text-sm pt-8 border-t border-[#003939] pb-8">
-                    <p>&copy; 2025 Association Cor-Tech.</p>
-                    <p class="mt-2"><a href="mentions.html" class="hover:text-[#00FFFF]">Mentions Légales</a></p>
-                    
-                    <!-- Accès secret éditeur - Triple clic sur le point -->
-                    <p class="mt-6 opacity-30 hover:opacity-50 transition-opacity duration-1000">
-                        <span id="secret-trigger" class="cursor-default select-none" style="color: #0a0a0a;">●</span>
-                    </p>
-                </footer>
-            </div>
-        </div>
-
-        <!-- TAB: NEWS -->
-        <div id="tab-news" class="tab-content">
-            <div class="news-iframe-container">
-                <iframe src="news.html" class="news-iframe" title="Actualités du club"></iframe>
-            </div>
-        </div>
-
-        <!-- TAB: LABO LUDIK -->
-        <div id="tab-labo" class="tab-content">
-            <div class="labo-iframe-container">
-                <iframe src="labo-ludik.html" class="labo-iframe" title="Labo Ludik - Créations des enfants"></iframe>
-            </div>
-        </div>
-
-        <!-- TAB: PROMPT GENERATOR -->
-        <div id="tab-prompt" class="tab-content">
-            <div class="prompt-iframe-container">
-                <iframe src="game-prompt-generator.html" class="prompt-iframe" title="Générateur de Prompt IA"></iframe>
-            </div>
-        </div>
-    </main>
-</div>
-
-<!-- Modal mot de passe secret -->
-<div id="secret-modal" class="fixed inset-0 bg-black/95 z-[9999] hidden items-center justify-center backdrop-blur-sm">
-    <div class="bg-[#0a0a0a] border border-[#003939] rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl">
-        <div class="text-center mb-4">
-            <i class="fas fa-lock text-[#003939] text-3xl mb-2"></i>
-            <h3 class="text-[#007879] font-tech text-sm">ZONE RESTREINTE</h3>
-        </div>
-        <input 
-            type="password" 
-            id="secret-password" 
-            placeholder="Mot de passe..."
-            class="w-full bg-black border border-[#003939] rounded px-4 py-3 text-white font-tech text-center focus:outline-none focus:border-[#00FFFF] transition"
-            onkeypress="if(event.key==='Enter')checkSecretPassword()"
-        >
-        <div id="secret-error" class="text-red-500 text-xs text-center mt-2 hidden font-tech">Accès refusé</div>
-        <div class="flex gap-3 mt-4">
-            <button onclick="closeSecretModal()" class="flex-1 py-2 border border-[#333] text-[#666] rounded font-tech text-sm hover:border-[#555] hover:text-[#888] transition">
-                Annuler
-            </button>
-            <button onclick="checkSecretPassword()" class="flex-1 py-2 bg-[#003939] text-[#00FFFF] rounded font-tech text-sm hover:bg-[#004a4a] transition">
-                Entrer
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // TAB SWITCHING
-    function switchTab(tabName) {
-        // Hide all tabs
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        // Show selected tab
-        document.getElementById('tab-' + tabName).classList.add('active');
-        event.currentTarget.classList.add('active');
-    }
-
-    // GAME MODAL
-    function openGame(filename, title) {
-        const modal = document.getElementById('game-modal');
-        const iframe = document.getElementById('game-frame');
-        const titleEl = document.getElementById('modal-title');
-        
-        iframe.src = filename;
-        titleEl.innerText = "JEU : " + title;
-        modal.style.display = 'flex';
-
-        iframe.onload = function() {
-            try {
-                iframe.contentWindow.focus();
-                const gameDoc = iframe.contentWindow.document;
-                gameDoc.body.style.touchAction = "manipulation"; 
-
-                gameDoc.addEventListener('touchstart', function(e) {
-                    const k = new KeyboardEvent('keydown', {keyCode: 32, which: 32, bubbles:true});
-                    gameDoc.dispatchEvent(k);
-                    iframe.contentWindow.dispatchEvent(k);
-                }, {passive: true});
-
-            } catch(e) {
-                console.log("Jeu externe ou erreur");
-            }
-        };
-    }
-
-    function closeGame() {
-        const modal = document.getElementById('game-modal');
-        const iframe = document.getElementById('game-frame');
-        modal.style.display = 'none';
-        iframe.src = '';
-    }
-
-    // ========== ACCÈS SECRET ÉDITEUR ==========
-    let secretClickCount = 0;
-    let secretClickTimer = null;
-
-    document.getElementById('secret-trigger').addEventListener('click', function() {
-        secretClickCount++;
-        
-        if (secretClickTimer) clearTimeout(secretClickTimer);
-        
-        // Reset après 1 seconde d'inactivité
-        secretClickTimer = setTimeout(() => {
-            secretClickCount = 0;
-        }, 1000);
-        
-        // Triple clic détecté
-        if (secretClickCount >= 3) {
-            secretClickCount = 0;
-            openSecretModal();
-        }
-    });
-
-    function openSecretModal() {
-        const modal = document.getElementById('secret-modal');
-        modal.classList.remove('hidden');
-        modal.style.display = 'flex';
-        document.getElementById('secret-password').value = '';
-        document.getElementById('secret-error').classList.add('hidden');
-        document.getElementById('secret-password').focus();
-    }
-
-    function closeSecretModal() {
-        const modal = document.getElementById('secret-modal');
-        modal.style.display = 'none';
-        modal.classList.add('hidden');
-    }
-
-    function checkSecretPassword() {
-        const password = document.getElementById('secret-password').value;
-        const correctPassword = 'P1r@t&moi!!44360';
-        
-        if (password === correctPassword) {
-            closeSecretModal();
-            window.location.href = 'news-editor.html';
-        } else {
-            document.getElementById('secret-error').classList.remove('hidden');
-            document.getElementById('secret-password').value = '';
-            document.getElementById('secret-password').focus();
-            
-            // Shake effect
-            const input = document.getElementById('secret-password');
-            input.style.animation = 'shake 0.5s';
-            setTimeout(() => { input.style.animation = ''; }, 500);
-        }
-    }
-
-    // Fermer modal avec Escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeSecretModal();
-        }
-    });
-
-</script>
+    <!-- FOOTER -->
+    <footer class="labo-footer">
+        <p>
+            <i class="fas fa-flask"></i> LABO LUDIK — 
+            <a href="mailto:contact@cor-tech.fr">contact@cor-tech.fr</a>
+        </p>
+        <p style="margin-top: 8px; opacity: 0.6;">COR-TECH © 2025</p>
+    </footer>
 
 </body>
 </html>
