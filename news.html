@@ -15,7 +15,7 @@
             --c-text-cyan: #f9a8d4;
         }
 
-                * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: #050505;
@@ -27,13 +27,12 @@
 
         h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
         .font-tech { font-family: 'Share Tech Mono', monospace; }
-        .font-pixel { font-family: 'Press Start 2P', cursive; }
 
         /* Header */
         .news-header {
-            background: linear-gradient(135deg, #0a1a05 0%, #1a2e0a 100%);
+            background: linear-gradient(135deg, #1a0510 0%, #2e0a1a 100%);
             padding: 30px 24px;
-            border-bottom: 3px solid var(--c-lime);
+            border-bottom: 3px solid var(--c-neon);
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -43,23 +42,23 @@
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: 
-                radial-gradient(circle at 20% 50%, rgba(132, 204, 22, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 20% 50%, rgba(244, 114, 182, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
             pointer-events: none;
         }
         .news-header h1 {
-            color: var(--c-lime);
+            color: var(--c-neon);
             font-size: 2rem;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 15px;
-            text-shadow: 0 0 20px rgba(132, 204, 22, 0.5);
+            text-shadow: 0 0 20px rgba(244, 114, 182, 0.5);
             position: relative;
             z-index: 1;
         }
         .news-header h1 i { 
-            color: var(--c-lime-light);
+            color: var(--c-text-cyan);
             animation: bubble 2s ease-in-out infinite;
         }
         @keyframes bubble {
@@ -67,23 +66,13 @@
             50% { transform: translateY(-5px) rotate(5deg); }
         }
         .news-header p {
-            color: var(--c-lime-light);
+            color: var(--c-text-cyan);
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.9rem;
             margin-top: 10px;
             opacity: 0.8;
             position: relative;
             z-index: 1;
-        }
-        .news-header .subtitle {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(132, 204, 22, 0.1);
-            border: 1px solid var(--c-lime-dark);
-            padding: 8px 16px;
-            border-radius: 20px;
-            margin-top: 15px;
         }
 
         /* Container des news */
