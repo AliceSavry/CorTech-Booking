@@ -9,10 +9,10 @@
     
     <style>
         :root {
-            --c-neon: #00FFFF;
-            --c-petrol: #003939;
-            --c-cyan-dark: #007879;
-            --c-text-cyan: #00b6b6;
+            --c-neon: #f472b6;
+            --c-petrol: #831843;
+            --c-cyan-dark: #be185d;
+            --c-text-cyan: #f9a8d4;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -59,7 +59,7 @@
 
         /* CARTE NEWS */
         .news-card {
-            background: linear-gradient(135deg, #001515 0%, #000a0a 100%);
+            background: linear-gradient(135deg, #1a0a10 0%, #0a0508 100%);
             border: 1px solid var(--c-petrol);
             border-radius: 8px;
             padding: 20px;
@@ -136,7 +136,7 @@
             border-left: 3px solid var(--c-neon);
             margin: 12px 0;
             padding: 8px 16px;
-            background: rgba(0, 255, 255, 0.05);
+            background: rgba(244, 114, 182, 0.05);
             font-style: italic;
         }
         .news-content h1, .news-content h2, .news-content h3 {
@@ -144,7 +144,7 @@
             margin: 16px 0 8px 0;
         }
         .news-content code {
-            background: rgba(0, 255, 255, 0.1);
+            background: rgba(244, 114, 182, 0.1);
             padding: 2px 6px;
             border-radius: 3px;
             color: var(--c-neon);
@@ -165,12 +165,30 @@
         .news-meta-item i { font-size: 0.8rem; }
 
         .news-image {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
+            max-width: 120px;
+            max-height: 100px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
             border-radius: 6px;
-            margin-bottom: 16px;
             border: 1px solid var(--c-petrol);
+            float: left;
+            margin-right: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .news-image:hover {
+            transform: scale(1.05);
+            border-color: var(--c-neon);
+            box-shadow: 0 0 15px rgba(244, 114, 182, 0.3);
+        }
+        
+        /* Clearfix pour le float */
+        .news-card::after {
+            content: "";
+            display: table;
+            clear: both;
         }
 
         .news-link {
@@ -194,7 +212,7 @@
 
         .news-card.pinned {
             border-color: var(--c-neon);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(244, 114, 182, 0.1);
         }
         .news-card.pinned::after {
             content: '📌';
@@ -310,51 +328,51 @@
         <h2>Le Drame de la Page Blanche</h2>
         </p>
         <p>Tu es là, devant ton écran, avec :<ul><li>Un chat qui te regarde comme si tu venais de lui voler sa gamelle.</li><br>
-        <li>Un chien qui ronfle en t’ignorant royalement.</li><br>
+        <li>Un chien qui ronfle en t'ignorant royalement.</li><br>
         <li>Une idée de vidéo <em>géniale</em>… mais <strong>aucun mot ne sort</strong>.</li></ul>
         Résultat ? Tu finis par publier un truc du genre :<br>
-        <em>"Euh… salut les gars, aujourd’hui on va parler de… euh… trucs ?"</em> 🚨 <strong>SPOILER</strong> : Personne ne regarde.</p>
-        <p>Heureusement, il existe des <strong><a href="https://alicesavry.github.io/Hooks/" target="_blank">générateurs de hooks et de scripts</a></strong> pour éviter ce désastre. Et aujourd’hui, je vais te montrer comment transformer ton <em>"Euh…"</em> en <em>"WAOUH, JE VEUX LA SUITE !"</em> — avec l’exemple de mon <strong>combat épique</strong> entre mon chat, Léopold (un tyran à poils) et mon Pincher nain, Dina (un démon en version canine).</p>
+        <em>"Euh… salut les gars, aujourd'hui on va parler de… euh… trucs ?"</em> 🚨 <strong>SPOILER</strong> : Personne ne regarde.</p>
+        <p>Heureusement, il existe des <strong><a href="https://alicesavry.github.io/Hooks/" target="_blank">générateurs de hooks et de scripts</a></strong> pour éviter ce désastre. Et aujourd'hui, je vais te montrer comment transformer ton <em>"Euh…"</em> en <em>"WAOUH, JE VEUX LA SUITE !"</em> — avec l'exemple de mon <strong>combat épique</strong> entre mon chat, Léopold (un tyran à poils) et mon Pincher nain, Dina (un démon en version canine).</p>
         <p><hr>
         </p>
-        <p><h2>🐱💥 vs 🐶💥 : L’Anatomie d’un Script Qui Déchire</h2>
+        <p><h2>🐱💥 vs 🐶💥 : L'Anatomie d'un Script Qui Déchire</h2>
         </p>
-        <p>Prenons mon chef-d’œuvre : <em>"Mon Chat vs Mon Pincher Nain, Qui Va Gagner ?"</em> (oui, c’est du niveau <em>Game of Thrones</em>, mais en plus mignon). Voici comment j’ai structuré le script pour que même ta tante Gertrude clique sur <em>"J’aime"</em> :</p>
-        <p><h3>1️⃣ <strong>Le Hook (0-5 secondes) : L’Accroche Qui Tue</strong></h3>
-        <strong>Visuel</strong> : Gros plan sur mes deux gladiateurs à fourrure, muscles tendus (bon, le chat a surtout l’air de sortir d’un buffet à volonté).<br>
+        <p>Prenons mon chef-d'œuvre : <em>"Mon Chat vs Mon Pincher Nain, Qui Va Gagner ?"</em> (oui, c'est du niveau <em>Game of Thrones</em>, mais en plus mignon). Voici comment j'ai structuré le script pour que même ta tante Gertrude clique sur <em>"J'aime"</em> :</p>
+        <p><h3>1️⃣ <strong>Le Hook (0-5 secondes) : L'Accroche Qui Tue</strong></h3>
+        <strong>Visuel</strong> : Gros plan sur mes deux gladiateurs à fourrure, muscles tendus (bon, le chat a surtout l'air de sortir d'un buffet à volonté).<br>
         <strong>Audio</strong> : <em>"Mon chat et mon Pincher nain en combat, QUI VA GAGNER ?"</em> + musique de <em>Rocky</em> (version chat/chien).</p>
         <p>👉 <strong>Pourquoi ça marche ?</strong><ul><li><strong>Curiosité</strong> : Le cerveau humain adore les défis (même stupides).</li><br>
         <li><strong>Émotion</strong> : Un chat vs un chien = duel universel (comme <em>Burger vs Pizza</em>).</li><br>
         <li><strong>Urgence</strong> : <em>"QUI VA GAGNER ?"</em> → Le spectateur <strong>doit</strong> savoir.</li></ul>
         💡 <strong>Pro tip</strong> : Utilise des outils comme <strong><a href="https://alicesavry.github.io/Hooks/" target="_blank">notre générateur de hook</a></strong> pour générer des accroches du genre :<br>
-        <em>"Ce chat a 9 vies… mais face à ce Pincher, il va en perdre une !"</em> (oui, c’est cruel, mais ça marche).</p>
+        <em>"Ce chat a 9 vies… mais face à ce Pincher, il va en perdre une !"</em> (oui, c'est cruel, mais ça marche).</p>
         <p><hr>
         </p>
-        <p><h3>2️⃣ <strong>L’Intro (5-20 secondes) : Le Contexte Qui Donne Envie</strong></h3>
+        <p><h3>2️⃣ <strong>L'Intro (5-20 secondes) : Le Contexte Qui Donne Envie</strong></h3>
         <strong>Visuel</strong> : Séquence rapide du chat qui attaque → le Pincher esquive → le chat trébuche sur son propre ego.<br>
         <strong>Audio</strong> : <em>"Regardez ça ! Le chat attaque en premier, mais le Pincher est RAPIDE ! Ohhh, il esquive !"</em></p>
-        <p>👉 <strong>La recette magique</strong> :<ol><li><strong>Montre l’action</strong> (pas de blabla).</li><br>
+        <p>👉 <strong>La recette magique</strong> :<ol><li><strong>Montre l'action</strong> (pas de blabla).</li><br>
         <li><strong>Ajoute du suspense</strong> (<em>"Le chat contre-attaque, mais…"</em>).</li><br>
         <li><strong>Fais rire</strong> (ici, le chat qui trébuche = humour gratuit).</li></ol>
-        🛠 <strong>Outil recommandé</strong> : <strong>Descript</strong> pour écrire ton script comme si tu racontais l’histoire à un pote (avec des <em>"Ohhh"</em> et des <em>"WTF"</em> inclus).</p>
+        🛠 <strong>Outil recommandé</strong> : <strong>Descript</strong> pour écrire ton script comme si tu racontais l'histoire à un pote (avec des <em>"Ohhh"</em> et des <em>"WTF"</em> inclus).</p>
         <p><hr>
         </p>
-        <p><h3>3️⃣ <strong>Le Build-Up (20-45 secondes) : Le Moment "Putain, C’est Trop Bon !"</strong></h3>
+        <p><h3>3️⃣ <strong>Le Build-Up (20-45 secondes) : Le Moment "Putain, C'est Trop Bon !"</strong></h3>
         <strong>Visuel</strong> : Le chat saute sur le dos du Pincher → le chien se retourne comme un ninja → le chat atterrit dans la gamelle.<br>
         <strong>Audio</strong> : <em>"Le chat contre-attaque ! Il saute sur le dos du Pincher… MAIS LE CHIEN LE FAIT TOMBER ! Oh non, le chat est KO !"</em></p>
         <p>👉 <strong>Pourquoi les gens restent ?</strong><ul><li><strong>Rythme</strong> : Alternance entre action et réactions (comme un match de catch, mais en plus cute).</li><br>
-        <li><strong>Émotions</strong> : On compatit pour le chat (même s’il est un tyran).</li><br>
+        <li><strong>Émotions</strong> : On compatit pour le chat (même s'il est un tyran).</li><br>
         <li><strong>Identification</strong> : Tout le monde a déjà vu un chat se prendre un râteau (métaphoriquement ou littéralement).</li></ul>
         📌 <strong>Astuce pro</strong> : Utilise <strong>Copy.ai</strong> pour générer des phrases du genre :<br>
-        <em>"Ce Pincher a plus de stratégie que mon ex en dispute… et c’est flippant."</em></p>
+        <em>"Ce Pincher a plus de stratégie que mon ex en dispute… et c'est flippant."</em></p>
         <p><hr>
         </p>
         <p><h3>4️⃣ <strong>Le CTA (45-55 secondes) : Le Piège à Likes</strong></h3>
-        <strong>Visuel</strong> : Le Pincher lève la patte comme un champion, texte à l’écran <em>"Qui a gagné ?"</em> + emoji 🤔.<br>
+        <strong>Visuel</strong> : Le Pincher lève la patte comme un champion, texte à l'écran <em>"Qui a gagné ?"</em> + emoji 🤔.<br>
         <strong>Audio</strong> : <em>"Alors, qui a gagné ? Le Pincher ou le chat ? Dites-le en commentaire ! Et likez si vous voulez un remake avec… UN HAMSTER !"</em></p>
         <p>👉 <strong>La science du CTA</strong> :<ul><li><strong>Question ouverte</strong> : <em>"Qui a gagné ?"</em> → Les commentaires explosent.</li><br>
-        <li><strong>Promesse de suite</strong> : <em>"Un remake avec un hamster"</em> → Les gens s’abonnent pour ne pas le rater.</li><br>
-        <li><strong>Urgence</strong> : <em>"Likez MAINTENANT"</em> (même si c’est faux, ça marche).</li></ul>
+        <li><strong>Promesse de suite</strong> : <em>"Un remake avec un hamster"</em> → Les gens s'abonnent pour ne pas le rater.</li><br>
+        <li><strong>Urgence</strong> : <em>"Likez MAINTENANT"</em> (même si c'est faux, ça marche).</li></ul>
         🔥 <strong>Outil coup de cœur</strong> : <strong>CapCut</strong> pour ajouter des textes animés et des emojis qui clignotent (parce que le cerveau humain est faible face aux trucs qui brillent).</p>
         <p><hr>
         </p>
@@ -362,7 +380,7 @@
         <strong>Visuel</strong> : Retour au plan initial + texte <em>"ABONNE-TOI POUR PLUS DE COMBATS !"</em> + emoji 🐾.<br>
         <strong>Audio</strong> : Reprise du hook <em>"Mon chat et mon Pincher nain en combat, qui va gagner ?"</em>.</p>
         <p>👉 <strong>Pourquoi ça marche ?</strong><ul><li><strong>Effet de boucle</strong> : Le cerveau adore les patterns (comme les musiques qui restent en tête).</li><br>
-        <li><strong>Rappel de l’accroche</strong> : Si le spectateur a zappé le début, il comprend tout de suite le concept.</li></ul>
+        <li><strong>Rappel de l'accroche</strong> : Si le spectateur a zappé le début, il comprend tout de suite le concept.</li></ul>
         <hr>
         </p>
         <p><h2>🤖 Les Outils Pour Devenir un Maître du Script (Sans Perdre Ton Âme)</h2>
@@ -370,11 +388,11 @@
         <p>Nous avons créé un <strong><a href="https://alicesavry.github.io/Hooks/" target="_blank">générateur de hook viral</a></strong>, avec de l'IA intègré qui va te générer tout le script de ta vidéo! Il ne te restera qu'a sortir ton téléphone et capcut pour le montage !</p>
         <p><h2>🎯 5 Erreurs à Éviter (Sinon Ton Chat Te Jugera)</h2>
         </p>
-        <p><ol><li><strong>Un hook trop long</strong> : <em>"Alors voici mon chat, il s’appelle Minou, il a 5 ans, il aime les croquettes au saumon…"</em> → <strong>PERDU</strong>. Le spectateur est déjà sur une autre vidéo.</li><br>
-        <li><strong>Pas de rythme</strong> : 30 secondes de monologue sans coupure ? Même ton chien va s’endormir.</li><br>
-        <li><strong>Oublier le CTA</strong> : <em>"Voilà, c’était ma vidéo, à plus !"</em> → <strong>Opportunité ratée</strong>. Demande toujours un like, un commentaire ou un abonnement.</li><br>
-        <li><strong>Un son pourri</strong> : Si on entend ton frigo plus que ta voix, c’est mort. Investis dans un micro à 20€ (ton chat te remerciera).</li><br>
-        <li><strong>Copier les autres</strong> : <em>"Hey, c’est comme la vidéo de [Influenceur X] !"</em> → <strong>Game over</strong>. Sois toi-même (même si toi-même, c’est un peu bizarre).</li></ol>
+        <p><ol><li><strong>Un hook trop long</strong> : <em>"Alors voici mon chat, il s'appelle Minou, il a 5 ans, il aime les croquettes au saumon…"</em> → <strong>PERDU</strong>. Le spectateur est déjà sur une autre vidéo.</li><br>
+        <li><strong>Pas de rythme</strong> : 30 secondes de monologue sans coupure ? Même ton chien va s'endormir.</li><br>
+        <li><strong>Oublier le CTA</strong> : <em>"Voilà, c'était ma vidéo, à plus !"</em> → <strong>Opportunité ratée</strong>. Demande toujours un like, un commentaire ou un abonnement.</li><br>
+        <li><strong>Un son pourri</strong> : Si on entend ton frigo plus que ta voix, c'est mort. Investis dans un micro à 20€ (ton chat te remerciera).</li><br>
+        <li><strong>Copier les autres</strong> : <em>"Hey, c'est comme la vidéo de [Influenceur X] !"</em> → <strong>Game over</strong>. Sois toi-même (même si toi-même, c'est un peu bizarre).</li></ol>
         <hr>
         </p>
         <p><h2>🚀 Conclusion : À Toi de Jouer (Et de Battre Mon Record de Vues) !</h2>
@@ -396,28 +414,28 @@
         <span class="news-tag atelier"><i class="fas fa-robot"></i> ATELIER</span>
         <span class="news-date">3 Février 2026</span>
     </div>
-    <h2 class="news-title">Le Labo Ludik de Cor-Tech : Quand les enfants explorent le numérique en s’amusant !</h2>
+    <h2 class="news-title">Le Labo Ludik de Cor-Tech : Quand les enfants explorent le numérique en s'amusant !</h2>
     <img src="images/banniere_labo_ludik.png" alt="Bannière Labo Ludik" class="news-image">
     <div class="news-content">
-        <p>Cor-Tech innove avec le Labo Ludik, un espace dédié aux enfants pour découvrir les technologies, la créativité et les sciences à travers des projets concrets et ludiques. Notre objectif ? Rendre l’apprentissage du numérique accessible, amusant et inspirant pour les plus jeunes.</p>
+        <p>Cor-Tech innove avec le Labo Ludik, un espace dédié aux enfants pour découvrir les technologies, la créativité et les sciences à travers des projets concrets et ludiques. Notre objectif ? Rendre l'apprentissage du numérique accessible, amusant et inspirant pour les plus jeunes.</p>
         <p><h1>Des projets créatifs et technologiques</h1>
         Au Labo Ludik, chaque activité est conçue pour stimuler la curiosité et développer des compétences essentielles pour demain. Voici quelques-uns de nos projets phares :<h2>1️⃣ Un jeu de parcours électrique en 3D</h2>
-        Les enfants ont imaginé et conçu un jeu de parcours électrique en 3D, mêlant logique, créativité et technologie. Ce projet leur a permis de comprendre les bases de la modélisation 3D et de la conception de circuits électriques, tout en s’amusant !<h2>2️⃣ Découverte de Tinkercad</h2>
-        Avec <a href="https://www.tinkercad.com" target="_blank">Tinkercad</a>, une plateforme de modélisation 3D intuitive, les enfants ont appris à créer des objets en 3D, à les personnaliser et à les imprimer. Une première étape vers la maîtrise des outils de design et de prototypage !<h2>3️⃣ Une carte de Noël créée avec l’IA</h2>
-        Pour les fêtes, les enfants ont utilisé <a href="https://gemini.google.com/app" target="_blank">Gemini</a>, une intelligence artificielle, pour concevoir des cartes de Noël uniques. Une belle occasion de découvrir les possibilités de l’IA tout en laissant libre cours à leur imagination.<h2>4️⃣ Création de stickers personnalisés</h2>
+        Les enfants ont imaginé et conçu un jeu de parcours électrique en 3D, mêlant logique, créativité et technologie. Ce projet leur a permis de comprendre les bases de la modélisation 3D et de la conception de circuits électriques, tout en s'amusant !<h2>2️⃣ Découverte de Tinkercad</h2>
+        Avec <a href="https://www.tinkercad.com" target="_blank">Tinkercad</a>, une plateforme de modélisation 3D intuitive, les enfants ont appris à créer des objets en 3D, à les personnaliser et à les imprimer. Une première étape vers la maîtrise des outils de design et de prototypage !<h2>3️⃣ Une carte de Noël créée avec l'IA</h2>
+        Pour les fêtes, les enfants ont utilisé <a href="https://gemini.google.com/app" target="_blank">Gemini</a>, une intelligence artificielle, pour concevoir des cartes de Noël uniques. Une belle occasion de découvrir les possibilités de l'IA tout en laissant libre cours à leur imagination.<h2>4️⃣ Création de stickers personnalisés</h2>
         Les enfants ont conçu leurs propres stickers à partir de leurs dessins ou idées, que nous avons ensuite pu imprimer et découper avec la machine <a href="https://www.silhouettefr.fr" target="_blank">Silhouette Cameo 4</a>. Une activité qui allie art et technologie !</p>
-        <p><h2>5️⃣ Montage d’une éolienne en kit</h2>
+        <p><h2>5️⃣ Montage d'une éolienne en kit</h2>
         Pour aborder les énergies renouvelables, les enfants ont assemblé une éolienne en kit. Ce projet leur a permis de comprendre le fonctionnement des énergies vertes et de manipuler des outils techniques.</p>
         <p><h1>Pourquoi choisir le Labo Ludik ?</h1>
         </p>
-        <p>Apprendre en s’amusant : Chaque projet est conçu pour être ludique et éducatif.<br>
-        Développer des compétences clés : Créativité, logique, travail d’équipe et maîtrise des outils numériques.<br>
+        <p>Apprendre en s'amusant : Chaque projet est conçu pour être ludique et éducatif.<br>
+        Développer des compétences clés : Créativité, logique, travail d'équipe et maîtrise des outils numériques.<br>
         Découvrir les technologies de demain : Impression 3D, intelligence artificielle, énergies renouvelables, et bien plus encore !</p>
         <p>Rejoignez-nous !<br>
         Le Labo Ludik de Cor-Tech est ouvert à tous les enfants curieux et passionnés de technologie. Que ce soit pour une séance ponctuelle ou un parcours complet, nous adaptons nos activités à tous les niveaux.<br>
         📩 <a href="mailto:accueil@cor-tech.fr?subject=Demande d'infos Labo Ludik" target="_blank">Contactez-nous</a> pour en savoir plus ou inscrire votre enfant à nos prochaines sessions !</p>
         <p><strong>Cor-Tech – Labo Ludik</strong><br>
-        <em>L’apprentissage du numérique, une aventure à vivre ensemble !</em></p>
+        <em>L'apprentissage du numérique, une aventure à vivre ensemble !</em></p>
     </div>
     <div class="news-meta">
                 <span class="news-meta-item"><i class="fas fa-calendar"></i> Le mardi 3 février 2026</span>
