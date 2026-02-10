@@ -90,14 +90,26 @@
       position: relative;
       z-index: 1;
     }
-    .header-badge {
-      background: rgba(167, 139, 250, 0.1);
-      border: 1px solid var(--c-border);
-      color: var(--c-violet-light);
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.7rem;
+
+    /* Bulles effervescentes */
+    .header-bubbles {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .header-bubbles .bub {
+      position: absolute;
+      bottom: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(167, 139, 250, 0.4), rgba(167, 139, 250, 0.1));
+      animation: riseUp linear infinite;
+    }
+    @keyframes riseUp {
+      0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.6; }
+      50% { transform: translateY(-60px) translateX(15px) scale(1.1); opacity: 0.3; }
+      100% { transform: translateY(-140px) translateX(-10px) scale(0.6); opacity: 0; }
     }
 
     /* Layout */
@@ -513,6 +525,7 @@
 
   <!-- Header -->
   <header class="generator-header">
+    <div class="header-bubbles" id="headerBubbles"></div>
     <h1>
       <i class="fas fa-wand-magic-sparkles"></i>
       GÉNÉRATEUR DE PROMPTS
@@ -525,6 +538,24 @@
       <i class="fas fa-rocket"></i>
     </div>
   </header>
+
+  <script>
+    // Bulles effervescentes
+    (function(){
+      const container = document.getElementById('headerBubbles');
+      for(let i = 0; i < 15; i++){
+        const b = document.createElement('div');
+        b.className = 'bub';
+        const size = Math.random() * 8 + 3;
+        b.style.width = size + 'px';
+        b.style.height = size + 'px';
+        b.style.left = Math.random() * 100 + '%';
+        b.style.animationDuration = (Math.random() * 4 + 3) + 's';
+        b.style.animationDelay = (Math.random() * 5) + 's';
+        container.appendChild(b);
+      }
+    })();
+  </script>
 
   <!-- Layout -->
   <div class="generator-layout">
