@@ -22,76 +22,21 @@
             --c-text-cyan: #00b6b6;
         }
 
-               * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background-color: #050505;
+        html, body {
+            height: 100%; margin: 0; padding: 0; 
+            background-color: var(--c-black);
             font-family: 'Rajdhani', sans-serif;
             color: #e5e7eb;
-            padding: 0;
-            min-height: 100vh;
+            overflow: hidden; 
+            touch-action: manipulation; 
         }
 
-        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
-        .font-tech { font-family: 'Share Tech Mono', monospace; }
+        h1, h2 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        h3, h4, .font-tech { font-family: 'Share Tech Mono', monospace; }
         .font-pixel { font-family: 'Press Start 2P', cursive; }
+        .text-neon { color: var(--c-neon); text-shadow: 0 0 8px rgba(0, 255, 255, 0.6); }
+        .border-neon { border: 1px solid var(--c-neon); box-shadow: 0 0 10px rgba(0, 255, 255, 0.15); }
 
-        /* Header */
-        .index-header {
-            background: linear-gradient(135deg, #0a1a05 0%, #1a2e0a 100%);
-            padding: 30px 24px;
-            border-bottom: 3px solid var(--c-lime);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .index-header::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(132, 204, 22, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        .index-header h1 {
-            color: var(--c-lime);
-            font-size: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            text-shadow: 0 0 20px rgba(132, 204, 22, 0.5);
-            position: relative;
-            z-index: 1;
-        }
-        .index-header h1 i { 
-            color: var(--c-lime-light);
-            animation: bubble 2s ease-in-out infinite;
-        }
-        @keyframes bubble {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-5px) rotate(5deg); }
-        }
-        .index-header p {
-            color: var(--c-lime-light);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            opacity: 0.8;
-            position: relative;
-            z-index: 1;
-        }
-        .index-header .subtitle {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(132, 204, 22, 0.1);
-            border: 1px solid var(--c-lime-dark);
-            padding: 8px 16px;
-            border-radius: 20px;
-            margin-top: 15px;
-        }
         .main-container { display: flex; width: 100vw; height: 100vh; }
 
         .left-panel {
@@ -166,6 +111,11 @@
 
         .blink { animation: blinker 1.5s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
+
+        @keyframes bubble {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
 
         /* Animation shake pour mot de passe incorrect */
         @keyframes shake {
@@ -350,15 +300,19 @@
 
         <!-- TAB: INFOS -->
         <div id="tab-infos" class="tab-content active">
-            <header class="bg-[#003939] p-6 border-b border-[#007879] bg-opacity-95 backdrop-blur shadow-lg">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <h2 class="text-3xl font-bold text-white mb-1">L'ASSOCIATION <span class="text-neon">NUMÉRIQUE</span></h2>
-                        <p class="text-[#00b6b6] font-tech text-sm">« Cordemais, branchée sur la tech du futur. »</p>
-                    </div>
-                    <div>
-                        <a href="mailto:contact@cor-tech.fr?subject=Demande%20d'informations" class="bg-[#00FFFF] hover:bg-white text-black font-bold py-3 px-6 rounded font-tech shadow-[0_0_15px_rgba(0,255,255,0.4)] transition inline-flex items-center gap-2">
+            <header style="background: linear-gradient(135deg, #001515 0%, #002929 100%); padding: 30px 24px; border-bottom: 3px solid #00FFFF; text-align: center; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 50%); pointer-events: none;"></div>
+                <div style="position: relative; z-index: 1;">
+                    <h2 style="color: #00FFFF; font-size: 2rem; font-family: 'Orbitron', sans-serif; display: flex; align-items: center; justify-content: center; gap: 15px; text-shadow: 0 0 20px rgba(0, 255, 255, 0.5); text-transform: uppercase; letter-spacing: 2px;">
+                        <i class="fas fa-microchip" style="color: #00b6b6; animation: bubble 2s ease-in-out infinite;"></i>
+                        L'ASSOCIATION NUMÉRIQUE
+                        <i class="fas fa-bolt" style="color: #00b6b6; animation: bubble 2s ease-in-out infinite;"></i>
+                    </h2>
+                    <p style="color: #00b6b6; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; margin-top: 10px; opacity: 0.8;">« Cordemais, branchée sur la tech du futur. »</p>
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 255, 255, 0.1); border: 1px solid #003939; padding: 8px 16px; border-radius: 20px; margin-top: 15px;">
+                        <a href="mailto:contact@cor-tech.fr?subject=Demande%20d'informations" style="color: #00FFFF; text-decoration: none; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px;">
                             <i class="fas fa-paper-plane"></i> NOUS REJOINDRE
+                            <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -621,4 +575,3 @@
 
 </body>
 </html>
-
