@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MK8D Manager - Tournoi e-Sport</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* --- THEME MARIO KART 8 DELUXE (MODE TV) --- */
+        .mk8-tv-mode {
+            font-family: 'Kanit', sans-serif;
+            background-color: #0b1d3a;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mk8-bg {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 195, 227, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 195, 227, 0.1) 1px, transparent 1px),
+                repeating-linear-gradient(45deg, rgba(0,0,0,0.4) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0.4));
+            background-size: 40px 40px, 40px 40px, 80px 80px;
+            background-position: 0 0, 0 0, 0 0;
+            animation: grid-move 20s linear infinite;
+            z-index: 0;
+            opacity: 0.6;
+        }
+        @keyframes grid-move { 0% { background-position: 0 0, 0 0, 0 0; } 100% { background-position: -80px 80px, -80px 80px, -160px 160px; } }
+
+        .mk8-neon {
+            position: absolute; height: 200%; width: 100px;
+            background: linear-gradient(90deg, transparent, rgba(230, 0, 126, 0.3), transparent);
+            transform: rotate(30deg); animation: neon-slide 8s linear infinite; z-index: 0; filter: blur(20px);
+        }
+        .mk8-neon-2 { background: linear-gradient(90deg, transparent, rgba(0, 195, 227, 0.3), transparent); animation-duration: 12s; animation-delay: -5s; }
+        @keyframes neon-slide { 0% { left: -50%; } 100% { left: 150%; } }
+
+        .mk8-card {
+            clip-path: polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%);
+            border-left: 6px solid transparent;
+            position: relative;
+            background: rgba(11, 29, 58, 0.85);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            margin: 10px 0;
+        }
+        
+        .mk8-card-1st { background: linear-gradient(135deg, rgba(255, 222, 0, 0.9), rgba(255, 140, 0, 0.9)); border-left-color: #ffffff; color: #000; }
+        .mk8-card-2nd { background: linear-gradient(135deg, rgba(170, 185, 200, 0.9), rgba(100, 115, 130, 0.9)); border-left-color: #00c3e3; }
+        .mk8-card-3rd { background: linear-gradient(135deg, rgba(205, 127, 50, 0.9), rgba(139, 69, 19, 0.9)); border-left-color: #e6007e; }
+        .mk8-card-standard { border-left-color: #00c3e3; border-bottom: 2px solid rgba(0, 195, 227, 0.3); }
+
+        .mk8-text-outline { text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0px 4px 10px rgba(0,0,0,0.8); }
+        .mk8-text-outline-light { text-shadow: -1px -1px 0 rgba(255,255,255,0.5), 1px -1px 0 rgba(255,255,255,0.5), -1px 1px 0 rgba(255,255,255,0.5), 1px 1px 0 rgba(255,255,255,0.5); }
+
+        .tv-rank { font-size: clamp(1.5rem, 3vw, 3rem); font-style: italic; }
+        .tv-name { font-size: clamp(1.2rem, 2.5vw, 2.5rem); line-height: 1; text-transform: uppercase; font-style: italic; font-weight: 900; }
+        .tv-team { font-size: clamp(0.8rem, 1.5vw, 1.5rem); font-weight: 700; letter-spacing: 2px; }
+        .tv-pts { font-size: clamp(2rem, 4vw, 4rem); font-style: italic; line-height: 0.9; }
+
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 h-screen overflow-hidden flex flex-col">
+
+    <div id="mobile-header" class="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center z-20 relative shadow-md hidden">
+        <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400 flex items-center gap-2">
+            <i class="fa-solid fa-trophy text-blue-400"></i> MK8D
+        </h1>
+        <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white p-2">
+            <i id="mobile-menu-icon" class="fa-solid fa-bars text-2xl"></i>
+        </button>
+    </div>
+
+    <div id="app" class="flex-1 flex overflow-hidden relative"></div>
+
+    <script>
+        // --- GESTION DE L'APPLICATION ---
+        const POINTS_SYSTEM = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let isTVMode = new URLSearchParams(window.location.search).get('tv') === 'true';
+        try {
+            if (localStorage.getItem('mk8d_spawn_tv') === 'true') {
+                isTVMode = true;
+                localStorage.removeItem('mk8d_spawn_tv');
+                sessionStorage.setItem('mk8d_is_tv_window', 'true');
+            } else if (sessionStorage.getItem('mk8d_is_tv_window') === 'true') {
+                isTVMode = true;
+            }
+        } catch(e) {}
+
+        let defaultState = {
+            activeTab: 'dashboard', mobileMenuOpen: false, isTVWindow: isTVMode,
+            players: [
+                { id: 'p1', pseudo: 'Zeus', team: 'Olympus' }, { id: 'p2', pseudo: 'Hades', team: 'Underworld' },
+                { id: 'p3', pseudo: 'Poseidon', team: 'Olympus' }, { id: 'p4', pseudo: 'Ares', team: 'Warriors' },
+                { id: 'p5', pseudo: 'Athena', team: 'Olympus' }, { id: 'p6', pseudo: 'Hermes', team: 'Speedsters' },
+                { id: 'p7', pseudo: 'Apollo', team: 'Sun Team' }, { id: 'p8', pseudo: 'Artemis', team: 'Moon Team' },
+            ],
+            matches: [
+                {
+                    id: 'm1', status: 'completed', players: ['p1', 'p2', 'p3', 'p4'],
+                    results: { p1: { races: [1, 2, 1, 3], penalty: 0 }, p2: { races: [2, 1, 2, 1], penalty: 0 }, p3: { races: [3, 4, 3, 2], penalty: 0 }, p4: { races: [4, 3, 4, 4], penalty: 0 } },
+                    tiebreakerNeeded: false,
+                }
+            ],
+            editingMatch: null, errorMsg: '', confirmDialog: { isOpen: false }, promptDialog: { isOpen: false }
+        };
+
+        let state = { ...defaultState };
+        try {
+            const savedState = localStorage.getItem('mk8d_state');
+            if (savedState) {
+                const parsed = JSON.parse(savedState);
+                state.players = parsed.players || state.players;
+                state.matches = parsed.matches || state.matches;
+            }
+        } catch (e) {}
+
+        if (state.isTVWindow) {
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'mk8d_state' && e.newValue) {
+                    try {
+                        const newState = JSON.parse(e.newValue);
+                        state.players = newState.players;
+                        state.matches = newState.matches;
+                        render();
+                    } catch (err) {}
+                }
+            });
+        }
+
+        let tvScrollReq = null, tvScrollPos = 0, tvScrollDir = 0.5, tvScrollPause = 180;
+        function autoScrollTV() {
+            if (!state.isTVWindow) return;
+            const container = document.getElementById('tv-scroll-container');
+            if (container) {
+                if (container.scrollHeight > container.clientHeight) {
+                    if (tvScrollPause > 0) tvScrollPause--;
+                    else {
+                        tvScrollPos += tvScrollDir; container.scrollTop = tvScrollPos;
+                        if (tvScrollPos >= (container.scrollHeight - container.clientHeight)) { tvScrollDir = -0.5; tvScrollPause = 200; } 
+                        else if (tvScrollPos <= 0) { tvScrollDir = 0.5; tvScrollPause = 200; tvScrollPos = 0; }
+                    }
+                } else tvScrollPos = 0;
+            }
+            tvScrollReq = requestAnimationFrame(autoScrollTV);
+        }
+        if (state.isTVWindow) requestAnimationFrame(autoScrollTV);
+
+        function saveToStorage() {
+            if (!state.isTVWindow) try { localStorage.setItem('mk8d_state', JSON.stringify({ players: state.players, matches: state.matches })); } catch (e) {}
+        }
+
+        function getStandings() {
+            const scores = {};
+            state.players.forEach(p => { scores[p.id] = { ...p, totalPoints: 0, matchesPlayed: 0, raceWins: 0 }; });
+            state.matches.filter(m => m.status === 'completed').forEach(match => {
+                match.players.forEach(playerId => {
+                    if (!scores[playerId] || !match.results[playerId]) return;
+                    let matchPoints = 0;
+                    (match.results[playerId].races || []).forEach(pos => {
+                        if (pos > 0 && pos <= 12) { matchPoints += POINTS_SYSTEM[pos - 1]; if (pos === 1) scores[playerId].raceWins += 1; }
+                    });
+                    scores[playerId].totalPoints += matchPoints - (match.results[playerId].penalty || 0);
+                    scores[playerId].matchesPlayed += 1;
+                });
+            });
+            return Object.values(scores).sort((a, b) => {
+                if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+                return b.raceWins - a.raceWins;
+            });
+        }
+
+        function setTab(tab) { state.activeTab = tab; state.editingMatch = null; state.mobileMenuOpen = false; render(); }
+        function toggleMobileMenu() { state.mobileMenuOpen = !state.mobileMenuOpen; render(); }
+        function openTVWindow() {
+            saveToStorage(); 
+            try { localStorage.setItem('mk8d_spawn_tv', 'true'); window.open(window.location.href, '_blank', 'width=1280,height=720'); } catch(e) { alert("Erreur d'ouverture"); }
+            state.mobileMenuOpen = false; render();
+        }
+
+        function showConfirm(title, message, callback) { state.confirmDialog = { isOpen: true, title, message, callback }; render(); }
+        function closeConfirm() { state.confirmDialog.isOpen = false; render(); }
+        function executeConfirm() { if(state.confirmDialog.callback) state.confirmDialog.callback(); closeConfirm(); }
+
+        function showPrompt(title, message, defaultValue, callback) { state.promptDialog = { isOpen: true, title, message, value: defaultValue, callback }; render(); }
+        function closePrompt() { state.promptDialog.isOpen = false; render(); }
+        function executePrompt() { if(state.promptDialog.callback) state.promptDialog.callback(state.promptDialog.value); closePrompt(); }
+        function updatePromptValue(val) { state.promptDialog.value = val; }
+
+        function addPlayer(event) {
+            event.preventDefault();
+            const pseudo = document.getElementById('input-pseudo').value.trim();
+            const team = document.getElementById('input-team').value.trim();
+            if (!pseudo) return;
+            state.players.push({ id: `p${Date.now()}`, pseudo, team });
+            render();
+        }
+
+        function removePlayer(playerId) {
+            showConfirm("Supprimer ce joueur ?", "Il sera retiré des matchs.", () => {
+                state.players = state.players.filter(p => p.id !== playerId);
+                state.matches = state.matches.map(m => {
+                    if (m.players.includes(playerId)) {
+                        const newPlayers = m.players.filter(id => id !== playerId);
+                        const newResults = { ...m.results }; delete newResults[playerId];
+                        return { ...m, players: newPlayers, results: newResults };
+                    }
+                    return m;
+                });
+                render();
+            });
+        }
+
+        function createMatch() {
+            state.matches.unshift({ id: `m${Date.now()}`, status: 'pending', players: [], results: {}, tiebreakerNeeded: false });
+            state.editingMatch = JSON.parse(JSON.stringify(state.matches[0])); state.errorMsg = ''; render();
+        }
+
+        function editMatch(matchId) { state.editingMatch = JSON.parse(JSON.stringify(state.matches.find(m => m.id === matchId))); state.errorMsg = ''; render(); }
+        function cancelEditMatch() { state.editingMatch = null; render(); }
+        function deleteMatch(matchId) { showConfirm("Supprimer le match ?", "Définitif ?", () => { state.matches = state.matches.filter(m => m.id !== matchId); state.editingMatch = null; render(); }); }
+
+        function saveMatch() {
+            if (state.editingMatch.players.length === 0) { state.errorMsg = "Ajoutez un joueur."; render(); return; }
+            state.editingMatch.status = 'completed';
+            const index = state.matches.findIndex(m => m.id === state.editingMatch.id);
+            if(index !== -1) state.matches[index] = state.editingMatch;
+            state.editingMatch = null; render();
+        }
+
+        function autoGenerateLobbies() {
+            if (state.players.length === 0) return;
+            showPrompt("Génération Auto", "Joueurs par lobby ?", "12", (val) => {
+                const max = parseInt(val, 10); if (isNaN(max) || max < 2) return;
+                const shuffled = [...state.players].sort(() => 0.5 - Math.random());
+                const num = Math.ceil(shuffled.length / max);
+                const newMatches = Array.from({ length: num }, (_, i) => ({ id: `m${Date.now()}_${i}`, status: 'pending', players: [], results: {}, tiebreakerNeeded: false }));
+                shuffled.forEach((p, i) => { const m = newMatches[i % num]; m.players.push(p.id); m.results[p.id] = { races: [], penalty: 0 }; });
+                state.matches = [...newMatches, ...state.matches]; render();
+            });
+        }
+
+        function addPlayerToLobby() {
+            const playerId = document.getElementById('lobby-player-select').value;
+            state.errorMsg = '';
+            if (!playerId || state.editingMatch.players.includes(playerId) || state.editingMatch.players.length >= 12) return;
+            state.editingMatch.players.push(playerId); state.editingMatch.results[playerId] = { races: [], penalty: 0 }; render();
+        }
+
+        function removePlayerFromLobby(playerId) {
+            state.editingMatch.players = state.editingMatch.players.filter(id => id !== playerId);
+            delete state.editingMatch.results[playerId]; render();
+        }
+
+        function updateRaceResult(playerId, raceIndex, value) {
+            const pos = parseInt(value, 10);
+            if (!state.editingMatch.results[playerId].races) state.editingMatch.results[playerId].races = [];
+            state.editingMatch.results[playerId].races[raceIndex] = isNaN(pos) ? null : pos; render();
+        }
+
+        function updatePenalty(playerId, value) { state.editingMatch.results[playerId].penalty = isNaN(parseInt(value, 10)) ? 0 : parseInt(value, 10); render(); }
+        function toggleTiebreaker() { state.editingMatch.tiebreakerNeeded = true; render(); }
+        function calculateDraftPoints(playerId) {
+            let total = 0; const req = state.editingMatch.tiebreakerNeeded ? 5 : 4;
+            for (let i = 0; i < req; i++) { if (state.editingMatch.results[playerId]?.races[i]) total += POINTS_SYSTEM[state.editingMatch.results[playerId].races[i] - 1] || 0; }
+            return total - (state.editingMatch.results[playerId]?.penalty || 0);
+        }
+
+        // --- VUES ---
+        function renderSidebar() {
+            const navItem = (id, icon, label, isH, onClickStr) => `
+                <div onclick="${onClickStr || `setTab('${id}')`}" class="flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all font-medium whitespace-nowrap ${state.activeTab === id && !onClickStr ? (isH ? 'bg-indigo-600 text-white shadow-md' : 'bg-blue-600 text-white shadow-md') : (isH ? 'bg-indigo-900/50 text-indigo-300 hover:bg-indigo-600 hover:text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white')}">
+                    <i class="${icon} w-5 text-center"></i><span>${label}</span>
+                </div>`;
+            return `
+                <div onclick="toggleMobileMenu()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-30 md:hidden ${state.mobileMenuOpen ? 'block' : 'hidden'}"></div>
+                <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl z-40 h-full fixed md:relative transform ${state.mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300">
+                    <div class="p-6 hidden md:block"><h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400 flex items-center gap-2"><i class="fa-solid fa-trophy text-blue-400"></i> MK8D</h1></div>
+                    <nav class="flex-1 px-4 py-4 space-y-2">
+                        ${navItem('dashboard', 'fa-solid fa-ranking-star', 'Classement Général')}
+                        ${navItem('matches', 'fa-solid fa-gamepad', 'Matchs (Lobbys)')}
+                        ${navItem('players', 'fa-solid fa-users', 'Joueurs')}
+                        <div class="pt-6 pb-2"><p class="px-3 text-xs font-semibold text-slate-500 uppercase">Affichage Public</p></div>
+                        ${navItem('tv', 'fa-solid fa-tv', 'TV Mode (Aperçu)', true)}
+                        ${navItem('tv-window', 'fa-solid fa-external-link-alt', 'TV Mode (Fenêtre)', true, 'openTVWindow()')}
+                    </nav>
+                </aside>`;
+        }
+
+        function renderDashboard() {
+            const st = getStandings();
+            let rows = st.map((p, i) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-4 text-center font-bold text-slate-500">${i===0?'<span class="text-yellow-500 text-xl"><i class="fa-solid fa-medal"></i> 1</span>':i===1?'<span class="text-slate-400 text-xl"><i class="fa-solid fa-medal"></i> 2</span>':i===2?'<span class="text-amber-600 text-xl"><i class="fa-solid fa-medal"></i> 3</span>':i+1}</td>
+                    <td class="p-4"><div class="font-bold text-slate-900">${p.pseudo}</div><div class="text-xs text-slate-500">${p.team || '-'}</div></td>
+                    <td class="p-4 text-center text-slate-600">${p.matchesPlayed}</td>
+                    <td class="p-4 text-center text-blue-600 font-bold">${p.raceWins}</td>
+                    <td class="p-4 text-right font-black text-indigo-600 text-xl">${p.totalPoints} pts</td>
+                </tr>`).join('');
+            if(!rows) rows = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Aucun résultat.</td></tr>`;
+            return `<div class="p-8 max-w-5xl mx-auto overflow-y-auto h-full hide-scroll w-full"><header class="mb-8"><h2 class="text-3xl font-bold text-slate-800">Classement Général</h2></header><div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><table class="w-full text-left border-collapse"><thead><tr class="bg-slate-50 text-sm text-slate-600 uppercase"><th class="p-4 text-center">Rang</th><th class="p-4">Joueur</th><th class="p-4 text-center">Matchs</th><th class="p-4 text-center text-blue-600">Top 1</th><th class="p-4 text-right">Points</th></tr></thead><tbody class="divide-y divide-slate-100">${rows}</tbody></table></div></div>`;
+        }
+
+        function renderMatchEditor() {
+            const draft = state.editingMatch; const r = draft.tiebreakerNeeded ? 5 : 4;
+            let opts = `<option value="">Sélectionner...</option>`;
+            state.players.filter(p => !draft.players.includes(p.id)).forEach(p => opts += `<option value="${p.id}">${p.pseudo}</option>`);
+            let th = ''; for(let i=0; i<r; i++) th += `<th class="p-3 text-center text-sm">Course ${i + 1}</th>`;
+            let tb = '';
+            if(draft.players.length === 0) tb = `<tr><td colspan="8" class="p-8 text-center text-slate-500">Sélectionnez des joueurs.</td></tr>`;
+            else draft.players.forEach(pId => {
+                const p = state.players.find(x => x.id === pId) || { pseudo: '?' };
+                let sel = ''; for(let i=0; i<r; i++) {
+                    const v = draft.results[pId]?.races?.[i] || ''; let o = `<option value="">-</option>`;
+                    for(let pos=1;pos<=12;pos++) o += `<option value="${pos}" ${v==pos?'selected':''}>${pos}er</option>`;
+                    sel += `<td class="p-2 text-center"><select onchange="updateRaceResult('${pId}', ${i}, this.value)" class="w-16 p-1.5 bg-white border rounded outline-none focus:ring-2 focus:ring-blue-500">${o}</select></td>`;
+                }
+                tb += `<tr class="hover:bg-slate-50 border-b"><td class="p-3 font-semibold text-slate-800">${p.pseudo}</td>${sel}<td class="p-2 text-center"><input type="number" step="15" class="w-16 p-1.5 border border-red-200 rounded text-center text-red-600" value="${draft.results[pId]?.penalty||''}" onchange="updatePenalty('${pId}', this.value)" /></td><td class="p-3 text-right font-black text-xl text-slate-800">${calculateDraftPoints(pId)}</td><td class="p-2 text-center"><button onclick="removePlayerFromLobby('${pId}')" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+            return `<div class="bg-white rounded-xl shadow-lg border flex flex-col h-full max-h-full"><div class="bg-slate-900 p-5 text-white flex justify-between items-center"><h3 class="text-xl font-bold"><i class="fa-solid fa-gear text-blue-400"></i> Lobby ${draft.id.substring(0,5)}</h3></div><div class="p-6 overflow-y-auto flex-1">${state.errorMsg ? `<div class="mb-4 p-3 bg-red-50 text-red-700 rounded-lg"><i class="fa-solid fa-triangle-exclamation"></i> ${state.errorMsg}</div>`:''}<div class="mb-6 bg-slate-50 p-4 rounded-lg flex gap-3"><div class="flex-1"><select id="lobby-player-select" class="w-full p-2 border rounded">${opts}</select></div><button onclick="addPlayerToLobby()" class="bg-slate-800 text-white px-4 rounded">Ajouter</button></div><div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="border-b"><th class="p-3 text-sm">Joueur</th>${th}<th class="p-3 text-xs text-red-500">Pénalités</th><th class="p-3 text-right text-blue-600">Pts</th><th></th></tr></thead><tbody>${tb}</tbody></table></div>${!draft.tiebreakerNeeded && draft.players.length>0 ? `<div class="mt-4"><button onclick="toggleTiebreaker()" class="text-amber-600 text-sm font-semibold">+ Départage</button></div>`:''}</div><div class="bg-slate-50 p-4 border-t flex justify-between"><button onclick="deleteMatch('${draft.id}')" class="text-red-600 font-medium"><i class="fa-solid fa-trash"></i> Supprimer</button><div class="flex gap-3"><button onclick="cancelEditMatch()" class="px-4 py-2 border rounded-lg">Annuler</button><button onclick="saveMatch()" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold">Valider</button></div></div></div>`;
+        }
+
+        function renderMatchesList() {
+            if(state.matches.length===0) return `<p class="text-slate-500 text-center py-8">Aucun match.</p>`;
+            return state.matches.map(m => {
+                let pl = m.players.length===0 ? `<i>Vide</i>` : m.players.map(pId => `<span class="px-2 py-1 bg-slate-100 rounded text-xs font-medium border">${state.players.find(x=>x.id===pId)?.pseudo||'?'}</span>`).join('');
+                return `<div class="bg-white rounded-xl shadow-sm border p-5 flex flex-col hover:border-blue-300"><div class="flex justify-between mb-4"><div class="font-semibold text-sm">Lobby ${m.id.substring(0,5)}</div><button onclick="editMatch('${m.id}')" class="text-blue-600 bg-blue-50 px-2.5 py-1.5 rounded-md text-xs font-medium">${m.status==='completed'?'Éditer':'Saisir'}</button></div><div class="flex flex-wrap gap-2">${pl}</div></div>`;
+            }).join('');
+        }
+
+        function renderMatches() {
+            return `<div class="p-8 max-w-6xl mx-auto overflow-y-auto h-full"><div class="flex justify-between mb-8"><h2 class="text-3xl font-bold">Matchs & Lobbys</h2><div class="flex gap-3"><button onclick="autoGenerateLobbies()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto</button><button onclick="createMatch()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium"><i class="fa-solid fa-plus"></i> Nouveau</button></div></div><div class="flex-1 min-h-[400px]">${state.editingMatch ? renderMatchEditor() : `<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">${renderMatchesList()}</div>`}</div></div>`;
+        }
+
+        function renderPlayers() {
+            let r = state.players.map(p => `<tr class="hover:bg-slate-50"><td class="p-4 font-bold">${p.pseudo}</td><td class="p-4">${p.team||'-'}</td><td class="p-4 text-center"><button onclick="removePlayer('${p.id}')" class="text-red-500 bg-red-50 p-2 rounded"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+            if(!r) r = `<tr><td colspan="3" class="p-8 text-center text-slate-500">Aucun joueur.</td></tr>`;
+            return `<div class="p-8 max-w-4xl mx-auto overflow-y-auto h-full"><h2 class="text-3xl font-bold mb-8">Joueurs Inscrits</h2><form onsubmit="addPlayer(event)" class="mb-8 bg-white p-5 rounded-xl shadow-sm border flex gap-4"><input type="text" id="input-pseudo" required placeholder="Pseudo" class="flex-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500" /><input type="text" id="input-team" placeholder="Équipe" class="flex-1 p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500" /><button type="submit" class="bg-slate-900 text-white px-6 py-2.5 rounded-lg font-bold">Ajouter</button></form><div class="bg-white rounded-xl shadow-sm border"><table class="w-full text-left"><thead><tr class="bg-slate-50 text-xs font-semibold text-slate-600 uppercase"><th class="p-4">Joueur</th><th class="p-4">Équipe</th><th class="p-4 text-center">Action</th></tr></thead><tbody class="divide-y">${r}</tbody></table></div></div>`;
+        }
+
+        function renderTVMode() {
+            const st = getStandings();
+            const cards = st.map((p, i) => {
+                let bg = "mk8-card-standard text-white", rC = "text-[#00c3e3]";
+                if (i===0) { bg = "mk8-card-1st"; rC = "text-white mk8-text-outline"; }
+                else if (i===1) { bg = "mk8-card-2nd text-white"; rC = "text-white mk8-text-outline"; }
+                else if (i===2) { bg = "mk8-card-3rd text-white"; rC = "text-white mk8-text-outline"; }
+                return `<div class="mk8-card ${bg} flex items-center justify-between p-3 md:p-5" style="transform: skewX(-10deg);"><div class="flex items-center gap-4 flex-1" style="transform: skewX(10deg);"><span class="tv-rank font-black w-12 md:w-20 text-center ${rC}">${i+1}</span><div class="flex-1"><h2 class="tv-name ${i===0?'text-black':'text-white mk8-text-outline'}">${p.pseudo}</h2><span class="tv-team ${i===0?'text-gray-900':'text-[#00c3e3] mk8-text-outline'} block mt-1">${p.team||'---'}</span></div></div><div class="flex items-end gap-8 text-right" style="transform: skewX(10deg);"><div class="flex flex-col items-end"><span class="text-sm uppercase font-bold ${i===0?'text-gray-800':'text-[#ffde00]'}">Points</span><span class="tv-pts font-black ${i===0?'text-black':'text-white mk8-text-outline'}">${p.totalPoints}</span></div></div></div>`;
+            }).join('');
+
+            return `
+            <div class="mk8-tv-mode h-full w-full flex flex-col relative">
+                <div class="mk8-bg"></div><div class="mk8-neon"></div><div class="mk8-neon-2"></div>
+                ${!state.isTVWindow ? `<button onclick="setTab('dashboard')" class="absolute top-4 right-4 text-white z-50 bg-black/50 px-3 py-1 rounded-full border border-white/20">Fermer l'aperçu <i class="fa-solid fa-xmark"></i></button>` : ''}
+                
+                <header class="p-8 text-center z-10 relative shrink-0">
+                    <h1 class="font-black uppercase italic tracking-widest text-[#ffde00] mk8-text-outline" style="font-size: clamp(2rem, 5vw, 4rem); transform: skewX(-10deg);">CLASSEMENT MARIO KART</h1>
+                </header>
+                
+                <!-- Zone du classement avec Auto-Scroll sur tout l'écran -->
+                <div id="tv-scroll-container" class="flex-1 px-12 z-10 w-full max-w-7xl mx-auto overflow-y-auto hide-scroll pb-20">
+                    <div class="w-full">${cards || `<p class="text-center text-white mt-10 text-2xl font-bold mk8-text-outline italic">En attente...</p>`}</div>
+                </div>
+            </div>`;
+        }
+
+        function renderModals() {
+            let html = '';
+            if(state.confirmDialog.isOpen) {
+                html += `<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4"><div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm"><h3 class="text-xl font-bold mb-2">${state.confirmDialog.title}</h3><p class="mb-6">${state.confirmDialog.message}</p><div class="flex justify-end gap-3"><button onclick="closeConfirm()" class="px-4 py-2 bg-slate-100 rounded-lg">Annuler</button><button onclick="executeConfirm()" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold">Confirmer</button></div></div></div>`;
+            }
+            if(state.promptDialog.isOpen) {
+                html += `<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4"><div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm"><h3 class="text-xl font-bold mb-2">${state.promptDialog.title}</h3><p class="mb-4">${state.promptDialog.message}</p><input type="number" min="2" class="w-full p-2.5 mb-6 border rounded-lg text-center text-lg font-bold" value="${state.promptDialog.value}" onkeyup="updatePromptValue(this.value)" /><div class="flex justify-end gap-3"><button onclick="closePrompt()" class="px-4 py-2 bg-slate-100 rounded-lg">Annuler</button><button onclick="executePrompt()" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold">Valider</button></div></div></div>`;
+            }
+            return html;
+        }
+
+        function render() {
+            saveToStorage();
+            if (state.isTVWindow) { document.getElementById('mobile-header').classList.add('hidden'); document.getElementById('app').innerHTML = renderTVMode(); return; }
+            document.getElementById('mobile-header').classList.remove('hidden'); document.getElementById('mobile-menu-icon').className = `fa-solid ${state.mobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-2xl`;
+            let content = '';
+            if(state.activeTab === 'dashboard') content = renderDashboard();
+            else if(state.activeTab === 'matches') content = renderMatches();
+            else if(state.activeTab === 'players') content = renderPlayers();
+            else if(state.activeTab === 'tv') content = renderTVMode();
+            document.getElementById('app').innerHTML = `${renderSidebar()}<main class="flex-1 overflow-hidden relative ${state.activeTab === 'tv' ? 'bg-[#0a0f18]' : 'bg-slate-50'}">${content}</main>${renderModals()}`;
+        }
+
+        render();
+    </script>
+</body>
+</html>
