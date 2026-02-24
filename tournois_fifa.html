@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA FC Manager - Pro Tournament Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Polices Sports Style -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Teko:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --ea-lime: #96ff00;
+            --ea-dark: #050505;
+            --ea-bg: #111111;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--ea-bg);
+            color: white;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        .animate-entry {
+            animation: fadeInSlide 0.4s ease-out forwards;
+        }
+
+        /* --- DESIGN EA FC --- */
+        .fifa-tv-mode { 
+            font-family: 'Kanit', sans-serif; 
+            background-color: var(--ea-dark); 
+            position: relative; 
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .fifa-bg-fx {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #050505 100%);
+            z-index: 0;
+        }
+
+        .fifa-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(150, 255, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(150, 255, 0, 0.02) 1px, transparent 1px);
+            background-size: clamp(30px, 5vw, 60px) clamp(30px, 5vw, 60px);
+            transform: perspective(1000px) rotateX(45deg);
+            transform-origin: bottom;
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        .fifa-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transform: skewX(-8deg);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .fifa-card { transform: skewX(-12deg); }
+        }
+
+        .fifa-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--ea-lime);
+            transform: skewX(-8deg) scale(1.005);
+        }
+
+        .fifa-card-highlight {
+            background: linear-gradient(90deg, rgba(150, 255, 0, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-left: 6px solid var(--ea-lime);
+        }
+
+        .ea-button {
+            background: white;
+            color: black;
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        @media (min-width: 768px) {
+            .ea-button { padding: 12px 28px; }
+        }
+
+        .ea-button:hover {
+            background: var(--ea-lime);
+            transform: translateY(-1px);
+        }
+
+        .skew-box { transform: skewX(-12deg); }
+        .unskew { transform: skewX(12deg); }
+
+        @media (max-width: 767px) {
+            .skew-box, .unskew { transform: none; }
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- Header Mobile -->
+    <div id="mobile-header" class="md:hidden bg-black text-white p-4 flex justify-between items-center z-50 relative border-b border-white/10 hidden">
+        <h1 class="text-xl font-black tracking-tighter italic"><span class="text-[#96ff00]">EA</span> SPORTS FC</h1>
+        <button onclick="window.toggleMobileMenu()" class="text-white p-2 transition-transform active:scale-90"><i id="mobile-menu-icon" class="fa-solid fa-bars text-2xl"></i></button>
+    </div>
+
+    <!-- Conteneur principal -->
+    <div id="app" class="flex-1 flex overflow-hidden relative"></div>
+
+    <script>
+        // --- ETAT GLOBAL ---
+        let state = {
+            config: { type: null, hasGroups: false, isSetup: false },
+            activeTab: 'dashboard',
+            mobileMenuOpen: false,
+            players: [
+                { id: 'p1', pseudo: 'MISTER-V', team: 'Real Madrid' },
+                { id: 'p2', pseudo: 'GOTAGA', team: 'PSG' },
+                { id: 'p3', pseudo: 'KAMETO', team: 'KCorp' },
+                { id: 'p4', pseudo: 'SQUEEZIE', team: 'OM' }
+            ],
+            matches: [],
+            groups: [],
+            editingMatch: null,
+            isTVWindow: new URLSearchParams(window.location.search).get('tv') === 'true'
+        };
+
+        // --- ATTACHEMENT DES FONCTIONS GLOBALES ---
+        
+        window.save = function() { localStorage.setItem('eafc_state_auto', JSON.stringify(state)); };
+        
+        window.load = function() {
+            const data = localStorage.getItem('eafc_state_auto');
+            if (data) state = { ...state, ...JSON.parse(data) };
+            if (new URLSearchParams(window.location.search).get('tv') === 'true') state.isTVWindow = true;
+        };
+
+        // LOGIQUE GENERATION MATCHS
+        function createMatchesForList(playerIds) {
+            let res = [];
+            for (let i = 0; i < playerIds.length; i++) {
+                for (let j = i + 1; j < playerIds.length; j++) {
+                    res.push({ id: `m_${Date.now()}_${i}_${j}`, p1Id: playerIds[i], p2Id: playerIds[j], score1: 0, score2: 0, status: 'pending' });
+                }
+            }
+            return res;
+        }
+
+        window.generateLeagueMatches = function() {
+            if (state.players.length < 2) return;
+            state.matches = createMatchesForList(state.players.map(p => p.id)).sort(() => 0.5 - Math.random());
+            window.save();
+        };
+
+        window.generateRandomGroups = function() {
+            if (state.players.length < 2) return;
+            const shuffled = [...state.players].sort(() => 0.5 - Math.random());
+            state.groups = [{ id: 'g1', name: 'GROUPE A', playerIds: [] }, { id: 'g2', name: 'GROUPE B', playerIds: [] }];
+            shuffled.forEach((p, i) => state.groups[i % 2].playerIds.push(p.id));
+            state.matches = [];
+            state.groups.forEach(g => {
+                state.matches = [...state.matches, ...createMatchesForList(g.playerIds)];
+            });
+            window.save();
+        };
+
+        window.generateKnockoutMatches = function() {
+            if (state.players.length < 2) return;
+            const shuffled = [...state.players].sort(() => 0.5 - Math.random());
+            state.matches = [];
+            for (let i = 0; i < shuffled.length; i += 2) {
+                if (shuffled[i + 1]) {
+                    state.matches.push({ id: `m_ko_${i}_${Date.now()}`, p1Id: shuffled[i].id, p2Id: shuffled[i+1].id, score1: 0, score2: 0, status: 'pending', round: 'Direct' });
+                } else {
+                    state.matches.push({ id: `m_bye_${i}_${Date.now()}`, p1Id: shuffled[i].id, p2Id: null, score1: 0, score2: 0, status: 'completed', round: 'Bye' });
+                }
+            }
+            window.save();
+        };
+
+        // SETUP TOURNAMENT AVEC GENERATION AUTO
+        window.setupTournament = function(type, hasGroups) {
+            state.config.type = type;
+            state.config.hasGroups = hasGroups;
+            state.config.isSetup = true;
+            state.matches = [];
+            state.groups = [];
+            
+            // AUTOMATISATION : Si on a déjà des joueurs, on génère les matchs immédiatement
+            if (state.players.length >= 2) {
+                if (type === 'league') window.generateLeagueMatches();
+                else if (type === 'cup' && hasGroups) window.generateRandomGroups();
+                else if (type === 'cup' && !hasGroups) window.generateKnockoutMatches();
+            }
+            
+            window.save(); render();
+        };
+
+        window.goToHome = function() {
+            state.config.isSetup = false;
+            window.save(); render();
+        };
+
+        window.setTab = function(tab) { 
+            state.activeTab = tab; 
+            state.mobileMenuOpen = false;
+            state.editingMatch = null;
+            render(); 
+        };
+
+        window.toggleMobileMenu = function() {
+            state.mobileMenuOpen = !state.mobileMenuOpen;
+            render();
+        };
+
+        window.addPlayer = function(event) {
+            event.preventDefault();
+            const ps = document.getElementById('input-pseudo').value.trim();
+            const tm = document.getElementById('input-team').value.trim();
+            if (!ps) return;
+            state.players.push({ id: `p${Date.now()}`, pseudo: ps.toUpperCase(), team: tm.toUpperCase() });
+            window.save(); render();
+        };
+
+        window.removePlayer = function(id) {
+            state.players = state.players.filter(p => p.id !== id);
+            window.save(); render();
+        };
+
+        window.createMatch = function() {
+            state.editingMatch = { id: `m${Date.now()}`, p1Id: '', p2Id: '', score1: 0, score2: 0, status: 'pending' };
+            render();
+        };
+
+        window.editMatch = function(id) {
+            state.editingMatch = JSON.parse(JSON.stringify(state.matches.find(m => m.id === id)));
+            render();
+        };
+
+        window.saveMatch = function() {
+            const d = state.editingMatch;
+            if (!d.p1Id) return;
+            d.status = 'completed';
+            const idx = state.matches.findIndex(m => m.id === d.id);
+            if(idx !== -1) state.matches[idx] = d;
+            else state.matches.unshift(d);
+            state.editingMatch = null;
+            window.save(); render();
+        };
+
+        window.deleteMatch = function(id) {
+            state.matches = state.matches.filter(m => m.id !== id);
+            window.save(); render();
+        };
+
+        window.openTVWindow = function() {
+            window.save();
+            window.open(window.location.href.split('?')[0] + '?tv=true', '_blank');
+        };
+
+        window.resetTournament = function() {
+            if(confirm("Effacer tous les résultats et joueurs ?")) {
+                state.config.isSetup = false; state.matches = []; state.groups = []; state.players = [];
+                window.save(); render();
+            }
+        };
+
+        // --- CALCULS ---
+
+        function calculateStandings(playerList, matchList) {
+            const stats = {};
+            playerList.forEach(p => { stats[p.id] = { ...p, j:0, v:0, n:0, d:0, bp:0, bc:0, diff:0, pts:0 }; });
+            matchList.filter(m => m.status === 'completed').forEach(m => {
+                const p1 = stats[m.p1Id], p2 = stats[m.p2Id];
+                if (!p1 || !p2) return;
+                p1.j++; p2.j++; p1.bp += m.score1; p1.bc += m.score2; p2.bp += m.score2; p2.bc += m.score1;
+                if (m.score1 > m.score2) { p1.v++; p1.pts += 3; p2.d++; }
+                else if (m.score1 < m.score2) { p2.v++; p2.pts += 3; p1.d++; }
+                else { p1.n++; p2.n++; p1.pts += 1; p2.pts += 1; }
+                p1.diff = p1.bp - p1.bc; p2.diff = p2.bp - p2.bc;
+            });
+            return Object.values(stats).sort((a,b) => b.pts - a.pts || b.diff - a.diff || b.bp - a.bp);
+        }
+
+        // --- RENDU UI ---
+
+        function renderSidebar() {
+            const item = (id, icon, label, click) => `
+                <div onclick="${click || `window.setTab('${id}')`}" class="flex items-center gap-4 px-4 py-3.5 rounded-sm cursor-pointer transition-all ${state.activeTab === id ? 'bg-white text-black font-black italic scale-105 shadow-xl' : 'text-slate-400 hover:text-white hover:bg-white/5'}">
+                    <i class="${icon} w-5 text-center ${state.activeTab === id ? 'text-lime-500' : ''}"></i>
+                    <span class="uppercase tracking-tighter text-xs font-bold">${label}</span>
+                </div>`;
+            return `
+                <div onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 md:hidden ${state.mobileMenuOpen ? 'block' : 'hidden'}"></div>
+                <aside class="w-64 bg-[#050505] border-r border-white/5 text-white flex flex-col z-50 h-full fixed md:relative transform ${state.mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300">
+                    <div class="p-6 pb-10 flex flex-col items-center md:items-start">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-[#96ff00] text-black px-1.5 py-0.5 font-black italic text-[10px]">EA</span>
+                            <span class="font-black italic tracking-tighter text-lg">SPORTS FC</span>
+                        </div>
+                        <div class="h-0.5 w-10 bg-lime-500"></div>
+                    </div>
+                    <nav class="flex-1 px-3 space-y-1 overflow-y-auto hide-scroll">
+                        ${item('home', 'fa-solid fa-house', 'Accueil', 'window.goToHome()')}
+                        <div class="pt-6 pb-2"><p class="px-4 text-[9px] font-black text-slate-600 uppercase tracking-widest">Compétition</p></div>
+                        ${item('dashboard', 'fa-solid fa-ranking-star', 'Classement')}
+                        ${item('matches', 'fa-solid fa-gamepad', 'Matchs')}
+                        ${item('players', 'fa-solid fa-users', 'Joueurs')}
+                        <div class="pt-6 pb-2"><p class="px-4 text-[9px] font-black text-slate-600 uppercase tracking-widest">Broadcast</p></div>
+                        ${item('tv', 'fa-solid fa-display', 'Aperçu TV')}
+                        ${item('tv-win', 'fa-solid fa-external-link', 'Ouvrir la TV', 'window.openTVWindow()')}
+                    </nav>
+                    <div class="p-4 border-t border-white/5">
+                        <button onclick="window.resetTournament()" class="w-full text-left p-2 text-[9px] font-black uppercase text-red-500/50 hover:text-red-500 transition-colors uppercase"><i class="fa-solid fa-rotate-left mr-2"></i> Reset Global</button>
+                    </div>
+                </aside>`;
+        }
+
+        function renderSetup() {
+            return `
+            <div class="flex-1 flex items-center justify-center p-4 bg-[#050505] relative overflow-hidden h-full">
+                <div class="fifa-grid"></div>
+                <div class="max-w-4xl w-full text-center z-10 animate-entry px-4">
+                    <h1 class="text-4xl md:text-7xl font-black italic text-white mb-4 tracking-tighter uppercase leading-none">TOURNAMENT <span class="text-lime-500">HUB</span></h1>
+                    <p class="text-slate-500 uppercase tracking-[0.4em] font-bold text-[10px] mb-12">Sélectionnez votre format</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div onclick="window.setupTournament('league', false)" class="group bg-white/5 p-6 md:p-10 border border-white/10 cursor-pointer hover:border-lime-500 transition-all">
+                            <i class="fa-solid fa-list-ol text-4xl mb-6 group-hover:text-lime-500 transition-colors"></i>
+                            <h2 class="text-xl font-black italic uppercase">Championnat</h2>
+                            <p class="text-xs text-slate-500 mt-2">Ligue intégrale</p>
+                        </div>
+                        <div onclick="window.setupTournament('cup', true)" class="group bg-white/5 p-6 md:p-10 border border-white/10 cursor-pointer hover:border-lime-500 transition-all">
+                            <i class="fa-solid fa-trophy text-4xl mb-6 group-hover:text-lime-500 transition-colors"></i>
+                            <h2 class="text-xl font-black italic uppercase">Poules</h2>
+                            <p class="text-xs text-slate-500 mt-2">Phase de groupes</p>
+                        </div>
+                        <div onclick="window.setupTournament('cup', false)" class="group bg-white/5 p-6 md:p-10 border border-white/10 cursor-pointer hover:border-lime-500 transition-all">
+                            <i class="fa-solid fa-bolt text-4xl mb-6 group-hover:text-lime-500 transition-colors"></i>
+                            <h2 class="text-xl font-black italic uppercase">Direct</h2>
+                            <p class="text-xs text-slate-500 mt-2">Élimination directe</p>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderLeagueDashboard() {
+            const st = calculateStandings(state.players, state.matches);
+            let rows = st.map((p, i) => `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-all">
+                    <td class="p-3 text-center font-black italic ${i < 3 ? 'text-lime-500' : 'text-slate-600'}">${i+1}</td>
+                    <td class="p-3 font-black uppercase text-sm">${p.pseudo} <span class="hidden md:inline text-[9px] text-slate-500 ml-2 font-bold">${p.team}</span></td>
+                    <td class="p-3 text-center font-bold text-slate-300 text-xs">${p.j}</td>
+                    <td class="p-3 text-center font-mono font-black text-xs ${p.diff>0?'text-lime-500':p.diff<0?'text-red-500':''}">${p.diff>0?'+':''}${p.diff}</td>
+                    <td class="p-3 text-right font-black text-xl italic text-white">${p.pts}</td>
+                </tr>`).join('');
+            
+            return `<div class="p-4 md:p-10 max-w-5xl mx-auto h-full w-full overflow-y-auto hide-scroll">
+                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8 bg-white/5 p-4 md:p-6 border-l-4 border-lime-500 skew-box">
+                    <div class="unskew"><h2 class="text-2xl md:text-3xl font-black italic uppercase tracking-tighter">Classement</h2></div>
+                    <div class="unskew">
+                        ${state.matches.length === 0 ? `<button onclick="${state.config.type === 'league' ? 'window.generateLeagueMatches();render()' : 'window.generateKnockoutMatches();render()'}" class="ea-button w-full md:w-auto">Générer Matchs</button>` : ''}
+                    </div>
+                </div>
+                <div class="bg-white/5 border border-white/10 rounded-sm overflow-x-auto">
+                    <table class="w-full text-left min-w-[380px]">
+                        <thead class="bg-white/5 text-white text-[9px] font-black uppercase tracking-widest italic border-b border-white/10">
+                            <tr><th class="p-3 text-center w-12">Pos</th><th class="p-3">Joueur</th><th class="p-3 text-center">J</th><th class="p-3 text-center">Diff</th><th class="p-3 text-right">Pts</th></tr>
+                        </thead>
+                        <tbody>${rows || '<tr><td colspan="5" class="p-10 text-center text-slate-600 font-black italic uppercase">Matchs en attente...</td></tr>'}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        function renderCupDashboard() {
+            if (!state.config.hasGroups) return renderLeagueDashboard();
+            const groupHtml = state.groups.map(g => {
+                const groupPlayers = state.players.filter(p => g.playerIds.includes(p.id));
+                const st = calculateStandings(groupPlayers, state.matches);
+                return `
+                <div class="bg-white/5 border border-white/10 rounded-sm overflow-hidden mb-8">
+                    <div class="bg-white/5 p-3 border-b border-white/10 font-black italic text-lime-500 uppercase text-sm">${g.name}</div>
+                    <table class="w-full text-left text-xs">
+                        <tbody>
+                            ${st.map((p, i) => `<tr class="border-b border-white/5 ${i < 2 ? 'bg-lime-500/5' : ''}"><td class="p-2.5 text-center font-bold text-slate-500 w-10">${i+1}</td><td class="p-2.5 font-black italic uppercase truncate">${p.pseudo}</td><td class="p-2.5 text-right font-black italic w-12">${p.pts}</td></tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+            }).join('');
+            return `<div class="p-4 md:p-10 max-w-6xl mx-auto h-full w-full overflow-y-auto hide-scroll">
+                <div class="flex justify-between items-center mb-8 bg-white/5 p-4 border-l-4 border-lime-500 skew-box">
+                    <div class="unskew"><h2 class="text-xl md:text-3xl font-black italic uppercase tracking-tighter">Phases de Groupes</h2></div>
+                    <div class="unskew">${state.matches.length === 0 ? `<button onclick="window.generateRandomGroups();render()" class="ea-button">Tirage</button>` : ''}</div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">${groupHtml || '<p class="text-center col-span-2 text-slate-600 font-black py-20 uppercase">Action requise</p>'}</div>
+            </div>`;
+        }
+
+        function renderMatches() {
+            const list = state.matches.map((m, i) => {
+                const p1 = state.players.find(x => x.id === m.p1Id), p2 = state.players.find(x => x.id === m.p2Id);
+                const isC = m.status === 'completed';
+                return `
+                <div class="fifa-card animate-entry mb-3" style="animation-delay: ${i*0.02}s">
+                    <div class="p-3 md:p-6 flex items-center justify-between gap-1 md:gap-4">
+                        <div class="flex-1 text-right unskew overflow-hidden"><div class="font-black italic uppercase text-[10px] md:text-xl text-white truncate">${p1?.pseudo || '?'}</div></div>
+                        <div onclick="window.editMatch('${m.id}')" class="cursor-pointer mx-1 md:mx-6 bg-white text-black px-3 py-1.5 md:px-6 md:py-3 rounded-sm font-black text-xs md:text-2xl italic min-w-[55px] md:min-w-[120px] text-center hover:bg-lime-500 transition-colors shadow-xl unskew">${isC ? (p2 ? `${m.score1} - ${m.score2}` : 'BYE / WIN') : 'VS'}</div>
+                        <div class="flex-1 text-left unskew overflow-hidden"><div class="font-black italic uppercase text-[10px] md:text-xl text-white truncate">${p2?.pseudo || (m.round === 'Bye' ? 'BYE' : '?')}</div></div>
+                    </div>
+                </div>`;
+            }).join('');
+            return `<div class="p-4 md:p-10 max-w-4xl mx-auto h-full w-full overflow-y-auto hide-scroll">
+                <div class="flex justify-between items-center mb-8"><h2 class="text-2xl md:text-4xl font-black italic uppercase tracking-tighter">Matchs</h2><button onclick="window.createMatch()" class="ea-button"><i class="fa-solid fa-plus"></i></button></div>
+                <div class="pb-32">${state.editingMatch ? renderMatchEditor() : list || '<p class="text-center text-slate-500 py-10 italic uppercase font-black opacity-20">Aucun match</p>'}</div>
+            </div>`;
+        }
+
+        function renderMatchEditor() {
+            const d = state.editingMatch;
+            return `
+            <div class="h-full bg-[#111] flex flex-col animate-entry p-4">
+                <h2 class="text-xl md:text-2xl font-black italic uppercase mb-8 text-white">Score</h2>
+                <div class="flex-1 flex flex-col items-center justify-center">
+                    <div class="grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] items-center gap-6 w-full max-w-4xl">
+                        <div class="bg-white/5 p-4 md:p-8 text-center rounded-sm">
+                            <select onchange="state.editingMatch.p1Id=this.value;render()" class="w-full p-2 bg-black text-white border border-white/10 font-black italic text-sm md:text-lg rounded-sm uppercase mb-6 outline-none focus:border-lime-500">
+                                <option value="">Joueur A</option>${state.players.map(p => `<option value="${p.id}" ${d.p1Id===p.id?'selected':''}>${p.pseudo}</option>`).join('')}
+                            </select>
+                            <input type="number" onchange="state.editingMatch.score1=parseInt(this.value)||0;render()" class="w-full p-4 text-6xl md:text-8xl font-black text-center bg-transparent border-b-4 border-lime-500 text-white outline-none" value="${d.score1}">
+                        </div>
+                        <div class="text-2xl font-black opacity-20">VS</div>
+                        <div class="bg-white/5 p-4 md:p-8 text-center rounded-sm">
+                            <select onchange="state.editingMatch.p2Id=this.value;render()" class="w-full p-2 bg-black text-white border border-white/10 font-black italic text-sm md:text-lg rounded-sm uppercase mb-6 outline-none focus:border-lime-500">
+                                <option value="">Joueur B</option>${state.players.map(p => `<option value="${p.id}" ${d.p2Id===p.id?'selected':''}>${p.pseudo}</option>`).join('')}
+                            </select>
+                            <input type="number" onchange="state.editingMatch.score2=parseInt(this.value)||0;render()" class="w-full p-4 text-6xl md:text-8xl font-black text-center bg-transparent border-b-4 border-lime-500 text-white outline-none" value="${d.score2}">
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-8 flex justify-end gap-6">
+                    <button onclick="state.editingMatch=null;render()" class="font-black italic text-slate-500 uppercase text-sm">Annuler</button>
+                    <button onclick="window.saveMatch()" class="ea-button">Enregistrer</button>
+                </div>
+            </div>`;
+        }
+
+        function renderPlayers() {
+            const items = state.players.map(p => `<div class="bg-white/5 p-4 rounded-sm border border-white/5 flex justify-between items-center animate-entry"><div><div class="font-black italic text-lg uppercase text-white leading-none">${p.pseudo}</div><div class="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-1">${p.team}</div></div><button onclick="window.removePlayer('${p.id}')" class="text-slate-700 hover:text-red-500 transition-colors p-2"><i class="fa-solid fa-trash"></i></button></div>`).join('');
+            
+            let genBtn = '';
+            if (state.config.type === 'league') genBtn = `<button onclick="window.generateLeagueMatches();render()" class="ea-button">Gen. Ligue</button>`;
+            else if (state.config.type === 'cup' && state.config.hasGroups) genBtn = `<button onclick="window.generateRandomGroups();render()" class="ea-button">Gen. Poules</button>`;
+            else genBtn = `<button onclick="window.generateKnockoutMatches();render()" class="ea-button">Gen. Tirage</button>`;
+
+            return `<div class="p-4 md:p-10 max-w-6xl mx-auto h-full w-full overflow-y-auto hide-scroll">
+                <div class="bg-white/5 p-4 md:p-6 border-l-4 border-white/20 skew-box mb-8 flex flex-col md:flex-row justify-between md:items-end gap-6">
+                    <div class="unskew"><h2 class="text-2xl md:text-3xl font-black italic uppercase leading-none">Roster</h2></div>
+                    <div class="unskew flex gap-2">${genBtn}</div>
+                </div>
+                <form onsubmit="window.addPlayer(event)" class="bg-white/5 p-4 border border-white/5 mb-8 flex flex-col md:flex-row gap-4">
+                    <input id="input-pseudo" type="text" placeholder="PSEUDO" required class="flex-1 p-3 bg-black border border-white/10 text-white font-black italic outline-none focus:border-lime-500 uppercase text-sm">
+                    <input id="input-team" type="text" placeholder="EQUIPE" class="flex-1 p-3 bg-black border border-white/10 text-white font-black italic outline-none focus:border-lime-500 uppercase text-sm">
+                    <button type="submit" class="ea-button">Inscrire</button>
+                </form>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-20">${items || '<p class="col-span-full text-center text-slate-600 font-black uppercase py-20 italic">Ajoutez des joueurs</p>'}</div>
+            </div>`;
+        }
+
+        function renderTVMode() {
+            const st = calculateStandings(state.players, state.matches);
+            const cards = st.map((p, i) => `
+                <div class="fifa-card ${i === 0 ? 'fifa-card-highlight' : ''} p-4 md:p-10 animate-entry mb-4 md:mb-8" style="animation-delay: ${i*0.1}s">
+                    <div class="unskew flex items-center justify-between w-full">
+                        <div class="flex items-center gap-4 md:gap-12">
+                            <span class="text-3xl md:text-8xl font-black italic w-10 md:w-24 text-center ${i===0?'text-white':'text-white/10'}">${i+1}</span>
+                            <div>
+                                <h2 class="text-xl md:text-7xl font-black italic uppercase tracking-tight text-white leading-none">${p.pseudo}</h2>
+                                <div class="flex items-center gap-2 mt-1 md:mt-4">
+                                    <span class="bg-lime-500 text-black px-1.5 py-0.5 text-[8px] md:text-xs font-black italic uppercase">LIVE</span>
+                                    <span class="uppercase font-black text-[10px] md:text-lg tracking-widest text-white/40 truncate max-w-[120px] md:max-w-none">${p.team || 'FREE AGENT'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                             <div class="text-[8px] md:text-xs font-black text-lime-500 uppercase tracking-widest mb-1">Pts</div>
+                             <div class="text-4xl md:text-[10rem] font-black text-white leading-none">${p.pts}</div>
+                        </div>
+                    </div>
+                </div>`).join('');
+
+            return `
+            <div class="fifa-tv-mode flex flex-col relative h-full w-full overflow-hidden">
+                <div class="fifa-bg-fx"></div><div class="fifa-grid"></div>
+                <button onclick="window.setTab('dashboard')" class="fixed top-4 right-4 z-[100] flex items-center gap-2 bg-white text-black px-5 py-2 md:px-10 md:py-4 font-black italic uppercase hover:bg-lime-500 hover:scale-110 transition-all shadow-[0_0_30px_rgba(150,255,0,0.5)] border-2 border-lime-500 text-xs md:text-base">
+                    <i class="fa-solid fa-arrow-left"></i> Quitter l'aperçu
+                </button>
+                <header class="p-10 md:p-16 text-center z-10 relative shrink-0">
+                    <div class="inline-block bg-white text-black px-4 py-1 text-[9px] md:text-xs font-black italic tracking-widest mb-4">TOURNAMENT RANKING</div>
+                    <h1 class="text-white font-black italic uppercase tracking-tighter leading-none" style="font-size: clamp(2.5rem, 9vw, 12rem);">LEADER<span class="text-lime-500">BOARD</span></h1>
+                </header>
+                <div id="tv-scroll-container" class="flex-1 px-4 md:px-24 z-10 w-full max-w-7xl mx-auto overflow-y-auto hide-scroll pb-60">
+                    <div class="w-full">${cards || '<p class="text-center text-white/20 mt-20 text-3xl font-black uppercase italic tracking-widest">Signal en cours...</p>'}</div>
+                </div>
+            </div>`;
+        }
+
+        // --- CORE RENDER ---
+        function render() {
+            window.save();
+            const app = document.getElementById('app');
+            if (state.isTVWindow) { 
+                document.getElementById('mobile-header').classList.add('hidden'); 
+                app.innerHTML = renderTVMode(); return; 
+            }
+            if (!state.config.isSetup) { 
+                document.getElementById('mobile-header').classList.add('hidden');
+                app.innerHTML = renderSetup(); return; 
+            }
+            
+            document.getElementById('mobile-header').classList.remove('hidden');
+            const icon = document.getElementById('mobile-menu-icon');
+            if(icon) icon.className = `fa-solid ${state.mobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-2xl`;
+            
+            let content = '';
+            if(state.activeTab === 'dashboard') content = (state.config.type === 'league' || !state.config.hasGroups) ? renderLeagueDashboard() : renderCupDashboard();
+            else if(state.activeTab === 'matches') content = renderMatches();
+            else if(state.activeTab === 'players') content = renderPlayers();
+            else if(state.activeTab === 'tv') content = renderTVMode();
+            
+            app.innerHTML = `<div class="flex h-full w-full relative">${renderSidebar()}<main class="flex-1 overflow-hidden relative bg-[#111]">${content}</main></div>`;
+        }
+
+        window.load();
+        window.addEventListener('storage', (e) => { if (e.key === 'eafc_state_auto') { try { state = { ...state, ...JSON.parse(e.newValue) }; render(); } catch(err){} } });
+        render();
+    </script>
+</body>
+</html>
