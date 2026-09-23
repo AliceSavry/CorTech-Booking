@@ -1,11 +1,97 @@
 [
   {
-    "id": "ia-2026-10-16",
+    "id": "ia-1-2026-10-16",
     "date": "2026-10-16",
-    "title": "Initiation à l’intelligence artificielle",
-    "time": "20h30",
+    "title": "Atelier IA niveau 1",
+    "time": "20h30–22h00",
+    "price": 5,
+    "capacity": 10,
+    "description": "Comprendre l’IA et choisir le modèle adapté à son besoin · Gemini (version gratuite)",
     "place": "COR-TECH, bâtiment de la médiathèque de Cordemais",
-    "link": "inscriptions.html?event=ia-2026-10-16",
+    "link": "inscriptions.html?event=ia-1-2026-10-16",
+    "linkText": "S’inscrire →"
+  },
+  {
+    "id": "mario-kart-2026-10-31",
+    "date": "2026-10-31",
+    "title": "Mario Kart d’Halloween + test de la Switch 2",
+    "time": "20h30–22h30",
+    "price": 10,
+    "capacity": 12,
+    "link": "inscriptions.html?event=mario-kart-2026-10-31",
+    "linkText": "S’inscrire →"
+  },
+  {
+    "id": "just-dance-2026-11-18",
+    "date": "2026-11-18",
+    "title": "Just Dance — après-midi filles",
+    "time": "14h00–18h00",
+    "price": 0,
+    "capacity": 8,
+    "link": "inscriptions.html?event=just-dance-2026-11-18",
+    "linkText": "S’inscrire →"
+  },
+  {
+    "id": "ia-2-2026-12-18",
+    "date": "2026-12-18",
+    "title": "Atelier IA niveau 2",
+    "time": "20h30–22h00",
+    "price": 5,
+    "capacity": 10,
+    "description": "Optimisation des prompts et création de petites applications · Gemini (version gratuite)",
+    "link": "inscriptions.html?event=ia-2-2026-12-18",
+    "linkText": "S’inscrire →"
+  },
+  {
+    "id": "jeux-retro-pizza-2027-01-15",
+    "date": "2027-01-15",
+    "title": "Jeux rétro / pizza",
+    "time": "20h30–22h30",
+    "price": 15,
+    "capacity": 15,
+    "link": "inscriptions.html?event=jeux-retro-pizza-2027-01-15",
+    "linkText": "S’inscrire →"
+  },
+  {
+    "id": "ia-3-2027-02-12",
+    "date": "2027-02-12",
+    "title": "Atelier IA niveau 3",
+    "time": "20h30–22h00",
+    "price": 15,
+    "capacity": 10,
+    "description": "Création d’agents et d’outils métiers · ChatGPT (version payante)",
+    "link": "inscriptions.html?event=ia-3-2027-02-12",
+    "linkText": "S’inscrire →"
+  },
+  {
+    "id": "super-smash-bros-2027-03-19",
+    "date": "2027-03-19",
+    "title": "Super Smash Bros",
+    "time": "20h30–22h30",
+    "price": 10,
+    "capacity": 12,
+    "link": "inscriptions.html?event=super-smash-bros-2027-03-19",
+    "linkText": "S’inscrire →"
+  },
+  {
+    "id": "ia-4-2027-04-09",
+    "date": "2027-04-09",
+    "title": "Atelier IA niveau 4",
+    "time": "20h30–22h00",
+    "price": 15,
+    "capacity": 10,
+    "description": "Utilisation avancée de l’IA pour des applications avancées et des jeux aboutis · ChatGPT (version payante)",
+    "link": "inscriptions.html?event=ia-4-2027-04-09",
+    "linkText": "S’inscrire →"
+  },
+  {
+    "id": "cor-tech-quiz-2027-05-21",
+    "date": "2027-05-21",
+    "title": "COR-TECH Quiz",
+    "time": "20h30–22h30",
+    "price": 10,
+    "capacity": 20,
+    "link": "inscriptions.html?event=cor-tech-quiz-2027-05-21",
     "linkText": "S’inscrire →"
   }
 ]

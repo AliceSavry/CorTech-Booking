@@ -3,6 +3,8 @@ const eventSelect=document.querySelector('#event-select');
 const status=document.querySelector('#registration-status');
 const requestBox=document.querySelector('#request-copy');
 const requestText=document.querySelector('#request-text');
+const eventDetails=document.querySelector('#event-details');
+const placesInput=document.querySelector('#places');
 const selectedEvent=new URLSearchParams(location.search).get('event');
 const dateIsFuture=date=>/^\d{4}-\d{2}-\d{2}$/.test(date)&&new Date(date+'T23:59:59')>=new Date();
 function selectRequestedEvent(){
@@ -10,15 +12,24 @@ function selectRequestedEvent(){
   const option=[...eventSelect.options].find(item=>item.value===selectedEvent||item.dataset.date===selectedEvent);
   if(option)eventSelect.value=option.value;
 }
+function showEventDetails(){
+  const option=eventSelect.selectedOptions[0];
+  if(!option?.value){eventDetails.textContent='';placesInput.removeAttribute('max');return}
+  const price=Number(option.dataset.price),capacity=Number(option.dataset.capacity);
+  placesInput.max=String(capacity);
+  eventDetails.textContent=`Entrée : ${price===0?'gratuite':price+' € par personne'} · Jauge maximale : ${capacity} personnes. Inscription soumise à confirmation ; aucun paiement en ligne.`;
+}
+eventSelect.addEventListener('change',showEventDetails);
 function emptyEvents(){
   eventSelect.replaceChildren(new Option('Aucun événement annoncé pour le moment',''));
   eventSelect.disabled=true;document.querySelector('#send-request').disabled=true;
+  showEventDetails();
   status.textContent='Aucun événement à venir n’est disponible. Vous pouvez contacter COR-TECH pour connaître le programme.';
 }
 function cleanFallback(){
   for(const option of [...eventSelect.options])if(option.dataset.date&&!dateIsFuture(option.dataset.date))option.remove();
   if(![...eventSelect.options].some(option=>option.value))emptyEvents();
-  else selectRequestedEvent();
+  else{selectRequestedEvent();showEventDetails()}
 }
 async function updateEventOptions(){
   try{
@@ -29,14 +40,16 @@ async function updateEventOptions(){
     eventSelect.replaceChildren(new Option('Choisir un événement',''));
     for(const event of future){
       const day=new Date(event.date+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-      const option=new Option([event.title,day,event.time].filter(Boolean).join(' · '),event.id||event.date);
-      option.dataset.date=event.date;eventSelect.add(option);
+      const price=event.price===0?'Gratuit':event.price+' €';
+      const option=new Option([event.title,day,event.time,price].filter(Boolean).join(' · '),event.id||event.date);
+      option.dataset.date=event.date;option.dataset.price=String(event.price);option.dataset.capacity=String(event.capacity);eventSelect.add(option);
     }
-    selectRequestedEvent();
+    selectRequestedEvent();showEventDetails();
   }catch{cleanFallback()}
 }
 function requestBody(){
   const event=eventSelect.selectedOptions[0]?.textContent?.trim()||'';
+  const price=Number(eventSelect.selectedOptions[0]?.dataset.price);
   const name=document.querySelector('#full-name').value.trim();
   const email=document.querySelector('#email').value.trim();
   const phone=document.querySelector('#phone').value.trim();
@@ -52,6 +65,7 @@ function requestBody(){
     'Adresse e-mail : '+email,
     'Téléphone : '+(phone||'Non renseigné'),
     'Nombre de participants : '+places,
+    'Tarif d’entrée annoncé : '+(price===0?'gratuit':price+' € par personne'),
     'Précision : '+(message||'Aucune'),
     '',
     'Merci de me confirmer si mon inscription est possible.',

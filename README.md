@@ -14,16 +14,18 @@ Les prochains événements sont lus dans `events.json`. Le site cache automatiqu
 
 ```json
 {
+  "id": "ia-1-2026-10-16",
   "date": "2026-10-16",
-  "title": "Initiation à l’intelligence artificielle",
-  "time": "20h30",
-  "place": "COR-TECH, bâtiment de la médiathèque de Cordemais",
-  "link": "mailto:contact@cor-tech.fr?subject=Initiation",
-  "linkText": "Se renseigner →"
+  "title": "Atelier IA niveau 1",
+  "time": "20h30–22h00",
+  "price": 5,
+  "capacity": 10,
+  "link": "inscriptions.html?event=ia-1-2026-10-16",
+  "linkText": "S’inscrire →"
 }
 ```
 
-L'archive source ne contient pas de calendrier ou de système de réservation partagé. Le lien d'un formulaire de réservation peut remplacer `link` dès qu'il est disponible.
+Les neuf événements de la programmation 2026–2027 sont renseignés dans `events.json`. Les champs `price` (euros) et `capacity` (jauge maximale) sont affichés sur les cartes et dans le formulaire. La page `evenements.html` offre une vue calendrier mensuelle, dont les dates ouvrent le détail et un lien vers l’inscription. Le formulaire prépare uniquement une demande par e-mail ; il ne suit pas les places restantes et ne collecte pas de paiement. Les champs `description` et `place` sont facultatifs. L’accueil et la page Événements contiennent également une liste de secours pour une ouverture hors ligne ; si le programme est modifié, synchroniser ces listes et le sélecteur d’inscription avec `events.json`.
 
 ## Actualités et jeux
 
@@ -41,7 +43,7 @@ Le logo officiel est une conversion WebP sans changement de dessin du fichier `i
 
 ## Saison en cours
 
-Le Club YouTube ne fait plus partie des activités affichées. Le Labo Ludik reste en place ; le vendredi soir, Le Labo adultes se retrouve deux heures par semaine autour d’un projet collectif. Le premier défi proposé est le BallBot, d’après https://techknowtone.co.uk/Projects/P/BallBot/ballbot.html. Aucun horaire précis ni date de démarrage n’est annoncé dans le site. L’ancienne URL `club-youtube.html` redirige vers `le-labo.html` pour éviter une page introuvable.
+Le Club YouTube ne fait plus partie des activités affichées. Le Labo Ludik reste en place ; le vendredi soir, Le Labo adultes se retrouve deux heures par semaine autour d’un projet collectif. Le premier défi proposé est le BallBot, d’après https://techknowtone.co.uk/Projects/P/BallBot/ballbot.html. Le créneau du vendredi 21h00–23h00 est affiché sur le site. L’ancienne URL `club-youtube.html` redirige vers `le-labo.html` pour éviter une page introuvable.
 
 ## Révisions Ludik et accès au club
 
@@ -53,7 +55,7 @@ Les tarifs fournis pour 2026 et les quatre membres du bureau sont affichés dans
 
 ## Inscriptions aux événements
 
-La page `inscriptions.html` lit les futurs événements de `events.json` et accepte `?event=identifiant` pour pré-sélectionner un événement (par exemple `?event=ia-2026-10-16`). Chaque événement doit avoir un `id` distinct. Elle prépare un e-mail à `contact@cor-tech.fr` à partir du formulaire. Le visiteur doit ensuite envoyer le message dans sa messagerie ; aucune inscription n’est enregistrée dans le navigateur ni confirmée automatiquement. En cas d’absence de messagerie configurée, un bouton permet de copier la demande.
+La page `inscriptions.html` lit les futurs événements de `events.json` et accepte `?event=identifiant` pour pré-sélectionner un événement (par exemple `?event=ia-1-2026-10-16`). Chaque événement doit avoir un `id` distinct. Elle prépare un e-mail à `contact@cor-tech.fr` à partir du formulaire. Le visiteur doit ensuite envoyer le message dans sa messagerie ; aucune inscription n’est enregistrée dans le navigateur ni confirmée automatiquement. En cas d’absence de messagerie configurée, un bouton permet de copier la demande.
 
 ## Horaires du club et des ateliers
 

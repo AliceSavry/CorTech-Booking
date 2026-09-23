@@ -5,7 +5,7 @@ mobile?.addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()});
 addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
 addEventListener('scroll',()=>document.querySelector('.site-header')?.classList.toggle('scrolled',scrollY>12),{passive:true});
 document.querySelector('#year').textContent=new Date().getFullYear();
-document.querySelectorAll('[data-event-date]').forEach(card=>{if(new Date(card.dataset.eventDate+'T23:59:59')<new Date()){const message=document.createElement('p');message.className='empty-message';message.textContent='Le programme arrive bientôt. Contactez-nous pour les prochaines dates.';card.replaceWith(message)}});
+document.querySelectorAll('[data-event-date]').forEach(card=>{if(new Date(card.dataset.eventDate+'T23:59:59')<new Date())card.remove()});
 document.querySelectorAll('.filter-btn').forEach(button=>button.addEventListener('click',()=>{
   document.querySelectorAll('.filter-btn').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
   const filter=button.dataset.filter;
@@ -24,7 +24,7 @@ const upcoming=document.querySelector('#all-events');
 if(upcoming){fetch('events.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(events=>{
   const today=new Date();today.setHours(0,0,0,0);
   const valid=events.filter(e=>/^\d{4}-\d{2}-\d{2}$/.test(e.date)&&new Date(e.date+'T23:59:59')>=today&&e.title).sort((a,b)=>a.date.localeCompare(b.date));
-  if(!valid.length)return;
+  if(!valid.length){upcoming.replaceChildren();const p=document.createElement('p');p.className='empty-message';p.textContent='Le programme arrive bientôt. Contactez-nous pour les prochaines dates.';upcoming.append(p);return}
   upcoming.replaceChildren();
   valid.forEach(event=>{
     const date=new Date(event.date+'T12:00:00'),article=document.createElement('article');article.className='event-card';
@@ -33,7 +33,9 @@ if(upcoming){fetch('events.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Err
     const month=document.createElement('span');month.textContent=new Intl.DateTimeFormat('fr-FR',{month:'short'}).format(date).replace('.','').toUpperCase();
     box.append(day,month);top.append(box);
     const body=document.createElement('div');body.className='event-body';const title=document.createElement('h3');title.textContent=event.title;body.append(title);
-    for(const value of [event.time,event.place])if(value){const p=document.createElement('p');p.textContent=value;body.append(p)}
+    if(event.description){const p=document.createElement('p');p.className='event-description';p.textContent=event.description;body.append(p)}
+    for(const [value,className] of [[event.time,'event-time'],[event.place,'']])if(value){const p=document.createElement('p');p.className=className;p.textContent=value;body.append(p)}
+    if(Number.isFinite(event.price)&&Number.isFinite(event.capacity)){const facts=document.createElement('div');facts.className='event-facts';for(const label of [event.price===0?'Gratuit':event.price+' €','Jauge : '+event.capacity+' pers.']){const span=document.createElement('span');span.textContent=label;facts.append(span)}body.append(facts)}
     const bottom=document.createElement('div');bottom.className='event-bottom';
     if(event.link){try{const url=new URL(event.link,location.href);if(['https:','http:','mailto:'].includes(url.protocol)){const a=document.createElement('a');a.href=url.href;a.textContent=event.linkText||'En savoir plus →';bottom.append(a)}}catch{}}
     article.append(top,body,bottom);upcoming.append(article);

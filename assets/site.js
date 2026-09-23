@@ -9,7 +9,7 @@ addEventListener('scroll',()=>document.querySelector('.site-header').classList.t
 document.querySelectorAll('[data-scroll]').forEach(button=>button.addEventListener('click',()=>document.querySelector('#game-list').scrollBy({left:Number(button.dataset.scroll)*420,behavior:'smooth'})));
 
 const svgIcon=(id)=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');const u=document.createElementNS('http://www.w3.org/2000/svg','use');u.setAttribute('href','#'+id);s.append(u);return s};
-document.querySelectorAll('[data-event-date]').forEach(card=>{if(new Date(card.dataset.eventDate+'T23:59:59')<new Date()){const message=document.createElement('p');message.className='empty-message';message.textContent='Le programme arrive bientôt. Écrivez-nous pour connaître les prochains rendez-vous.';card.replaceWith(message)}});
+document.querySelectorAll('[data-event-date]').forEach(card=>{if(new Date(card.dataset.eventDate+'T23:59:59')<new Date())card.remove()});
 function safeLink(link){try{const url=new URL(link,location.href);return url.protocol==='https:'||url.protocol==='http:'||url.protocol==='mailto:'?url.href:null}catch{return null}}
 async function loadEvents(){
   try{
@@ -17,7 +17,7 @@ async function loadEvents(){
     const data=await response.json();if(!Array.isArray(data))throw Error('format');
     const today=new Date();today.setHours(0,0,0,0);
     const events=data.filter(e=>/^\d{4}-\d{2}-\d{2}$/.test(e.date)&&new Date(e.date+'T23:59:59')>=today&&e.title).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
-    if(!events.length)return;
+    if(!events.length){const list=document.querySelector('#event-list');list.replaceChildren();const p=document.createElement('p');p.className='empty-message';p.textContent='Le programme arrive bientôt. Écrivez-nous pour connaître les prochains rendez-vous.';list.append(p);return}
     const list=document.querySelector('#event-list');list.replaceChildren();
     events.forEach(event=>{
       const date=new Date(event.date+'T12:00:00');const card=document.createElement('article');card.className='event-card';
@@ -28,8 +28,10 @@ async function loadEvents(){
       box.append(number,month);top.append(box,svgIcon('calendar'));
       const body=document.createElement('div');body.className='event-body';
       const title=document.createElement('h3');title.textContent=event.title;body.append(title);
-      if(event.time){const p=document.createElement('p');p.textContent='◉ '+event.time;body.append(p)}
+      if(event.description){const p=document.createElement('p');p.className='event-description';p.textContent=event.description;body.append(p)}
+      if(event.time){const p=document.createElement('p');p.className='event-time';p.textContent='◉ '+event.time;body.append(p)}
       if(event.place){const p=document.createElement('p');p.textContent='⌖ '+event.place;body.append(p)}
+      if(Number.isFinite(event.price)&&Number.isFinite(event.capacity)){const facts=document.createElement('div');facts.className='event-facts';for(const label of [event.price===0?'Gratuit':event.price+' €','Jauge : '+event.capacity+' pers.']){const span=document.createElement('span');span.textContent=label;facts.append(span)}body.append(facts)}
       const bottom=document.createElement('div');bottom.className='event-bottom';
       const link=safeLink(event.link);if(link){const a=document.createElement('a');a.href=link;a.textContent=event.linkText||'En savoir plus →';bottom.append(a)}
       card.append(top,body,bottom);list.append(card);
