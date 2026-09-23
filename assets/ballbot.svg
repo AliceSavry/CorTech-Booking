@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 740" role="img" aria-labelledby="title desc">
+<title id="title">BallBot, projet du Labo adultes</title>
+<desc id="desc">Illustration stylisée d’un robot en équilibre sur une balle, sur fond bleu nuit.</desc>
+<defs><radialGradient id="bg"><stop stop-color="#164a60"/><stop offset="1" stop-color="#06151f"/></radialGradient><radialGradient id="ball" cx=".35" cy=".27"><stop stop-color="#8df9ff"/><stop offset=".45" stop-color="#16cedb"/><stop offset="1" stop-color="#075777"/></radialGradient><linearGradient id="body"><stop stop-color="#d0faff"/><stop offset=".5" stop-color="#2488a0"/><stop offset="1" stop-color="#0a364c"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="12"/></filter></defs>
+<rect width="1200" height="740" fill="url(#bg)"/>
+<g fill="none" stroke="#1d7285" stroke-width="2" opacity=".45"><path d="M42 600h1110M102 640h990M190 680h820"/><path d="M200 80v530M400 30v590M800 30v590M1000 80v530"/></g>
+<ellipse cx="600" cy="652" rx="240" ry="36" fill="#00e7f0" opacity=".19" filter="url(#glow)"/>
+<path d="M600 87v474M354 541h492" fill="none" stroke="#5bcbd9" stroke-width="3" stroke-dasharray="9 12" opacity=".38"/>
+<circle cx="600" cy="522" r="151" fill="url(#ball)" stroke="#9dfaff" stroke-width="7"/>
+<path d="M493 455c36-42 99-67 170-42M498 494c67-7 127 29 154 81M592 378c-47 39-56 94-31 137M693 466c-54 25-78 70-84 137" fill="none" stroke="#d8ffff" stroke-width="6" opacity=".4"/>
+<g fill="#06131d" stroke="#54c4d1" stroke-width="7"><circle cx="475" cy="391" r="39"/><circle cx="725" cy="391" r="39"/><circle cx="600" cy="339" r="39"/></g>
+<g fill="none" stroke="#5de8ef" stroke-width="5" opacity=".8"><circle cx="475" cy="391" r="21"/><circle cx="725" cy="391" r="21"/><circle cx="600" cy="339" r="21"/></g>
+<path d="M465 379 518 279h164l53 100-32 31-58-75h-90l-58 75Z" fill="url(#body)" stroke="#8fe8ef" stroke-width="6"/>
+<path d="M510 279v-76q0-36 36-36h108q36 0 36 36v76Z" fill="url(#body)" stroke="#b0ffff" stroke-width="6"/>
+<rect x="548" y="198" width="104" height="43" rx="12" fill="#052f40" stroke="#00e7f0" stroke-width="5"/>
+<circle cx="575" cy="219" r="8" fill="#00e7f0"/><circle cx="625" cy="219" r="8" fill="#00e7f0"/>
+<path d="M600 166v-26m0 0h29" fill="none" stroke="#9af7ff" stroke-width="5"/><circle cx="635" cy="140" r="9" fill="#baff54"/>
+<path d="M458 274c-30 34-37 76-35 113M742 274c30 34 37 76 35 113" fill="none" stroke="#80dfeb" stroke-width="3" stroke-dasharray="8 10"/>
+<g font-family="Arial,sans-serif" fill="#b5d5dc" font-size="22" letter-spacing="3"><text x="76" y="102">LE LABO · COR-TECH</text><text x="818" y="630">ESSAYER · AJUSTER · RECOMMENCER</text></g>
+<path d="M842 266h160M842 284h116M842 302h137" stroke="#00e7f0" stroke-width="4" opacity=".58"/>
+</svg>
